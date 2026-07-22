@@ -43,3 +43,5 @@ docker-compose.yaml
 secret.txt
 
 aws/*
+
+.vscode
