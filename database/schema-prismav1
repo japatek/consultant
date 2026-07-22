@@ -1,0 +1,497 @@
+generator client {
+  provider = "prisma-client-js" 
+  output   = "../node_modules/.prisma/client" 
+  url      = env("DATABASE_URL")
+}
+
+datasource db {
+  provider = "postgresql" // Asumsi menggunakan PostgreSQL karena tipe data seperti jsonb, bytea, int4
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+// Sesuaikan nilai enum Role dengan kebutuhan aplikasi Anda
+enum Role {
+  USER
+  ASSISTANT
+}
+
+// Sesuaikan nilai status dengan kebutuhan bisnis logika Anda
+enum SubmissionStatus {
+  PENDING
+  COMPLETED
+  INCOMPLETE
+}
+
+enum SubscriptionTier {
+  FREE
+  PERSONAL
+  ENTERPRISE
+}
+
+enum BillingPeriod {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ==========================================
+// APLIKASI UTAMA (APP MODELS)
+// ==========================================
+
+model User {
+  id               String    @id @default(cuid())
+  resetToken       String?    
+  verifyToken      String?   
+  pendingEmail     String?
+  institution      String?
+  contact          String?
+  image            String?
+  password         String
+  email            String    @unique
+  name             String?
+  resetTokenExpiry DateTime?
+  tokenExpiry      DateTime?
+  emailVerified    DateTime?
+  emailNonV        DateTime?
+  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+  role             Role      @default(USER)
+
+  // Relasi
+  documents        Document[]
+  websiteChats     ChatSession_Website[]
+  browserExtChats  ChatSession_BrowserExt[]
+  officeExtChats   ChatSession_OfficeExt[]
+  solidworksChats  ChatSession_SolidworksExt[]
+  inventorChats    ChatSession_InventorExt[]
+  vscodeExtChats   ChatSession_VSCodeExt[]
+  subscription     Subscription?
+  userSessions     UserSession[]
+  apiKeys          UserApiKey[]
+  extensionKey     ExtensionAccessKey?
+  passwordChangedAt DateTime?
+}
+
+// One subscription row per user. Tracks current tier + billing period + expiry.
+// Free tier is implicit (no row OR a row with tier=FREE and no expiresAt).
+
+model Subscription {
+  userId        String             @id
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier          SubscriptionTier   @default(FREE)
+  status        SubscriptionStatus @default(ACTIVE)
+  billingPeriod BillingPeriod?
+  startedAt     DateTime           @default(now())
+  expiresAt     DateTime?
+  cancelledAt   DateTime?
+
+  payments      Payment[]
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  subscriptionId  String
+  amountCents     Int
+  currency        String        @default("USD")
+  provider        String        // "stripe" | "midtrans" | "paypal" | "qris" | "manual"
+  externalId      String?       // payment intent / order id from provider
+  status          PaymentStatus @default(PENDING)
+
+  // Manual QRIS proof  populated when user uploads receipt screenshot.
+  // Cleared on approve/reject to keep the table small.
+  proof           Bytes?
+  proofMime       String?
+  proofRef        String?       // user-supplied reference number (optional)
+  proofedAt       DateTime?     // when proof was uploaded
+  reviewerEmail   String?       // admin who approved/rejected
+  reviewedAt      DateTime?
+  rejectReason    String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  subscription    Subscription  @relation(fields: [subscriptionId], references: [userId], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([externalId])
+  @@index([status, proofedAt])
+}
+
+// Idempotency log  every payment-provider webhook event we've successfully
+// processed. Prevents double-applies if the provider retries the webhook.
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  externalId  String   // event id from the provider (e.g. Stripe `evt_`)
+  payload     Json
+  processedAt DateTime @default(now())
+
+  @@unique([provider, externalId])
+}
+
+// Active login sessions  one row per device/browser the user is signed in from.
+// JWT carries `sessionId`; when the row is deleted or `revokedAt` is set, the
+// token is invalidated on the next authenticated request.
+model UserSession {
+  id           String    @id @default(cuid())
+  userId       String
+  device       String?
+  browser      String?
+  os           String?
+  ip           String?
+  userAgent    String?
+  lastActiveAt DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  rawText   String?
+  fileUrl   String
+  fileType  String
+  fileName  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relasi
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id             String           @id @default(cuid())
+  targetDomain   String
+  documentId     String
+  createdAt      DateTime         @default(now())
+  missingFields  Json?            // Di ERD tipe: jsont -> Prisma: Json
+  extractedData  Json?            
+  detectedSchema Json?            
+  status         SubmissionStatus 
+
+  // Relasi
+  document       Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+// Per-platform tables (not a discriminator column)  see MULTIPLE_EXTENSION.md
+
+model ChatSession_Website {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_Website[]
+  @@index([userId, updatedAt])
+}
+
+model ChatSession_BrowserExt {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_BrowserExt[]
+  @@index([userId, updatedAt])
+}
+
+model ChatSession_OfficeExt {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_OfficeExt[]
+  @@index([userId, updatedAt])
+}
+
+model ChatSession_SolidworksExt {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_SolidworksExt[]
+  @@index([userId, updatedAt])
+}
+
+model ChatSession_InventorExt {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_InventorExt[]
+  @@index([userId, updatedAt])
+}
+
+model ChatSession_VSCodeExt {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  pinnedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message_VSCodeExt[]
+  @@index([userId, updatedAt])
+}
+
+// Foreign keys bind each Message_X to a single ChatSession_X  making
+// cross-platform message queries impossible at the SQL level.
+
+model Message_Website {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_Website @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+model Message_BrowserExt {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_BrowserExt @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+model Message_OfficeExt {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_OfficeExt @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+model Message_SolidworksExt {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_SolidworksExt @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+model Message_InventorExt {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_InventorExt @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+model Message_VSCodeExt {
+  id        String   @id @default(cuid())
+  sessionId String
+  content   String   @db.Text
+  role      MessageRole
+  createdAt DateTime @default(now())
+  session   ChatSession_VSCodeExt @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([sessionId, createdAt])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+
+// ==========================================
+// LANGGRAPH CHECKPOINT TABLES
+// Didefinisikan agar Prisma mengenali tabel-tabel ini.
+// ==========================================
+
+model checkpoints {
+  thread_id            String
+  checkpoint_ns        String
+  checkpoint_id        String
+  parent_checkpoint_id String?
+  type                 String?
+  metadata             Json    // Di ERD tipe: jsont -> Prisma: Json
+  checkpoint           Json    // Di ERD tipe: jsont -> Prisma: Json
+
+  // Langgraph menggunakan Composite Primary Key
+  @@id([thread_id, checkpoint_ns, checkpoint_id])
+}
+
+model checkpoint_blobs {
+  thread_id     String
+  checkpoint_ns String
+  channel       String
+  version       String
+  type          String
+  blob          Bytes   // Di ERD tipe: bytee -> Prisma: Bytes (bytea di posgres)
+
+  // Composite Primary Key
+  @@id([thread_id, checkpoint_ns, channel, version])
+}
+
+model checkpoint_writes {
+  thread_id     String
+  checkpoint_ns String
+  checkpoint_id String
+  task_id       String
+  idx           Int     // Di ERD tipe: int4 -> Prisma: Int
+  task_path     String
+  type          String?
+  channel       String
+  blob          Bytes
+
+  // Composite Primary Key
+  @@id([thread_id, checkpoint_ns, checkpoint_id, task_id, idx])
+}
+
+model checkpoint_migrations {
+  v Int @id
+}
+
+// Encrypted BYOK (Bring Your Own Key) API key storage.
+// The raw API key is never persisted  only the AES-256-GCM encrypted form.
+// Decryption happens server-side in the chat route immediately before forwarding
+// to the LLM provider.
+model UserApiKey {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  provider     String
+  modelId      String
+  encryptedKey String
+  baseUrl      String?
+  headers      String?   // JSON string, e.g. {"X-Foo":"bar"}
+  temperature  Float?
+  maxTokens    Int?
+  systemPrompt String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ExtensionAccessKey {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keyHash     String    // SHA-256(plainKey)
+  keyPrefix   String    // first ~13 chars of plain (UI display)
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+
+  @@index([keyHash])
+}
+
+
+model Agent {
+  id            String   @id @default(cuid())
+  name          String
+  status        String   // "active" | "idle" | "error" | "paused" | "initializing"
+  lastActiveAt  DateTime @default(now())
+  uptimePercent Float    @default(100.0)
+  avgLatencyMs  Int      @default(0)
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Mewakili dompet utama pengguna dari hasil top-up
+model UserWallet {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalFundUsd    Float    // Total uang masuk (Contoh: 200.00)
+  spentUsd        Float    @default(0) // Total yang sudah dipakai semua agent
+  
+  // Relasi ke agent-agent yang dimiliki pengguna
+  agents          AgentAllocation[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Mewakili Agent dan kuota yang didistribusikan oleh pengguna
+model AgentAllocation {
+  id              String     @id @default(cuid())
+  name            String     // Contoh: "Customer Service Agent"
+  walletId        String
+  wallet          UserWallet @relation(fields: [walletId], references: [id])
+  
+  // Limit dana yang boleh dihabiskan agent ini (didistribusikan oleh user)
+  // Jika null, artinya agent bisa pakai saldo wallet tanpa batas
+  budgetLimitUsd  Float?     
+
+  // ==========================================
+  // TRACKING TOKEN (Di-update otomatis oleh LLM)
+  // ==========================================
+  usedBaseInput   Int        @default(0)
+  usedCache5m     Int        @default(0)
+  usedCache1h     Int        @default(0)
+  usedCacheHit    Int        @default(0)
+  usedOutput      Int        @default(0)
+  
+  // Total uang yang sudah dihabiskan khusus oleh Agent ini
+  totalCostUsd    Float      @default(0)
+
+  usageLogs       UsageLog[]
+}
+
+// Log setiap kali LLM selesai generate response (Untuk audit & history)
+model UsageLog {
+  id              String          @id @default(cuid())
+  agentId         String
+  agent           AgentAllocation @relation(fields: [agentId], references: [id])
+  
+  baseInput       Int             @default(0)
+  cache5m         Int             @default(0)
+  cache1h         Int             @default(0)
+  cacheHit        Int             @default(0)
+  output          Int             @default(0)
+  
+  costUsd         Float           // Biaya spesifik untuk 1 request ini
+  createdAt       DateTime        @default(now())
+}

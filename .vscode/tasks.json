@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🚀 Start Full JaPa Website",
+      "dependsOn": [
+        "1. Prisma-Studio",
+        "2. Website-NextJS",
+        "3. Docker Cap"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "🛑 Stop Full JaPa Website",
+      "type": "shell",
+      "command": "echo '🛑 Menghentikan semua layanan JaPa...' && fuser -k 512512/tcp 3000/tcp 2>/dev/null || true && echo '✅ Semua port bersih!'",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "1. Prisma-Studio",
+      "type": "shell",
+      "command": "sleep 10 && cd database && npx prisma studio",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "JaPa-stack"
+      }
+    },
+    {
+      "label": "2. Website-NextJS",
+      "type": "shell",
+      "command": "sleep 10 && npm run dev",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "JaPa-stack"
+      }
+    },
+     {
+      "label": "3. Docker Cap",
+      "type": "shell",
+      "command": "sleep 10 && echo 'Mahendra@1808' | sudo -S docker compose up -d",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "JaPa-stack"
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js" 
+  output   = "../node_modules/.prisma/client" 
+  url      = env("DATABASE_URL")
+}
+
+datasource db {
+  provider = "postgresql" // Asumsi menggunakan PostgreSQL karena tipe data seperti jsonb, bytea, int4
+}
+// ---------------------------------------------------------------------------
+// Auth.js v5 Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  lastActive    DateTime? @default(now())
+  joinedDate    DateTime?
+
+  // Application role — persisted in the JWT for fast middleware checks
+  role          String    @default("USER")
+
+  // Auth.js relations
+  accounts        Account[]
+  sessions        Session[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  emailChangeLogs EmailChangeLog[]
+
+  @@map("users")
+}
+
+model EmailChangeLog {
+  id        String   @id @default(cuid())
+  userId    String
+  oldEmail  String
+  newEmail  String
+  createdAt DateTime @default(now())
+
+  // Relationship back to your User model
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+
+  // OAuth token fields — Text to avoid 255-char truncation
+  refresh_token     String?   @db.Text
+  access_token      String?   @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?   @db.Text
+  session_state     String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Session model is required by PrismaAdapter even when using JWT strategy.
+// Auth.js uses it internally for account linking; it does NOT store JWT sessions.
+model Session {
+  sessionToken  String    @unique
+  userId        String
+  expires       DateTime
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Shared table for:
+//   1. Magic-link tokens      (identifier = email address)
+//   2. Change-email tokens    (identifier = "change-email:{userId}:{newEmail}")
+//
+// Auth.js v5 automatically SHA-256 hashes tokens before calling
+// adapter.createVerificationToken, so the `token` column stores only hashes.
+
+
+model VerificationToken {
+  identifier    String
+  token         String    @unique
+  expires       DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+
+model Agent {
+  id            String   @id @default(cuid())
+  name          String
+  status        String   // "active" | "idle" | "error" | "paused" | "initializing"
+  lastActiveAt  DateTime @default(now())
+  uptimePercent Float    @default(100.0)
+  avgLatencyMs  Int      @default(0)
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Mewakili dompet utama pengguna dari hasil top-up
+model UserWallet {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalFundUsd    Float    // Total uang masuk (Contoh: 200.00)
+  spentUsd        Float    @default(0) // Total yang sudah dipakai semua agent
+  
+  // Relasi ke agent-agent yang dimiliki pengguna
+  agents          AgentAllocation[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Mewakili Agent dan kuota yang didistribusikan oleh pengguna
+model AgentAllocation {
+  id              String     @id @default(cuid())
+  name            String     // Contoh: "Customer Service Agent"
+  walletId        String
+  wallet          UserWallet @relation(fields: [walletId], references: [id])
+  
+  // Limit dana yang boleh dihabiskan agent ini (didistribusikan oleh user)
+  // Jika null, artinya agent bisa pakai saldo wallet tanpa batas
+  budgetLimitUsd  Float?     
+
+  // ==========================================
+  // TRACKING TOKEN (Di-update otomatis oleh LLM)
+  // ==========================================
+  usedBaseInput   Int        @default(0)
+  usedCache5m     Int        @default(0)
+  usedCache1h     Int        @default(0)
+  usedCacheHit    Int        @default(0)
+  usedOutput      Int        @default(0)
+  
+  // Total uang yang sudah dihabiskan khusus oleh Agent ini
+  totalCostUsd    Float      @default(0)
+
+  usageLogs       UsageLog[]
+}
+
+// Log setiap kali LLM selesai generate response (Untuk audit & history)
+model UsageLog {
+  id              String          @id @default(cuid())
+  agentId         String
+  agent           AgentAllocation @relation(fields: [agentId], references: [id])
+  
+  baseInput       Int             @default(0)
+  cache5m         Int             @default(0)
+  cache1h         Int             @default(0)
+  cacheHit        Int             @default(0)
+  output          Int             @default(0)
+  
+  costUsd         Float           // Biaya spesifik untuk 1 request ini
+  createdAt       DateTime        @default(now())
+}
+
+model CourseMaterial {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  duration    String
+  level       String   // "Easy", "Medium", "Hard"
+  content     String   // @db.Text <-- This will store your Markdown
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+
+
+
+
