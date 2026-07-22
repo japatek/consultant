@@ -9,7 +9,7 @@ on:
       - 'src/app/_unfinished-folder/**'
       - 'src/components/drafts/**'
       - 'src/app/(main)/**'
-      - 'src/test/**
+      - 'src/test/**'
       - 'src/app/(external)/auth/**'
       - 'src/app/(external)/(admin)/**'
       
