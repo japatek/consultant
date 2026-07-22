@@ -17,14 +17,13 @@
 //   },
 // };
 
-/** @type {import('next').NextConfig} */
+/** @type {import('next').Next.js Config} */
 const nextConfig = {
-  output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'your-bucket-name.s3.amazonaws.com', // Or your CloudFront domain
+        hostname: 'japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com',
         port: '',
         pathname: '/**',
       },

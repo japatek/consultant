@@ -43,7 +43,7 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps
-  extends React.ComponentProps<"button">,
+  extends Omit<React.ComponentProps<"button">, "color">,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
   icon?: keyof typeof Icons 
@@ -64,7 +64,7 @@ function Button({
 }: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button"
 
-  const IconComponent = icon ? Icons[icon] as React.ComponentType<{ className?: string }> : null
+  const IconComponent = icon ? (Icons[icon] as React.ComponentType<{ className?: string }>) : null
 
   const dataIcon = IconComponent 
     ? (iconPosition === "start" ? "inline-start" : "inline-end") 

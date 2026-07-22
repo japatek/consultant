@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useFormStatus } from "react-dom";
-import { createCourse } from "../upcontent/actions";
+import { createCourse } from "../_upcontent/actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

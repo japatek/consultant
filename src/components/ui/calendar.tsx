@@ -185,6 +185,7 @@ function CalendarDayButton({
   day,
   modifiers,
   locale,
+  color, // Extracted here to prevent TypeScript collision with ButtonProps
   ...props
 }: React.ComponentProps<typeof DayButton> & { locale?: Partial<Locale> }) {
   const defaultClassNames = getDefaultClassNames()

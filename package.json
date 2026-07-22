@@ -47,6 +47,7 @@
     "geist": "^1.7.2",
     "go-captcha-react": "^1.0.5",
     "groq-sdk": "^1.2.1",
+    "idb": "^8.0.3",
     "input-otp": "^1.4.2",
     "js-cookie": "^3.0.8",
     "jsonwebtoken": "^9.0.3",

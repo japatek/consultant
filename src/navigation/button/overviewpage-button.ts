@@ -1,5 +1,5 @@
-import { GetApiKey } from "@/app/(main)/dashboard/platoverview/_components/custom-button/form-get-api-key";
-import { DrawerContent } from "@/app/(main)/dashboard/platoverview/_components/custom-button/drawer-with-side";
+import { GetApiKey } from "@/components/ui/REMOVE_FOR_DEPLOY_DASHBOARD/form-get-api-key";
+import { DrawerContent } from "@/components/ui/REMOVE_FOR_DEPLOY_DASHBOARD/drawer-with-side";
 
 export interface OverviewButtonDataItem {
   id: string;

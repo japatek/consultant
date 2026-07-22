@@ -1,0 +1,65 @@
+name: JAPA Deploy Kubeadm Docker Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    # Prevents the pipeline from running if you only edit files in these folders
+    paths-ignore:
+      - 'src/app/_unfinished-folder/**'
+      - 'src/components/drafts/**'
+      - 'src/app/(main)/**'
+      - 'src/test/**
+      - 'src/app/(external)/auth/**'
+      - 'src/app/(external)/(admin)/**'
+      
+  # REQUIRED: This allows you to manually trigger the pipeline from VS Code or GitHub
+  workflow_dispatch:
+
+env:
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+  ECR_REPOSITORY: nextjs-landing-repo
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push Docker image
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+        chmod 600 ~/.kube/config
+
+    - name: Deploy to Kubeadm Cluster
+      run: |
+        # Replace placeholders in the yaml with actual ECR paths
+        sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
+        sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
+        
+        kubectl apply -f k8s-manifest.yaml
+        
+        # Force the deployment to use the newly built image tag
+        kubectl set image deployment/nextjs-landing nextjs=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        
+        kubectl rollout status deployment/nextjs-landing

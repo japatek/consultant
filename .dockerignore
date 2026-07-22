@@ -1,0 +1,37 @@
+# Git and GitHub Actions
+.git
+.gitignore
+.github/
+
+# Docker-related files (no need to copy these into the image)
+Dockerfile
+.dockerignore
+
+# Dependencies (Docker will run npm install internally, so don't copy local ones)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local Next.js build output (prevents copying local dev builds into production)
+.next/
+out/
+build/
+
+# Local Environment Variables (prevents accidentally baking local secrets into the image)
+.env
+.env.local
+.env.development
+.env.test
+*.pem
+
+# ---------------------------------------------------
+# CUSTOM: Unfinished / Draft Folders to Ignore
+# ---------------------------------------------------
+src/app/(main)/*
+src/test/*
+src/app/(external)/auth
+src/app/(external)/(admin)
+src/app/api/user/change-email/route.ts
+# Add any other paths here that you want Docker to skip

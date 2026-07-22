@@ -10,4 +10,4 @@ export { default as WaitingView }       from "./WaitingView";
 export { default as VerifyingView }     from "./VerifyingView";
 export { default as SuccessView }       from "./SuccessView";
 export { default as ErrorView }         from "./ErrorView";
-export type { VerifyState }             from "@/types";
+// export type { VerifyState }             from "@/types";

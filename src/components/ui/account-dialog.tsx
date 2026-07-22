@@ -8,7 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { WelcomeDate } from "@/components/ui/welcomedate";
-import { ProfileEditor } from "@/app/(main)/dashboard/accounts/_components/profile";
+import { ProfileEditor } from "@/components/ui/REMOVE_FOR_DEPLOY_DASHBOARD/profile";
 
 export type AccountDialogUser = {
   name: string | null;

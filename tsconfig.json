@@ -41,6 +41,13 @@
     "out/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/app/(main)/**/*",
+    "src/test/**/*",
+    "src/app/(external)/auth/**/*",
+    "src/app/(external)/(admin)/**/*",
+    "src/app/dashboard/*",
+    "src/app/mail/*"
+
   ]
 }

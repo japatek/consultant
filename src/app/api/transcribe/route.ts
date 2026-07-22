@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Groq } from "groq-sdk"
 
-if (!process.env.GROQ_API_KEY) {
-  throw new Error("Missing GROQ_API_KEY environment variable")
-}
-
-const client = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-})
+// Explicitly instruct Next.js to treat this route as dynamic
+export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
   try {
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      console.error("GROQ_API_KEY is not defined in environment variables.")
+      return NextResponse.json(
+        { error: "Server configuration error: missing API key" },
+        { status: 500 }
+      )
+    }
+
+    const client = new Groq({ apiKey })
+
     const formData = await req.formData()
     const audioFile = formData.get("audio") as File
 

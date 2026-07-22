@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
-// Import Shadcn UI components
 import { 
   Card, 
   CardHeader, 
@@ -15,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Updated interface to handle S3 media types
 interface Project {
   tag: string;
   title: string;
@@ -37,7 +35,7 @@ export const FeaturedProjects: React.FC = () => {
       slug: "olympic-dam-assessment",
       media: {
         type: 'image',
-        url: 'https://your-bucket-name.s3.ap-southeast-2.amazonaws.com/projects/olympic-dam-assessment.jpg',
+        url: 'https://japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com/projects/olympic-dam-assessment.jpg',
         alt: 'Olympic Dam Processing Facility'
       }
     },
@@ -47,18 +45,18 @@ export const FeaturedProjects: React.FC = () => {
       desc: "Detailed structural design and project management for a major water treatment plant capacity expansion, increasing throughput by 40% to serve a growing regional municipality.",
       slug: "regional-water-upgrade",
       media: {
-        type: 'video',
-        url: 'https://your-bucket-name.s3.ap-southeast-2.amazonaws.com/projects/water-plant-timelapse.mp4'
+        type: 'image',
+        url: 'https://japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com/projects/water-plant-timelapse.mp4'
       }
     },
     {
-      tag: "Oil & Gas",
-      title: "Offshore Platform Condition Assessment",
+      tag: "Robotics",
+      title: "Pharmacy Vending Machine",
       desc: "Full structural condition assessment and remaining service life analysis for an offshore production platform, utilising advanced NDE techniques and drone-assisted access for hard-to-reach areas.",
-      slug: "offshore-platform-assessment",
+      slug: "vending-machine",
       media: {
         type: 'image',
-        url: 'https://your-bucket-name.s3.ap-southeast-2.amazonaws.com/projects/offshore-platform.jpg',
+        url: 'https://d2tbt8ofproiin.cloudfront.net/Vending-Machine/vending-machine-1.jpg',
         alt: 'Offshore Platform Assessment Drone View'
       }
     }
@@ -86,7 +84,6 @@ export const FeaturedProjects: React.FC = () => {
             <Link key={idx} href={`/landing/project/${proj.slug}`} className="group block h-full">
               <Card className="h-full border-vertex-border bg-card rounded-2xl overflow-hidden transition-all duration-250 hover:shadow-xl hover:-translate-y-1">
                 
-                {/* Updated Media Area */}
                 <div className="h-[190px] relative overflow-hidden flex items-center justify-center bg-slate-900">
                   <Badge className="absolute top-4 left-4 bg-vertex-primary hover:bg-vertex-primary/90 text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full z-20 border-none">
                     {proj.tag}
@@ -99,6 +96,8 @@ export const FeaturedProjects: React.FC = () => {
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105 z-0"
                       sizes="(max-width: 768px) 100vw, 33vw"
+                      unoptimized // Bypasses Next.js server processing
+                      loading="lazy" // Defers loading until image is near viewport
                     />
                   ) : (
                     <video 
@@ -107,11 +106,11 @@ export const FeaturedProjects: React.FC = () => {
                       loop
                       muted
                       playsInline
+                      preload="metadata" // Helps with caching the video metadata
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 z-0"
                     />
                   )}
                   
-                  {/* Optional overlay to ensure the image/video isn't too bright for the surrounding UI */}
                   <div className="absolute inset-0 bg-black/10 z-10 transition-opacity duration-300 group-hover:opacity-0" />
                 </div>
 
