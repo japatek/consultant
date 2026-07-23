@@ -7,9 +7,9 @@ import type { NextRequest } from "next/server";
 import { decode }           from "next-auth/jwt";
 
 const SIGN_IN_PATH   = "/auth/v4/login" as const; 
-const DASHBOARD_PATH = "/test"     as const;
+const DASHBOARD_PATH = "/dashboard"     as const;
 
-const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent"] as const;
+const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
 const OPEN_PREFIXES   = ["/api", "/_next", "/unauthorized"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {

@@ -48,6 +48,5 @@
     "src/app/(external)/(admin)/**/*",
     "src/app/dashboard/*",
     "src/app/mail/*"
-
   ]
 }

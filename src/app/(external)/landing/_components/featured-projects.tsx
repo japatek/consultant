@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 
 import { 
@@ -27,40 +28,58 @@ interface Project {
 }
 
 export const FeaturedProjects: React.FC = () => {
+  const pathname = usePathname();
+  const isProjectListPage = pathname === '/landing/project';
+
   const projects: Project[] = [
     {
-      tag: "Mining",
-      title: "Olympic Dam Processing Facility Assessment",
-      desc: "Comprehensive structural integrity assessment of GRP/FRP processing vessels at a major copper-uranium operation, including FEA analysis of critical support structures and nozzle load cases.",
-      slug: "olympic-dam-assessment",
+      tag: "Power Plant",
+      title: "Inspection Simulation For Gas Turbine M701F Owned by PT. Indonesia Power based on Indonesia",
+      desc: "Development of a complex 3D exploded view and visual simulation for the M701F gas turbine, detailed to highlight internal components and maintenance inspection workflows for digital website content.",
+      slug: "pln-ip",
       media: {
         type: 'image',
-        url: 'https://japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com/projects/olympic-dam-assessment.jpg',
-        alt: 'Olympic Dam Processing Facility'
+        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-1.png',
+        alt: 'Gas Turbine M701F'
       }
     },
     {
-      tag: "Water",
-      title: "Regional Water Treatment Plant Upgrade",
-      desc: "Detailed structural design and project management for a major water treatment plant capacity expansion, increasing throughput by 40% to serve a growing regional municipality.",
-      slug: "regional-water-upgrade",
+      tag: "Waste Management",
+      title: "Water Waste Treatment Plant Design",
+      desc: "Detailed piping and instrumentation with layout design and project management for a major water treatment plant with 7000 TCD capacity for sugar mill factory owned by PT. Perkebunan Nusantara based in indonesia.",
+      slug: "ipal",
       media: {
         type: 'image',
-        url: 'https://japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com/projects/water-plant-timelapse.mp4'
+        url: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-1.jpg',
+        alt: 'Water Waste Treatment Plant'
       }
     },
     {
       tag: "Robotics",
       title: "Pharmacy Vending Machine",
-      desc: "Full structural condition assessment and remaining service life analysis for an offshore production platform, utilising advanced NDE techniques and drone-assisted access for hard-to-reach areas.",
+      desc: "Interactive automated medication dispensing system design with mechanical motion control, internal slot arrangement, and user-friendly interface.",
       slug: "vending-machine",
       media: {
         type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/Vending-Machine/vending-machine-1.jpg',
-        alt: 'Offshore Platform Assessment Drone View'
+        url: 'https://d2tbt8ofproiin.cloudfront.net/vending-machine/vending-machine-1.jpg',
+        alt: 'Pharmacy Vending Machine'
+      }
+    },
+    {
+      tag: "Robotics",
+      title: "Education Robot",
+      desc: "Full structural condition assessment and remaining service life analysis for automated mechanical systems.",
+      slug: "edu-bot",
+      media: {
+        type: 'image',
+        url: 'https://d2tbt8ofproiin.cloudfront.net/edu-bot/edu-bot-1.jpg',
+        alt: 'Vending Machine Alternate View'
       }
     }
   ];
+
+  // Show only 3 projects if not on the main project listing page
+  const displayedProjects = isProjectListPage ? projects : projects.slice(0, 3);
 
   return (
     <section className="py-24 bg-card/80" id="projects">
@@ -71,16 +90,19 @@ export const FeaturedProjects: React.FC = () => {
             <h2 className="font-serif text-3xl md:text-5xl text-vertex-fg tracking-tight leading-none">Our work in the field</h2>
           </div>
           
-          <Button asChild variant="ghost" className="text-vertex-primary hover:text-vertex-primary/90 hover:bg-vertex-muted p-0 px-4 h-10 font-semibold gap-1.5 transition-all hover:gap-2.5 mt-4 sm:mt-0">
-            <Link href="/landing/project">
-              All projects
-              <ArrowRight size={14} strokeWidth={1.75} />
-            </Link>
-          </Button>
+          {/* Only render "All projects" button if NOT on /landing/project */}
+          {!isProjectListPage && (
+            <Button asChild variant="ghost" className="text-vertex-primary hover:text-vertex-primary/90 hover:bg-vertex-muted p-0 px-4 h-10 font-semibold gap-1.5 transition-all hover:gap-2.5 mt-4 sm:mt-0">
+              <Link href="/landing/project">
+                All projects
+                <ArrowRight size={14} strokeWidth={1.75} />
+              </Link>
+            </Button>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {projects.map((proj, idx) => (
+          {displayedProjects.map((proj, idx) => (
             <Link key={idx} href={`/landing/project/${proj.slug}`} className="group block h-full">
               <Card className="h-full border-vertex-border bg-card rounded-2xl overflow-hidden transition-all duration-250 hover:shadow-xl hover:-translate-y-1">
                 
@@ -96,8 +118,8 @@ export const FeaturedProjects: React.FC = () => {
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105 z-0"
                       sizes="(max-width: 768px) 100vw, 33vw"
-                      unoptimized // Bypasses Next.js server processing
-                      loading="lazy" // Defers loading until image is near viewport
+                      unoptimized
+                      loading="lazy"
                     />
                   ) : (
                     <video 
@@ -106,7 +128,7 @@ export const FeaturedProjects: React.FC = () => {
                       loop
                       muted
                       playsInline
-                      preload="metadata" // Helps with caching the video metadata
+                      preload="metadata"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 z-0"
                     />
                   )}
