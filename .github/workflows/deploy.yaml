@@ -65,6 +65,6 @@ jobs:
         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
         
         # Force the deployment to use the newly built image tag
-        kubectl set image deployment/nextjs-landing nextjs=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
+        kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
-        kubectl rollout status deployment/nextjs-landing --insecure-skip-tls-verify
+        kubectl rollout status deployment/japa-consultant --insecure-skip-tls-verify
