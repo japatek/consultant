@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-    # Prevents the pipeline from running if you only edit files in these folders
     paths-ignore:
       - 'src/app/_unfinished-folder/**'
       - 'src/components/drafts/**'
@@ -13,11 +12,9 @@ on:
       - 'src/app/(external)/auth/**'
       - 'src/app/(external)/(admin)/**'
       
-  # REQUIRED: This allows you to manually trigger the pipeline from VS Code or GitHub
   workflow_dispatch:
 
 env:
-  # Added to suppress the Node 20 deprecation warning from AWS actions
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
   ECR_REPOSITORY: japa/consultant
@@ -52,9 +49,7 @@ jobs:
         mkdir -p ~/.kube
         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
         chmod 600 ~/.kube/config
-
         sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
-
 
     - name: Deploy to Kubeadm Cluster
       run: |
@@ -67,4 +62,16 @@ jobs:
         # Force the deployment to use the newly built image tag
         kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
-        kubectl rollout status deployment/japa-consultant --insecure-skip-tls-verify
+        # Debug: Check pod status
+        echo "=== Checking pod status ==="
+        sleep 5
+        kubectl get pods -l app=landing --insecure-skip-tls-verify
+        
+        echo "=== Pod descriptions ==="
+        kubectl describe pods -l app=landing --insecure-skip-tls-verify || true
+        
+        echo "=== Pod logs ==="
+        kubectl logs -l app=landing --tail=100 --insecure-skip-tls-verify || true
+        
+        echo "=== Waiting for rollout ==="
+        kubectl rollout status deployment/japa-consultant --timeout=10m --insecure-skip-tls-verify || kubectl describe pods -l app=landing --insecure-skip-tls-verify
