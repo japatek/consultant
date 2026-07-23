@@ -3,11 +3,7 @@ kind: Deployment
 metadata:
   name: japa-consultant
 spec:
-<<<<<<< HEAD
-  replicas: 1
-=======
   replicas: 2
->>>>>>> 8986a9e (edit_manifest)
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -50,8 +46,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 3000
-<<<<<<< HEAD
       nodePort: 30080
-=======
-      nodePort: 30080
->>>>>>> 8986a9e (edit_manifest)
