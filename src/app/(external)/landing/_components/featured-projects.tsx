@@ -39,7 +39,7 @@ export const FeaturedProjects: React.FC = () => {
       slug: "pln-ip",
       media: {
         type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-1.png',
+        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-1.jpg',
         alt: 'Gas Turbine M701F'
       }
     },
@@ -73,7 +73,7 @@ export const FeaturedProjects: React.FC = () => {
       media: {
         type: 'image',
         url: 'https://d2tbt8ofproiin.cloudfront.net/edu-bot/edu-bot-1.jpg',
-        alt: 'Vending Machine Alternate View'
+        alt: 'Education Robotics'
       }
     }
   ];
