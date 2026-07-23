@@ -1,24 +1,6 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   output: "export",
-//   distDir: "out",
-//   reactCompiler: true,
-//   compiler: {
-//     removeConsole: process.env.NODE_ENV === "production",
-//   },
-//   async redirects() {
-//     return [
-//       {
-//         source: "/dashboard",
-//         destination: "/dashboard/default",
-//         permanent: false,
-//       },
-//     ];
-//   },
-// };
-
-/** @type {import('next').Next.js Config} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       {
