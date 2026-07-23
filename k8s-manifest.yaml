@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: japa/consultant
+  name: japa-consultant
 spec:
   type: NodePort
   selector:
