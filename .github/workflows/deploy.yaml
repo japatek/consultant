@@ -53,6 +53,9 @@ jobs:
         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
         chmod 600 ~/.kube/config
 
+        sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
+
+
     - name: Deploy to Kubeadm Cluster
       run: |
         # Replace placeholders in the yaml with actual ECR paths

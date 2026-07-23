@@ -15,14 +15,14 @@ spec:
       containers:
       - name: nextjs
         # The exact image tag is injected dynamically by GitHub Actions
-        image: AWS_ACCOUNT_ID.dkr.ecr.AWS_REGION.amazonaws.com/nextjs-landing-repo:latest
+        image: AWS_ACCOUNT_ID.dkr.ecr.AWS_REGION.amazonaws.com/japa/consultant:latest
         ports:
         - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: nextjs-landing-service
+  name: japa/consultant
 spec:
   type: NodePort
   selector:
