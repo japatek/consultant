@@ -14,15 +14,14 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate --schema=./database/schema.prisma
 RUN npm run build
-RUN mkdir -p /app/public
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/public ./public 2>/dev/null || true
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+RUN mkdir -p ./public && cp -r /app/public/* ./public 2>/dev/null || true
 
 EXPOSE 3000
 ENV PORT=3000
