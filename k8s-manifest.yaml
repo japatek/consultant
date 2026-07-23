@@ -1,4 +1,4 @@
-apiVersion: JAPA/0.0.1
+apiVersion: japa-v1
 kind: Deployment
 metadata:
   name: nextjs-landing
