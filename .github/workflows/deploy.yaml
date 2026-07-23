@@ -20,7 +20,7 @@ env:
   # Added to suppress the Node 20 deprecation warning from AWS actions
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-  ECR_REPOSITORY: nextjs-landing-repo
+  ECR_REPOSITORY: japa/consultant
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
