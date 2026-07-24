@@ -77,7 +77,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  if (pathname === "/agent-bank") {
+  if (pathname === "/tools") {
     return NextResponse.redirect(
       new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
     );
