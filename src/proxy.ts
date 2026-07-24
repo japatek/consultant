@@ -2,15 +2,16 @@
  * src/proxy.ts (atau middleware.ts) — Hardened Security Version
  */
 
-import { NextResponse }     from "next/server";
+import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decode }           from "next-auth/jwt";
+import { decode } from "next-auth/jwt";
 
-const SIGN_IN_PATH   = "/auth/v4/login" as const; 
-const DASHBOARD_PATH = "/dashboard"     as const;
+const SIGN_IN_PATH = "/auth/v4/login" as const;
+const LANDING_PATH = "/landing" as const;
+const DASHBOARD_PATH = "/dashboard" as const;
 
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
-const OPEN_PREFIXES   = ["/api", "/_next", "/unauthorized"] as const;
+const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some(
@@ -24,8 +25,8 @@ async function getSessionFromCookie(
   const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   if (!secret) return null;
 
-  const isProd      = process.env.NODE_ENV === "production";
-  const cookieName  = isProd
+  const isProd = process.env.NODE_ENV === "production";
+  const cookieName = isProd
     ? "__Secure-authjs.session-token"
     : "authjs.session-token";
 
@@ -34,9 +35,9 @@ async function getSessionFromCookie(
 
   try {
     const token = await decode({
-      token:  cookieValue,
+      token: cookieValue,
       secret,
-      salt:   cookieName, 
+      salt: cookieName,
     });
     return token as { sub?: string; id?: string } | null;
   } catch {
@@ -72,9 +73,17 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 3. Root "/" Smart Redirect
   if (pathname === "/") {
     return NextResponse.redirect(
+      new URL(LANDING_PATH),
+    );
+  }
+
+  if (pathname === "/agent-bank") {
+    return NextResponse.redirect(
       new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
     );
   }
+
+
 
   // 4. Public external pages
   if (startsWithAny(pathname, PUBLIC_PREFIXES)) {
