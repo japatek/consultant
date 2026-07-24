@@ -38,8 +38,8 @@ export const FeaturedProjects: React.FC = () => {
       desc: "Development of a complex 3D exploded view and visual simulation for the M701F gas turbine, detailed to highlight internal components and maintenance inspection workflows for digital website content.",
       slug: "pln-ip",
       media: {
-        type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-1.jpg',
+        type: 'video',
+        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-video-1.mp4',
         alt: 'Gas Turbine M701F'
       }
     },
