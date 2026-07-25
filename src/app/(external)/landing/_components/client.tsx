@@ -19,11 +19,11 @@ export const OurClients: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10">
         <div className="text-center mb-12 md:mb-16">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-[1px] bg-JaPa-primary"></div>
+            <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
             <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">
               Trusted By Industry Leaders
             </span>
-            <div className="w-8 h-[1px] bg-JaPa-primary"></div>
+            <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
           </div>
           <h2 className="font-serif text-3xl md:text-4xl text-white tracking-tight">
             Our <span className="italic text-chart-3">Partners</span>

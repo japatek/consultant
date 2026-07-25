@@ -13,11 +13,11 @@
 // touches `fs` at module top-level.
 
 export type Surface =
-  | "desktop"      // Tauri  ~/.local/share/JaPa       /  %APPDATA%/JaPa
-  | "cli"          // Node   ~/.config/JaPa-cli
+  | "desktop"      // Tauri  ~/.local/share/JaPaTek       /  %APPDATA%/JaPaTek
+  | "cli"          // Node   ~/.config/JaPaTek-cli
   | "ide"          // VSCode globalStoragePath provided by the host
-  | "office"       // VSTO   %APPDATA%/Microsoft/AddIns/JaPa
-  | "cad"          // Win    %APPDATA%/JaPa/CAD
+  | "office"       // VSTO   %APPDATA%/Microsoft/AddIns/JaPaTek
+  | "cad"          // Win    %APPDATA%/JaPaTek/CAD
   | "mobile-and"   // Capacitor cordova.file.dataDirectory
   | "mobile-ios";  // Capacitor cordova.file.dataDirectory
 
@@ -45,7 +45,7 @@ export function resolveLocalPaths(
   const root = hostOverride ?? defaultRoot(surface);
   return {
     root,
-    sqliteFile:  `${root}/JaPa.db`,
+    sqliteFile:  `${root}/JaPaTek.db`,
     attachments: `${root}/attachments`,
     artifacts:   `${root}/artifacts`,
     migrations:  `${root}/migrations`,
@@ -70,24 +70,24 @@ function defaultRoot(surface: Surface): string {
 
   switch (surface) {
     case "desktop":
-      if (platform === "win32")  return `${appData}/JaPa`;
-      if (platform === "darwin") return `${home}/Library/Application Support/JaPa`;
-      return `${xdg}/JaPa`;
+      if (platform === "win32")  return `${appData}/JaPaTek`;
+      if (platform === "darwin") return `${home}/Library/Application Support/JaPaTek`;
+      return `${xdg}/JaPaTek`;
     case "cli":
-      return `${xdgCfg}/JaPa-cli`;
+      return `${xdgCfg}/JaPaTek-cli`;
     case "ide":
       // Real value comes from the IDE host; this is the fallback.
-      return `${xdg}/JaPa/ide`;
+      return `${xdg}/JaPaTek/ide`;
     case "office":
-      return `${appData}/Microsoft/AddIns/JaPa`;
+      return `${appData}/Microsoft/AddIns/JaPaTek`;
     case "cad":
-      return `${appData}/JaPa/CAD`;
+      return `${appData}/JaPaTek/CAD`;
     case "mobile-and":
       // Capacitor injects the real path at runtime via
       // Filesystem.getUri({ directory: Directory.Data, ... }).
-      return "/data/data/com.JaPa.app/files";
+      return "/data/data/com.JaPaTek.app/files";
     case "mobile-ios":
-      return "/var/mobile/Containers/Data/Application/JaPa/Documents";
+      return "/var/mobile/Containers/Data/Application/JaPaTek/Documents";
   }
 }
 

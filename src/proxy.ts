@@ -73,11 +73,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 3. Root "/" Smart Redirect
   if (pathname === "/") {
     return NextResponse.redirect(
-      new URL(LANDING_PATH),
+      new URL(LANDING_PATH, request.url),
     );
   }
 
-  if (pathname === "/tools") {
+  if (pathname === "/dashboard") {
     return NextResponse.redirect(
       new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
     );

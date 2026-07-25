@@ -1,4 +1,4 @@
-# Environment Variables — JaPa Auth.js v5
+# Environment Variables — JaPaTek Auth.js v5
 
 Copy this to `.env.local` (development) or your deployment secret manager (production).
 **Never commit real secrets to version control.**
@@ -15,7 +15,7 @@ AUTH_SECRET=change_me_to_a_64_char_random_hex_string
 # Base URL of the app — used to build callback and verification URLs.
 # No trailing slash.
 NEXT_PUBLIC_BASE_URL=http://localhost:3000        # dev
-# NEXT_PUBLIC_BASE_URL=https://app.JaPa.com     # prod
+# NEXT_PUBLIC_BASE_URL=https://app.JaPaTek.com     # prod
 ```
 
 ---
@@ -40,7 +40,7 @@ Sign up at https://resend.com. Verify your domain, then create an API key.
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # Must match a verified sender in your Resend domain.
-EMAIL_FROM=JaPa <noreply@yourdomain.com>
+EMAIL_FROM=JaPaTek <noreply@yourdomain.com>
 ```
 
 ---

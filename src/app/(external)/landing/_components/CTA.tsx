@@ -14,7 +14,7 @@ export const CTA: React.FC = () => {
         </p>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          <a href="mailto:contact@JaPa.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-8 py-4 text-base font-semibold transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-glow">
+          <a href="mailto:contact@JaPaTek.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-8 py-4 text-base font-semibold transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-glow">
             Contact Us
             <svg viewBox="0 0 14 14" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M2 7h10M8 3l4 4-4 4" /></svg>
           </a>

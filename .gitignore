@@ -45,3 +45,10 @@ secret.txt
 aws/*
 
 .vscode/*
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma

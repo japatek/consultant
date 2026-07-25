@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 // ---------------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: "Welcome to JaPa",
+  title: "Welcome to JaPaTek",
   description: "Sign in or create account below."
 };
 

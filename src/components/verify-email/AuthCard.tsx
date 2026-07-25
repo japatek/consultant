@@ -1,6 +1,6 @@
 // components/verify-email/AuthCard.tsx
 //
-// The frosted-glass card with the JaPa logo at the top.
+// The frosted-glass card with the JaPaTek logo at the top.
 // Reusable as the wrapper for any auth-flow page (login, register, verify, etc.)
 'use client'
 import type React from "react";
@@ -17,7 +17,7 @@ export default function AuthCard({ children, logoText = "BG" }: AuthCardProps) {
     <div >
       {/* Logo mark */}
       <div style={S.logoWrap}>
-        <div style={S.logo} aria-label="JaPa">
+        <div style={S.logo} aria-label="JaPaTek">
           {logoText}
         </div>
       </div>

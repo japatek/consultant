@@ -1,6 +1,6 @@
 -- database/local/sqlite-schema.sql
 --
--- Canonical SQLite schema for every JaPa client that has OS filesystem
+-- Canonical SQLite schema for every JaPaTek client that has OS filesystem
 -- access (Desktop hybrid, Mobile via Capacitor, Office-VSTO, CAD ext).
 -- Spec: DOCUMENT/Database-Local-Architecture.md §4.1.
 --
@@ -10,8 +10,8 @@
 --   Desktop  (Tauri)       :  src-tauri/migrations/001_init.sql
 --   Mobile   (Android/Room):  android/.../assets/migrations/001_init.sql
 --   Mobile   (iOS / GRDB)  :  ios/Migrations/V1__init.sql
---   Office   (VSTO)        :  %APPDATA%/Microsoft/AddIns/JaPa/migrations/001_init.sql
---   CAD      (Win)         :  %APPDATA%/JaPa/CAD/migrations/001_init.sql
+--   Office   (VSTO)        :  %APPDATA%/Microsoft/AddIns/JaPaTek/migrations/001_init.sql
+--   CAD      (Win)         :  %APPDATA%/JaPaTek/CAD/migrations/001_init.sql
 --
 -- The schema is identical across surfaces; only the on-disk DB path
 -- differs (see ./local-paths.ts).

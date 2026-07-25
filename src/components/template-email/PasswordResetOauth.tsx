@@ -32,7 +32,7 @@ export default function PasswordResetOauth({
               <table cellPadding={0} cellSpacing={0}><tr>
                 <td style={S.logoCell}><Text style={S.logoText}>IF</Text></td>
                 <td style={{ paddingLeft: 10, verticalAlign: "middle" }}>
-                  <Text style={S.logoName}>JaPa</Text>
+                  <Text style={S.logoName}>JaPaTek</Text>
                 </td>
               </tr></table>
             </td></tr></table>
@@ -48,7 +48,7 @@ export default function PasswordResetOauth({
 
             <Text style={S.body2}>
               Kami menerima permintaan untuk Membuat kata sandi akun{" "}
-              <strong style={{ color: "#00d4c8" }}>JaPa</strong> Anda.
+              <strong style={{ color: "#00d4c8" }}>JaPaTek</strong> Anda.
               Klik tombol di bawah untuk membuat kata sandi baru.
             </Text>
    
@@ -93,7 +93,7 @@ export default function PasswordResetOauth({
               Email ini dikirim secara otomatis. Mohon tidak membalas email ini.
             </Text>
             <Text style={S.footerText}>
-               {new Date().getFullYear()} JaPa  Platform AI Pengisian Formulir Digital Otomatis.
+               {new Date().getFullYear()} JaPaTek  Platform AI Pengisian Formulir Digital Otomatis.
             </Text>
           </Section>
 

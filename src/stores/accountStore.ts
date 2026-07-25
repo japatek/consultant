@@ -18,7 +18,7 @@ export type AccountState = {
 };
 
 // Kunci JWT di browser (F12 -> Application -> Local Storage)
-const KEY = "_JaPa_accounts";
+const KEY = "_JaPaTek_accounts";
 
 const loadAccounts = (): StoredAccount[] => {
   if (typeof window === "undefined") return [];

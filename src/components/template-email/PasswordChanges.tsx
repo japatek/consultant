@@ -30,7 +30,7 @@ export default function PasswordChanges({
   return (
     <Html lang="id" dir="ltr">
       <Head />
-      <Preview>Kata sandi akun JaPa Anda telah diubah</Preview>
+      <Preview>Kata sandi akun JaPaTek Anda telah diubah</Preview>
 
       <Body style={S.body}>
         <Container style={S.container}>
@@ -41,7 +41,7 @@ export default function PasswordChanges({
               <table cellPadding={0} cellSpacing={0}><tr>
                 <td style={S.logoCell}><Text style={S.logoText}>IF</Text></td>
                 <td style={{ paddingLeft: 10, verticalAlign: "middle" }}>
-                  <Text style={S.logoName}>JaPa</Text>
+                  <Text style={S.logoName}>JaPaTek</Text>
                 </td>
               </tr></table>
             </td></tr></table>
@@ -56,7 +56,7 @@ export default function PasswordChanges({
             </Text>
 
             <Text style={S.body2}>
-              Kata sandi akun <strong style={{ color: "#00d4c8" }}>JaPa</strong> Anda
+              Kata sandi akun <strong style={{ color: "#00d4c8" }}>JaPaTek</strong> Anda
               telah berhasil diubah pada:
             </Text>
 
@@ -92,7 +92,7 @@ export default function PasswordChanges({
               Email keamanan ini dikirim secara otomatis. Mohon tidak membalas email ini.
             </Text>
             <Text style={S.footerText}>
-               {new Date().getFullYear()} JaPa  Platform AI Pengisian Formulir Digital Otomatis.
+               {new Date().getFullYear()} JaPaTek  Platform AI Pengisian Formulir Digital Otomatis.
             </Text>
           </Section>
 

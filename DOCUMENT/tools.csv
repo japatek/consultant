@@ -1,0 +1,48 @@
+id,name,category,docNo,icon,priceUSD,priceIDR,tagline,examplePrompt,exampleCode,exampleResult,how,forWhat,where,when,why
+aerovision-nde,AeroVision NDE,Inspection,NDE-01,ScanSearch,500,7500000,Turns raw NDE scan data into defect maps and disposition calls.,Analyze this UT thickness dataset from a pressure vessel shell scan and flag any readings below the 6.2mm minimum retirement thickness per API 510.,"{
+  ""scan_type"": ""UT_thickness"",
+  ""component"": ""shell_course_2"",
+  ""min_retirement_mm"": 6.2,
+  ""readings"": [7.8, 7.6, 6.0, 7.1, 5.9]
+}","2 of 5 grid points below retirement thickness (6.0mm, 5.9mm) — recommend CML re-survey before next run.","Python inspection-data parser layered on a structured LLM reasoning pass, cross-checked against API 510/570 thickness tables.",Turning raw UT/RT scan exports into pass/fail defect maps and re-inspection intervals for pressure vessels and piping.,Validated on offshore platform shell inspections and refinery piping turnaround data.,"Built Q2 2024, field-tested Q4 2024.","Inspectors spend hours cross-referencing raw thickness grids by hand — this collapses that into a flagged, code-referenced output in one pass."
+nexus-pm-copilot,Nexus PM-Copilot,Project Management,PMX-02,GanttChart,800,12000000,Builds critical-path schedules from a flat task list — no Gantt software required.,Build a critical path schedule for this fabrication project — 14 tasks with durations and dependencies — and flag the tasks with zero float.,"{
+  ""tasks"": [
+    { ""id"": ""T1"", ""name"": ""Material procurement"", ""duration_days"": 12, ""depends_on"": [] },
+    { ""id"": ""T2"", ""name"": ""Fit-up"", ""duration_days"": 5, ""depends_on"": [""T1""] }
+  ]
+}",Critical path: T1 → T2 → T5 → T9 (41 days). 3 tasks carry zero float — procurement lead time is your bottleneck.,"Deterministic CPM (critical path method) engine wrapped in a prompt interface, so the LLM parses your task list into a scheduling graph.","Fast critical-path and float analysis for fabrication and construction schedules, without opening scheduling software.",Tested against structural fabrication schedules for tank and frame projects.,"Built Q1 2025, in active pilot since Q2 2025.",Most teams describe schedules in plain task lists before anyone builds the formal Gantt chart — this reads the plain list directly.
+structurai-fea,StructurAI FEA,Structural Design,FEA-03,Building2,1200,18000000,"Runs static structural checks and returns stress, deflection, and safety factor.","Run a static structural check on this steel frame under combined dead, live, and wind load per SNI 1729, and return max von Mises stress, deflection, and safety factor.","{
+  ""material"": ""ASTM A36"",
+  ""mesh_size_mm"": 25,
+  ""load_cases"": [""dead"", ""live"", ""wind""],
+  ""combo"": ""1.2D + 1.6L + 0.5W""
+}","Max von Mises: 178 MPa. Max deflection: L/312. Safety factor: 1.4 — passes SNI 1729, tightest at the mid-span connection.","Structured prompt interface over an FEA mesh-and-solve pipeline, with load combination logic matched to code (SNI/AISC).","Static structural verification of steel frames and support structures — stress, deflection, and safety factor in one pass.",Validated against clarifier tank frame and structural steel platform designs.,"Built Q3 2024, field-tested Q1 2025.","Standard LLMs guess at structural numbers. This routes the actual load and mesh math through a solver, so the output is a real calculation, not a plausible-sounding one."
+spectra-lab-analyzer,Spectra Lab Analyzer,Lab Testing,LAB-04,FlaskConical,300,4500000,Reads raw test data and returns spec-classified mechanical properties.,"Interpret this tensile test stress-strain dataset and report yield strength, UTS, and elongation per ASTM E8, then classify against A36 spec.","{
+  ""test"": ""tensile"",
+  ""standard"": ""ASTM_E8"",
+  ""gauge_length_mm"": 50,
+  ""data_points"": [[0.0, 0], [0.002, 250], [0.02, 400]]
+}",Yield: 262 MPa. UTS: 415 MPa. Elongation: 24%. Meets ASTM A36 minimums on all three.,"Curve-fitting and property extraction logic wrapped around raw lab exports (tensile, hardness, spectrometry), checked against ASTM/ISO thresholds.",Converting raw test-machine output into pass/fail material classifications without manual spreadsheet work.,Tested on tensile and hardness data from structural steel batch testing.,"Built Q1 2024, in production use since Q3 2024.",Lab techs re-derive the same numbers from raw curves on every batch — this automates the read without touching the underlying data.
+sentinel-qaqc,Sentinel QA/QC,Mfg Surveillance,QAQ-05,ShieldCheck,1500,22500000,Checks weld and dimensional inspection data against code and drafts NCRs.,"Review this weld inspection log and RT film index against AWS D1.1 acceptance criteria, and draft any non-conformance reports needed.","{
+  ""standard"": ""AWS_D1.1"",
+  ""welds"": [
+    { ""id"": ""W-014"", ""type"": ""RT"", ""defect"": ""porosity"", ""size_mm"": 2.1 }
+  ]
+}","W-014: porosity 2.1mm exceeds 1.6mm allowable — NCR-014 drafted, reject and re-weld recommended.","Rule engine encoding AWS/ASME acceptance criteria, layered under an LLM interface that reads inspection logs and drafts NCR language.",Weld and dimensional QA/QC surveillance during fabrication — accept/reject calls with a paper trail.,Tested on structural steel fabrication shop-floor inspection logs.,"Built Q4 2024, field-tested Q2 2025.",QA inspectors already keep the data — this saves the time spent manually cross-referencing every defect against the code book.
+specgen-llm,SpecGen LLM,Specs Development,SPC-06,ScrollText,200,3000000,Drafts procurement-ready technical specs from a few input parameters.,"Generate a procurement specification for a centrifugal pump rated 500 GPM at 150 ft head, per API 610, including materials and testing requirements.","{
+  ""equipment"": ""centrifugal_pump"",
+  ""flow_gpm"": 500,
+  ""head_ft"": 150,
+  ""standard"": ""API_610""
+}","Full spec draft generated — 6 sections (scope, design, materials, testing, documentation, inspection), ready for review.","Template-driven document generator, structured against common procurement-spec formats and equipment codes (API, ASME).","First-draft technical specifications for equipment procurement, so engineers start from structure instead of a blank page.","Used to draft pump, tank, and piping specs for engineering consulting deliverables.","Built Q2 2024, in regular use since Q3 2024.",The first draft of a spec is mostly boilerplate structure — this gets that structure right on the first pass.
+draftbot-3d,DraftBot 3D,Drafting/Fusion360 Control,CAD-07,Box,900,13500000,Turns a plain-language part description into live Fusion360 parameters.,"Generate a parametric flange in Fusion360 — 200mm PCD, 8x M12 bolt holes, ANSI B16.5 Class 150.","{
+  ""operation"": ""createFlange"",
+  ""sketch"": { ""boltCircleDiameter_mm"": 200, ""boltHoles"": 8, ""boltHoleDia_mm"": 14 },
+  ""extrude"": { ""thickness_mm"": 20 },
+  ""standard"": ""ANSI_B16.5_Class150""
+}","Flange model generated — 8x M12 clearance holes on 200mm PCD, 20mm face thickness, confirmed against the B16.5 Class 150 table.","Python backend bridging LLM output to the Autodesk Fusion360 API, translating described geometry into real sketch and feature parameters.","Direct, deterministic 3D model generation and parametric edits — flanges, brackets, structural members — driven by a text description.","Tested generating flange, bracket, and frame-member geometry against Fusion360 desktop.","Built Q3 2024, field-tested Q1 2025.",Standard LLMs can describe a part; they can't place a hole on an exact bolt circle. This gives the AI real geometric control instead of a description of one.
+simula-vr-instructor,Simula VR Instructor,Training,TRN-08,Glasses,2000,30000000,Builds structured VR training scenarios from a procedure description.,"Create a VR training module for confined-space entry on an offshore tank inspection, including hazard checkpoints and pass criteria.","{
+  ""scenario"": ""confined_space_entry"",
+  ""environment"": ""offshore_tank"",
+  ""checkpoints"": [""gas_test"", ""permit_check"", ""harness_check""]
+}",6-step VR module generated with 3 mandatory hazard checkpoints and a scored completion gate at 80%.,"Scenario-scripting layer that outputs structured training steps and hazard checkpoints, formatted for VR training engines.","Turning a written safety procedure into a checkpointed VR training scenario, for confined-space and working-at-height tasks.",Piloted for offshore inspection and confined-space entry training scenarios.,"Built Q1 2025, in pilot since Q2 2025.",Procedures live in PDF form until someone builds the training scenario by hand — this turns the procedure directly into a scorable module.

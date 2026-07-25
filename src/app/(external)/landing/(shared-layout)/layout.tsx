@@ -10,7 +10,7 @@ export default function SharedPagesLayout({
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
-      <main className="font-sans antialiased text-vertex-fg bg-white overflow-x-hidden selection:bg-vertex-primary selection:text-white">
+      <main className="font-sans antialiased text-vertex-fg bg-white overflow-x-hidden selection:bg-[royalblue] selection:text-white">
         {children}
       </main>
       <Footer />

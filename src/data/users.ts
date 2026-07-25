@@ -2,7 +2,7 @@ export const users = [
   {
     id: "1",
     name: "PT. Japa Teknika Solusi",
-    username: "JaPa",
+    username: "JaPaTek",
     email: "hello@JaPa.com",
     avatar: "https://avatars.githubusercontent.com/u/43849669",
     role: "administrator",

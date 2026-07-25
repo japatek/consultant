@@ -30,7 +30,7 @@ export interface LoginLinkEmailProps {
 export default function LoginLinkEmail({
   name,
   loginUrl,
-  appName = "JaPa",
+  appName = "JaPaTek",
 }: LoginLinkEmailProps) {
   return (
     <Html lang="id">
@@ -86,7 +86,7 @@ export default function LoginLinkEmail({
             {/* Footer */}
             <Section className="py-4 px-8 text-center">
               <Text className="m-0 text-[11px] text-zinc-300">
-                © {new Date().getFullYear()} JaPa — AI Automated Digital Form Filling Platform.
+                © {new Date().getFullYear()} JaPaTek — AI Automated Digital Form Filling Platform.
               </Text>
             </Section>
           </Container>

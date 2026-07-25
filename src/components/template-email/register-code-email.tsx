@@ -23,7 +23,7 @@ interface RegisterCodeEmailProps {
 export default function RegisterCodeEmail({
   code,
   expiryLabel = "15 minutes",
-  appName = 'JaPa'
+  appName = 'JaPaTek'
 }: RegisterCodeEmailProps) {
   return (
     <Html lang="en" dir="ltr">
@@ -76,7 +76,7 @@ export default function RegisterCodeEmail({
               </Text>
               <Text className="text-zinc-900 text-[12px] m-0 mb-1 text-center">
                 {/* ✅ Safely swapped <Copyright /> out for standard text copyright character */}
-                © {new Date().getFullYear()} JaPa — AI Automated Digital Form Filling Platform.
+                © {new Date().getFullYear()} JaPaTek — AI Automated Digital Form Filling Platform.
               </Text>
             </Section>
           </Container>

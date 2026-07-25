@@ -48,7 +48,7 @@ export default function PasswordReset({
 
             <Text style={S.body2}>
               Kami menerima permintaan untuk mereset kata sandi akun{" "}
-              <strong style={{ color: "#00d4c8" }}>JaPa</strong> Anda.
+              <strong style={{ color: "#00d4c8" }}>JaPaTek</strong> Anda.
               Klik tombol di bawah untuk membuat kata sandi baru.
             </Text>
 

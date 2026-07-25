@@ -14,69 +14,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-interface Project {
-  tag: string;
-  title: string;
-  desc: string;
-  slug: string;
-  media: {
-    type: 'image' | 'video';
-    url: string;
-    alt?: string;
-  };
-}
+import { featuredProjects } from "../_lib/featured-projects-data";
 
 export const FeaturedProjects: React.FC = () => {
   const pathname = usePathname();
   const isProjectListPage = pathname === '/landing/project';
 
-  const projects: Project[] = [
-    {
-      tag: "Power Plant",
-      title: "Inspection Simulation For Gas Turbine M701F Owned by PT. Indonesia Power based on Indonesia",
-      desc: "Development of a complex 3D exploded view and visual simulation for the M701F gas turbine, detailed to highlight internal components and maintenance inspection workflows for digital website content.",
-      slug: "pln-ip",
-      media: {
-        type: 'video',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-video-1.mp4',
-        alt: 'Gas Turbine M701F'
-      }
-    },
-    {
-      tag: "Waste Management",
-      title: "Water Waste Treatment Plant Design",
-      desc: "Detailed piping and instrumentation with layout design and project management for a major water treatment plant with 7000 TCD capacity for sugar mill factory owned by PT. Perkebunan Nusantara based in indonesia.",
-      slug: "ipal",
-      media: {
-        type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-1.jpg',
-        alt: 'Water Waste Treatment Plant'
-      }
-    },
-    {
-      tag: "Robotics",
-      title: "Pharmacy Vending Machine",
-      desc: "Interactive automated medication dispensing system design with mechanical motion control, internal slot arrangement, and user-friendly interface.",
-      slug: "vending-machine",
-      media: {
-        type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/vending-machine/vending-machine-1.jpg',
-        alt: 'Pharmacy Vending Machine'
-      }
-    },
-    {
-      tag: "Robotics",
-      title: "Education Robot",
-      desc: "Full structural condition assessment and remaining service life analysis for automated mechanical systems.",
-      slug: "edu-bot",
-      media: {
-        type: 'image',
-        url: 'https://d2tbt8ofproiin.cloudfront.net/edu-bot/edu-bot-1.jpg',
-        alt: 'Education Robotics'
-      }
-    }
-  ];
+  const projects = featuredProjects;
 
   // Show only 3 projects if not on the main project listing page
   const displayedProjects = isProjectListPage ? projects : projects.slice(0, 3);

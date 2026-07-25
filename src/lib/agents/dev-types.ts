@@ -239,7 +239,7 @@ export const MOCK_LOGS: SystemLog[] = [
   { id: "log_009", timestamp: new Date(Date.now() - 4 * 60 * 1000).toISOString(), level: "info", source: "mission-control", message: "Agent health check passed: 4/5 agents nominal" },
   { id: "log_010", timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), level: "error", source: "agent", agentId: "agt_04jx7p5puv", message: "SupportBot v2: Task failed — upstream MCP unreachable" },
   { id: "log_011", timestamp: new Date(Date.now() - 7 * 60 * 1000).toISOString(), level: "info", source: "llm", message: "Model handoff: claude-sonnet-4-6 → claude-opus-4-6 for task_a1b2c3" },
-  { id: "log_012", timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(), level: "success", source: "web", message: "API key JaPa_live_...4a2b authenticated successfully" },
+  { id: "log_012", timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(), level: "success", source: "web", message: "API key JaPaTek_live_...4a2b authenticated successfully" },
 ];
 
 export const MOCK_API_KEYS: ApiKey[] = [
@@ -247,7 +247,7 @@ export const MOCK_API_KEYS: ApiKey[] = [
     id: "key_01jx",
     name: "Production",
     prefix: "JaPa_live_",
-    maskedKey: "JaPa_live_••••••••••••••4a2b",
+    maskedKey: "JaPaTek_live_••••••••••••••4a2b",
     status: "active",
     createdAt: "2026-04-10T09:00:00Z",
     lastUsedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
@@ -257,8 +257,8 @@ export const MOCK_API_KEYS: ApiKey[] = [
   {
     id: "key_02jx",
     name: "Staging",
-    prefix: "JaPa_test_",
-    maskedKey: "JaPa_test_••••••••••••••9f1c",
+    prefix: "JaPaTek_test_",
+    maskedKey: "JaPaTek_test_••••••••••••••9f1c",
     status: "active",
     createdAt: "2026-05-01T11:30:00Z",
     lastUsedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
@@ -268,8 +268,8 @@ export const MOCK_API_KEYS: ApiKey[] = [
   {
     id: "key_03jx",
     name: "CI/CD Pipeline",
-    prefix: "JaPa_live_",
-    maskedKey: "JaPa_live_••••••••••••••e7d3",
+    prefix: "JaPaTek_live_",
+    maskedKey: "JaPaTek_live_••••••••••••••e7d3",
     status: "active",
     createdAt: "2026-05-15T08:00:00Z",
     lastUsedAt: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
@@ -279,7 +279,7 @@ export const MOCK_API_KEYS: ApiKey[] = [
   {
     id: "key_04jx",
     name: "Legacy Integration",
-    prefix: "JaPa_live_",
+    prefix: "JaPaTek_live_",
     maskedKey: "JaPa_live_••••••••••••••b2a0",
     status: "revoked",
     createdAt: "2026-01-20T15:00:00Z",

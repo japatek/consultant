@@ -36,7 +36,7 @@ export default function RegisterCodeEmail({
   return (
     <Html lang="en" dir="ltr">
       <Head />
-      <Preview>JaPa verification code: {code}</Preview>
+      <Preview>JaPaTek verification code: {code}</Preview>
 
       <Tailwind>
         <Body className="bg-zinc-100 font-sans m-0 py-10">
@@ -84,7 +84,7 @@ export default function RegisterCodeEmail({
                 changes will be made.
               </Text>
               <Text className="text-zinc-900 text-[12px] m-0 mb-1 text-center">
-                <Copyright /> {new Date().getFullYear()} JaPa — AI Automated Digital Form Filling Platform.
+                <Copyright /> {new Date().getFullYear()} JaPaTek — AI Automated Digital Form Filling Platform.
               </Text>
             </Section>
           </Container>

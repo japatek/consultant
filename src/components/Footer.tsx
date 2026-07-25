@@ -1,6 +1,6 @@
 // website/src/components/Footer.tsx
 //
-// JaPa footer (English only). Rendered on the marketing / non-app 
+// JaPaTek footer (English only). Rendered on the marketing / non-app 
 // pages (login, download, documentation, terms, not-found, pricing) 
 // by importing <Footer /> at the bottom of each page's JSX. 
 // NOT used inside the chat shell, which keeps its own chrome-less layout.
@@ -32,8 +32,8 @@ const RESOURCES = [
 ] as const;
 
 const COMPANY = [
-  { href: "mailto:info@JaPa.com", id: "contact", label: "Contact" },
-  { href: "https://JaPa.com", id: "japa", label: "PT. Japa Teknika Solusi" },
+  { href: "mailto:info@japtektek.com", id: "contact", label: "Contact" },
+  { href: "https://japtektek.com", id: "japtektek", label: "PT. Japa Teknika Solusi" },
 ] as const;
 
 export default function Footer() {
@@ -45,15 +45,15 @@ export default function Footer() {
         <div className="flex flex-col gap-2 pb-4 border-b border-dashed border-border/20">
           <Link href="/" className="font-bold text-4xl tracking-tight no-underline text-inherit">
             <span className="bg-gradient-to-br from-rose-400 to-primary bg-clip-text text-transparent">
-              JaPa
+              JaPaTek
             </span>
           </Link>
           <p className="m-0 text-[13px] text-muted-foreground flex flex-wrap items-baseline gap-2">
-            Multi-platform AI assistant for developers, designers, and engineering teams.
+             Multi-platform AI tools, skill and agents mechanical design engineer and teams.
           </p>
           <div className="flex flex-col-4 gap-4">          
-            <IconBrandWhatsapp className="cursor-pointer" />
-            <IconBrandInstagram className="cursor-pointer"/>
+            <IconBrandWhatsapp className="cursor-pointer" href="https://wa.me/628988350450" />
+            <IconBrandInstagram className="cursor-pointer" href="https://www.instagram.com/japateksolusi?igsh=cTY4YmVycHU5NTlw"/>
             <XTwitterLogoIcon className="cursor-pointer pt-1" size={20}/>
             
           </div>
@@ -68,13 +68,13 @@ export default function Footer() {
         </div>
 
         {/* Compliance / disclaimer */}
-        <div className="p-3 bg-blue-400/4 border border-dashed border-amber-500/30 rounded-lg flex flex-col gap-1.5">
+        {/* <div className="p-3 bg-blue-400/4 border border-dashed border-amber-500/30 rounded-lg flex flex-col gap-1.5">
           <p className="m-0 text-xs text-muted-foreground/80 leading-relaxed">
-            <strong>Disclaimer:</strong> JaPa is an AI engine. Anything it
+            <strong>Disclaimer:</strong> JaPaTek is an AI engine. Anything it
             produces may be wrong—always verify the output before relying on
             it for production or business decisions.
           </p>
-        </div>
+        </div> */}
 
         {/* Bottom bar */}
         <div className="flex flex-wrap justify-between items-center gap-3 pt-2 text-xs text-muted-foreground/60">
@@ -83,10 +83,10 @@ export default function Footer() {
           </p>
           <p className="m-0 inline-flex flex-wrap gap-1.5 items-baseline">
             <Link
-              href="mailto:info@JaPa.com"
+              href="mailto:info@japatek.com"
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
-              info@JaPa.com
+              info@japatek.com
             </Link>
             <span className="opacity-40">·</span>
             <Link

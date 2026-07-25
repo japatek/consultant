@@ -1,37 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Phone, ArrowRight, Menu, X } from 'lucide-react';
-
-// --- DATA UNTUK MEGA MENU ---
-const servicesData = {
-    'Inspection & Assessment': {
-        leftImg: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600'
-    },
-    'Structural Analysis & Design': {
-        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
-    },
-    'Project Management': {
-        leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600'
-    }
-};
-
-const sectorsData = {
-    'Oil & Gas': {
-        leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600'
-    },
-    'Renewable Energy': {
-        leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600'
-    },
-    'Infrastructure': {
-        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
-    }
-};
+import Link from 'next/link';
+import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
+import { featuredProjects } from '../_lib/featured-projects-data';
+import { listServices, ServiceItem } from '../_lib/services-data';
+import { sectorData, Sector } from '../_lib/sectors-data';
 
 const aboutData = {
     'Our Company': {
@@ -48,22 +21,125 @@ const aboutData = {
     }
 };
 
-type ServiceKeys = keyof typeof servicesData;
-type SectorKeys = keyof typeof sectorsData;
+const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
+    'inspection-condition-assessment': {
+        leftImg: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600'
+    },
+    'structural-analysis-design': {
+        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
+    },
+    'project-management': {
+        leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600'
+    },
+    'laboratory-testing': {
+        leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600'
+    },
+    'manufacturing-surveillance': {
+        leftImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600'
+    },
+    'specification-development': {
+        leftImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600'
+    },
+    'drafting-services': {
+        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
+    },
+    'technical-training': {
+        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
+    }
+};
+
+const sectorMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
+    'oil-and-gas': {
+        leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600'
+    },
+    'mining-and-resources': {
+        leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600'
+    },
+    'water-and-wastewater': {
+        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
+    },
+    'industrial': {
+        leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600'
+    },
+    'infrastructure': {
+        leftImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600'
+    }
+};
+
+const projectMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
+    'pln-ip': {
+        leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600'
+    },
+    'ipal': {
+        leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600'
+    },
+    'vending-machine': {
+        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
+    },
+    'edu-bot': {
+        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
+        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
+    }
+};
+
+const getMenuImages = (menu: MenuCategory, slug: string) => {
+    if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['inspection-condition-assessment'];
+    if (menu === 'sectors') return sectorMenuMedia[slug] ?? sectorMenuMedia['oil-and-gas'];
+    if (menu === 'project') return projectMenuMedia[slug] ?? projectMenuMedia['pln-ip'];
+    return aboutData[slug as AboutKeys] ?? aboutData['Our Company'];
+};
+
+type MenuCategory = 'services' | 'sectors' | 'project' | 'about';
 type AboutKeys = keyof typeof aboutData;
+
+const getPageHref = (menu: MenuCategory, slug?: string) => {
+    if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
+    if (menu === 'sectors') return slug ? `/landing/sector/${slug}` : '/landing/sector';
+    if (menu === 'project') return slug ? `/landing/project/${slug}` : '/landing/project';
+    return '/landing';
+};
+
+const formatMenuLabel = (item: any) => item.title ?? item.name ?? item.slug ?? '';
+
+const getMenuItems = (menu: MenuCategory) => {
+    if (menu === 'services') return listServices;
+    if (menu === 'sectors') return sectorData;
+    if (menu === 'project') return featuredProjects;
+    return Object.keys(aboutData).map((name) => ({ slug: name, title: name, desc: '' }));
+};
+
+const getInitialHoverSlug = (menu: MenuCategory) => {
+    if (menu === 'services') return listServices[0]?.slug ?? '';
+    if (menu === 'sectors') return sectorData[0]?.slug ?? '';
+    if (menu === 'project') return featuredProjects[0]?.slug ?? '';
+    return Object.keys(aboutData)[0];
+};
 
 export const Navbar: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
-
-    // State Desktop Dropdown (Hover)
-    const [activeMenu, setActiveMenu] = useState<'services' | 'sectors' | 'about' | null>(null);
-    const [hoveredService, setHoveredService] = useState<ServiceKeys>('Inspection & Assessment');
-    const [hoveredSector, setHoveredSector] = useState<SectorKeys>('Oil & Gas');
+    const [activeMenu, setActiveMenu] = useState<MenuCategory | null>(null);
+    const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
+    const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('sectors'));
+    const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string>(getInitialHoverSlug('project'));
     const [hoveredAbout, setHoveredAbout] = useState<AboutKeys>('Our Company');
-
-    // State Mobile Menu (Click)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [mobileExpandedMenu, setMobileExpandedMenu] = useState<'services' | 'sectors' | 'about' | null>(null);
+    const [mobileExpandedMenu, setMobileExpandedMenu] = useState<MenuCategory | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -74,65 +150,66 @@ export const Navbar: React.FC = () => {
     }, []);
 
     // Fungsi Toggle Accordion di Mobile
-    const toggleMobileAccordion = (menu: 'services' | 'sectors' | 'about') => {
+    const toggleMobileAccordion = (menu: 'services' | 'sectors' | 'project' | 'about') => {
         setMobileExpandedMenu(mobileExpandedMenu === menu ? null : menu);
     };
 
-    // Render konten mega menu khusus Desktop
     const renderMegaMenuContent = () => {
-        let currentData: any = {};
-        let currentHovered: string = '';
-        let setHoverAction: (key: any) => void = () => { };
+        if (!activeMenu) return null;
 
-        if (activeMenu === 'services') {
-            currentData = servicesData;
-            currentHovered = hoveredService;
-            setHoverAction = setHoveredService;
-        } else if (activeMenu === 'sectors') {
-            currentData = sectorsData;
-            currentHovered = hoveredSector;
-            setHoverAction = setHoveredSector;
-        } else if (activeMenu === 'about') {
-            currentData = aboutData;
-            currentHovered = hoveredAbout;
-            setHoverAction = setHoveredAbout;
-        } else {
-            return null;
-        }
+        const items = getMenuItems(activeMenu);
+        const selectedSlug = activeMenu === 'services'
+            ? hoveredServiceSlug
+            : activeMenu === 'sectors'
+                ? hoveredSectorSlug
+                : activeMenu === 'project'
+                    ? hoveredProjectSlug
+                    : hoveredAbout;
+
+        const selectedItem = items.find((item: any) => item.slug === selectedSlug) ?? items[0];
+        const menuImages = getMenuImages(activeMenu, selectedItem.slug);
 
         return (
-            <div className="grid grid-cols-3 gap-8 items-center h-full">
-
-                {/* Left Picture */}
-                <div className="h-[400px] overflow-hidden bg-muted">
+            <div className="grid grid-cols-3 gap-8 items-center h-full p-8">
+                <div className="h-[400px] overflow-hidden bg-muted rounded-[32px]">
                     <img
-                        src={currentData[currentHovered].leftImg}
-                        alt={`${currentHovered} left`}
+                        src={menuImages.leftImg}
+                        alt={`${formatMenuLabel(selectedItem)} left`}
                         className="w-full h-full object-cover transition-opacity duration-300"
                     />
                 </div>
 
-                {/* Center Options List */}
                 <div className="flex flex-col gap-1.5 justify-center py-4">
-                    {Object.keys(currentData).map((itemName) => (
-                        <button
-                            key={itemName}
-                            onMouseEnter={() => setHoverAction(itemName)}
-                            className={`text-left px-5 py-3 rounded-lg text-[14px] transition-all duration-200 ${currentHovered === itemName
-                                ? 'bg-[oklch(0.488_0.243_264.376_/_0.05)] text-vertex-primary font-semibold translate-x-1'
-                                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
-                                }`}
-                        >
-                            {itemName}
-                        </button>
-                    ))}
+                    {items.map((item: any) => {
+                        const label = formatMenuLabel(item);
+                        const href = activeMenu === 'about' ? '/landing/about' : getPageHref(activeMenu, item.slug);
+                        const isSelected = item.slug === selectedItem.slug;
+
+                        return (
+                            <Link
+                                key={item.slug}
+                                href={href}
+                                onMouseEnter={() => {
+                                    if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
+                                    if (activeMenu === 'sectors') setHoveredSectorSlug(item.slug);
+                                    if (activeMenu === 'project') setHoveredProjectSlug(item.slug);
+                                    if (activeMenu === 'about') setHoveredAbout(item.slug as AboutKeys);
+                                }}
+                                className={`text-left px-5 py-3 rounded-lg text-[14px] transition-all duration-200 ${isSelected
+                                    ? 'bg-[oklch(0.488_0.243_264.376_/_0.05)] text-vertex-primary font-semibold translate-x-1'
+                                    : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+                                    }`}
+                            >
+                                {label}
+                            </Link>
+                        );
+                    })}
                 </div>
 
-                {/* Right Picture */}
-                <div className="h-[400px] overflow-hidden bg-muted">
+                <div className="h-[400px] overflow-hidden bg-muted rounded-[32px]">
                     <img
-                        src={currentData[currentHovered].rightImg}
-                        alt={`${currentHovered} right`}
+                        src={menuImages.rightImg}
+                        alt={`${formatMenuLabel(selectedItem)} right`}
                         className="w-full h-full object-cover transition-opacity duration-300"
                     />
                 </div>
@@ -146,7 +223,7 @@ export const Navbar: React.FC = () => {
         <nav
             onMouseLeave={() => setActiveMenu(null)}
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                ? 'py-6 md:py-8 shadow-xl backdrop-blur-md '
+                ? 'py-6 md:py-8 shadow-xl backdrop-blur-md bg-foreground/30'
                 : 'py-6 md:py-8 shadow-xl backdrop-blur-md '
                 }`}
         >
@@ -154,43 +231,51 @@ export const Navbar: React.FC = () => {
                 {/* LOGO */}
                 <a href="/landing" className="flex flex-col no-underline z-10 group">
                     {/* Menambahkan drop-shadow putih/cyan agar dipaksa glowing di semua halaman */}
-                    <span className="font-extrabold text-xl sm:text-2xl tracking-tighter leading-none text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.85)]">
-                        JaPa
+                    <span className="font-extrabold text-xl sm:text-2xl tracking-tighter leading-none bg-chart-2 bg-clip-text text-transparent">
+                        JaPaTek
                     </span>
-                    <span className="text-[8px] sm:text-[9px] font-semibold tracking-[0.2em] uppercase leading-none mt-1 text-white/70 drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">
-                        Engineering Consultants
+                    <span className="text-[8px] sm:text-[9px] font-semibold tracking-[0.2em] uppercase leading-none mt-1 bg-gradient-to-r from-primary to-chart-3 bg-clip-text text-transparent drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">
+                        Engineering Consulting
                     </span>
                 </a>
 
                 {/* 1. DESKTOP NAVIGATION LINKS */}
                 <div className="hidden md:flex items-center gap-0.5">
-                    <div className="relative" onMouseEnter={() => setActiveMenu('services')}>
-                        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 cursor-pointer font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-card/10 text-foreground' : textStyle
-                            }`}>
-                            Services
-                            <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
-                        </button>
-                    </div>
+                    <Link
+                        href="/landing/services"
+                        onMouseEnter={() => setActiveMenu('services')}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-card/10 text-foreground' : textStyle}`}
+                    >
+                        Services
+                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
+                    </Link>
 
-                    <div className="relative" onMouseEnter={() => setActiveMenu('sectors')}>
-                        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 cursor-pointer font-medium transition-all duration-200 ${activeMenu === 'sectors' ? 'bg-card/10 text-foreground' : textStyle
-                            }`}>
-                            Sectors
-                            <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'sectors' ? 'rotate-180' : ''}`} />
-                        </button>
-                    </div>
+                    <Link
+                        href="/landing/sector"
+                        onMouseEnter={() => setActiveMenu('sectors')}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'sectors' ? 'bg-card/10 text-foreground' : textStyle}`}
+                    >
+                        Sectors
+                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'sectors' ? 'rotate-180' : ''}`} />
+                    </Link>
 
-                    <button onMouseEnter={() => setActiveMenu(null)} className={`px-3 py-2 rounded-lg text-sm text-white/85 cursor-pointer font-medium transition-all duration-200 ${textStyle}`}>
+                    <Link
+                        href="/landing/project"
+                        onMouseEnter={() => setActiveMenu('project')}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'project' ? 'bg-card/10 text-foreground' : textStyle}`}
+                    >
                         Projects
-                    </button>
+                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'project' ? 'rotate-180' : ''}`} />
+                    </Link>
 
-                    <div className="relative" onMouseEnter={() => setActiveMenu('about')}>
-                        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 cursor-pointer font-medium transition-all duration-200 ${activeMenu === 'about' ? 'bg-card/10 text-foreground' : textStyle
-                            }`}>
-                            About
-                            <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'about' ? 'rotate-180' : ''}`} />
-                        </button>
-                    </div>
+                    <Link
+                        href="/landing/about"
+                        onMouseEnter={() => setActiveMenu('about')}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'about' ? 'bg-card/10 text-foreground' : textStyle}`}
+                    >
+                        About
+                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'about' ? 'rotate-180' : ''}`} />
+                    </Link>
                 </div>
 
                 {/* DESKTOP PHONE & CTA BUTTON */}
@@ -199,7 +284,7 @@ export const Navbar: React.FC = () => {
                         <Phone className="w-3.5 h-3.5" />
                         +61 8 1234 5678
                     </a> */}
-                    <a href="mailto:contact@JaPa.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" className="inline-flex items-center gap-1.5 bg-primary text-white border-none rounded-lg px-[18px] py-[9px] text-sm font-semibold cursor-pointer transition-all hover:bg-vertex-primary-hover hover:-translate-y-0.5 z-10">
+                    <a href="mailto:contact@JaPaTek.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" className="inline-flex items-center gap-1.5 bg-primary text-white border-none rounded-lg px-[18px] py-[9px] text-sm font-semibold cursor-pointer transition-all hover:bg-vertex-primary-hover hover:-translate-y-0.5 z-10">
                         Contact Us
                         <ArrowRight className="w-3.5 h-3.5" />
                     </a>
@@ -242,13 +327,19 @@ export const Navbar: React.FC = () => {
                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'services' ? 'rotate-180' : ''}`} />
                         </button>
                         <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'services' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-                            {Object.keys(servicesData).map((name) => (
-                                <a key={name} href="#services" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">{name}</a>
+                                    {listServices.map((service: ServiceItem) => (
+                                <Link
+                                    key={service.slug}
+                                    href={`/landing/services/${service.slug}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="py-2 text-sm text-foreground/75 hover:text-vertex-primary"
+                                >
+                                    {service.title}
+                                </Link>
                             ))}
                         </div>
                     </div>
 
-                    {/* Mobile Accordion: Sectors */}
                     <div>
                         <button
                             onClick={() => toggleMobileAccordion('sectors')}
@@ -258,18 +349,29 @@ export const Navbar: React.FC = () => {
                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'sectors' ? 'rotate-180' : ''}`} />
                         </button>
                         <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'sectors' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-                            {Object.keys(sectorsData).map((name) => (
-                                <a key={name} href="#sectors" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">{name}</a>
+                            {sectorData.map((sector: Sector) => (
+                                <Link
+                                    key={sector.slug}
+                                    href={`/landing/sector/${sector.slug}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="py-2 text-sm text-foreground/75 hover:text-vertex-primary"
+                                >
+                                    {sector.name}
+                                </Link>
                             ))}
                         </div>
                     </div>
 
-                    {/* Mobile Link: Projects */}
-                    <a href="#projects" onClick={() => setIsMobileMenuOpen(false)} className="py-2.5 font-semibold border-b border-border/20">
-                        Projects
-                    </a>
+                    <div>
+                        <Link
+                            href="/landing/project"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="py-2.5 font-semibold border-b border-border/20"
+                        >
+                            Projects
+                        </Link>
+                    </div>
 
-                    {/* Mobile Accordion: About */}
                     <div>
                         <button
                             onClick={() => toggleMobileAccordion('about')}
@@ -280,7 +382,14 @@ export const Navbar: React.FC = () => {
                         </button>
                         <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'about' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
                             {Object.keys(aboutData).map((name) => (
-                                <a key={name} href="#about" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">{name}</a>
+                                <Link
+                                    key={name}
+                                    href="/landing/about"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="py-2 text-sm text-foreground/75 hover:text-vertex-primary"
+                                >
+                                    {name}
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -291,7 +400,7 @@ export const Navbar: React.FC = () => {
                             <Phone className="w-4 h-4" />
                             +61 8 1234 5678
                         </a> */}
-                        <a href="mailto:contact@JaPa.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex items-center justify-center gap-2 bg-vertex-primary text-white rounded-lg py-3 text-sm font-semibold shadow-md">
+                        <a href="mailto:contact@JaPaTek.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex items-center justify-center gap-2 bg-vertex-primary text-white rounded-lg py-3 text-sm font-semibold shadow-md">
                             Contact Us
                             <ArrowRight className="w-4 h-4" />
                         </a>

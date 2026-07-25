@@ -52,7 +52,7 @@ export default function LogOut() {
         isOpen={showModal}
         onClose={handleCancel}
         onConfirm={handleConfirm}
-        message="Exit from JaPa?"
+        message="Exit from JaPaTek?"
       />
     </>
   );

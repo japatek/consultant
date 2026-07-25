@@ -2,9 +2,7 @@ generator client {
   provider = "prisma-client-js" 
   output   = "../node_modules/.prisma/client" 
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
-
 
 datasource db {
   provider = "postgresql" // Asumsi menggunakan PostgreSQL karena tipe data seperti jsonb, bytea, int4
@@ -104,6 +102,90 @@ model VerificationToken {
   @@id([identifier, token])
   @@map("verification_tokens")
 }
+
+
+model Agent {
+  id            String   @id @default(cuid())
+  name          String
+  status        String   // "active" | "idle" | "error" | "paused" | "initializing"
+  lastActiveAt  DateTime @default(now())
+  uptimePercent Float    @default(100.0)
+  avgLatencyMs  Int      @default(0)
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Mewakili dompet utama pengguna dari hasil top-up
+model UserWallet {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalFundUsd    Float    // Total uang masuk (Contoh: 200.00)
+  spentUsd        Float    @default(0) // Total yang sudah dipakai semua agent
+  
+  // Relasi ke agent-agent yang dimiliki pengguna
+  agents          AgentAllocation[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Mewakili Agent dan kuota yang didistribusikan oleh pengguna
+model AgentAllocation {
+  id              String     @id @default(cuid())
+  name            String     // Contoh: "Customer Service Agent"
+  walletId        String
+  wallet          UserWallet @relation(fields: [walletId], references: [id])
+  
+  // Limit dana yang boleh dihabiskan agent ini (didistribusikan oleh user)
+  // Jika null, artinya agent bisa pakai saldo wallet tanpa batas
+  budgetLimitUsd  Float?     
+
+  // ==========================================
+  // TRACKING TOKEN (Di-update otomatis oleh LLM)
+  // ==========================================
+  usedBaseInput   Int        @default(0)
+  usedCache5m     Int        @default(0)
+  usedCache1h     Int        @default(0)
+  usedCacheHit    Int        @default(0)
+  usedOutput      Int        @default(0)
+  
+  // Total uang yang sudah dihabiskan khusus oleh Agent ini
+  totalCostUsd    Float      @default(0)
+
+  usageLogs       UsageLog[]
+}
+
+// Log setiap kali LLM selesai generate response (Untuk audit & history)
+model UsageLog {
+  id              String          @id @default(cuid())
+  agentId         String
+  agent           AgentAllocation @relation(fields: [agentId], references: [id])
+  
+  baseInput       Int             @default(0)
+  cache5m         Int             @default(0)
+  cache1h         Int             @default(0)
+  cacheHit        Int             @default(0)
+  output          Int             @default(0)
+  
+  costUsd         Float           // Biaya spesifik untuk 1 request ini
+  createdAt       DateTime        @default(now())
+}
+
+model CourseMaterial {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  duration    String
+  level       String   // "Easy", "Medium", "Hard"
+  content     String   // @db.Text <-- This will store your Markdown
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
 model Tool {
   id            String   @id @default(cuid())
   slug          String   @unique

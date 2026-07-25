@@ -9,12 +9,12 @@ import { OurClients } from './_components/client';
 
 export default function App() {
   return(
-      <div className="font-sans antialiased text-vertex-fg bg-white overflow-x-hidden selection:bg-vertex-primary selection:text-white">
+      <div className="font-sans antialiased text-vertex-fg bg-white overflow-x-hidden selection:bg-[royalblue] selection:text-white">
       <Navbar />
       <Hero />
       <FeaturedProjects />
-      <OurClients/>
       <CTA />
+      <OurClients/>
       <Footer />
     </div>
   )

@@ -10,57 +10,27 @@ import {
   ArrowRight 
 } from 'lucide-react';
 
+import { sectorData } from '../_lib/sectors-data';
+
 interface Sector {
   name: string;
-  icon: React.ReactNode;
   desc: string;
   caps: string[];
   slug: string;
 }
 
+const sectorIcons: Record<string, React.ReactNode> = {
+  'oil-and-gas': <Fuel size={16} strokeWidth={1.5} />,
+  'mining-and-resources': <Pickaxe size={16} strokeWidth={1.5} />,
+  'water-and-wastewater': <Droplet size={16} strokeWidth={1.5} />,
+  'industrial': <Settings size={16} strokeWidth={1.5} />,
+  'infrastructure': <Construction size={16} strokeWidth={1.5} />,
+};
+
 export const Sectors: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
 
-  const sectorData: Sector[] = [
-    {
-      name: "Oil & Gas",
-      icon: <Fuel size={16} strokeWidth={1.5} />,
-      slug: "oil-and-gas",
-      desc: "JaPa provides specialist engineering support to oil and gas operators across upstream, midstream and downstream assets. Our engineers have extensive experience with pressure vessels, piping systems, and structural integrity assessment in corrosive and high-temperature environments.",
-      caps: ["Pressure vessel engineering", "Pipeline integrity assessment", "Corrosion evaluation & management", "Hazardous area structural review"]
-    },
-    {
-      name: "Mining & Resources",
-      icon: <Pickaxe size={16} strokeWidth={1.5} />,
-      slug: "mining-and-resources",
-      desc: "Our mining sector expertise spans mineral processing facilities, tailings infrastructure, and materials handling systems. We work alongside major Australian mining operators to deliver engineering certainty in highly demanding and remote environments.",
-      caps: ["Tailings management structures", "Mineral processing plant design", "Materials handling engineering", "Ground stability analysis"]
-    },
-    {
-      name: "Water & Wastewater",
-      icon: <Droplet size={16} strokeWidth={1.5} />,
-      slug: "water-and-wastewater",
-      desc: "From water treatment plants to sewerage infrastructure, JaPa delivers full-cycle engineering solutions. We specialise in storage tanks, distribution pipelines, and civil infrastructure for water utilities, councils, and private operators.",
-      caps: ["Water treatment plant design", "Sewage treatment engineering", "Storage tank structural design", "Pipeline condition assessment"]
-    },
-    {
-      name: "Industrial",
-      icon: <Settings size={16} strokeWidth={1.5} />,
-      slug: "industrial",
-      desc: "Industrial clients engage JaPa for facility structural assessment, process equipment design, and compliance review. Our engineers understand the demands of continuous operation and the critical importance of minimising unplanned production downtime.",
-      caps: ["Industrial facility assessment", "Process equipment engineering", "Maintenance strategy development", "Compliance & standards review"]
-    },
-    {
-      name: "Infrastructure",
-      icon: <Construction size={16} strokeWidth={1.5} />,
-      slug: "infrastructure",
-      desc: "JaPa supports civil and transport infrastructure projects with structural design, condition assessment, and asset management strategies. We bring engineering precision to bridges, retaining structures, and major public infrastructure assets.",
-      caps: ["Bridge structural assessment", "Retaining wall design", "Road & transport infrastructure", "Asset management planning"]
-    }
-  ];
-
   const current = sectorData[activeTab];
-
   return (
     <section className="py-24 bg-background" id="sectors">
       <div className="max-w-7xl mx-auto px-6">
@@ -70,7 +40,7 @@ export const Sectors: React.FC = () => {
             <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight leading-none">Expert support across<br />major industrial sectors</h2>
           </div>
           <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[320px] md:text-right">
-            Clients from a wide range of industries engage JaPa for advanced engineering and testing services.
+            Clients from a wide range of industries engage JaPaTek for advanced engineering and testing services.
           </p>
         </div>
         
@@ -88,7 +58,7 @@ export const Sectors: React.FC = () => {
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                   activeTab === idx ? 'bg-primary text-white' : 'bg-muted text-foreground/40'
                 }`}>
-                  {tab.icon}
+                  {sectorIcons[tab.slug]}
                 </div>
                 <span className={`text-sm transition-colors ${
                   activeTab === idx ? 'text-chart-2 font-semibold' : 'text-muted-fg font-medium group-hover:text-foreground/40'
@@ -113,7 +83,7 @@ export const Sectors: React.FC = () => {
             
             <div className="mt-8">
               <Link 
-                href={`/a/sector/${current.slug}`} 
+                href={`/landing/sector/${current.slug}`} 
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-chart-3 transition-all hover:gap-2.5"
               >
                 Explore {current.name} 

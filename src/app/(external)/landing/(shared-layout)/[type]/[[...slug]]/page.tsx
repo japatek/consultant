@@ -7,6 +7,11 @@ import { Sectors } from '../../../_components/sectors';
 import { Services } from '../../../_components/services';
 import { FeaturedProjects } from '../../../_components/featured-projects';
 
+// Data imports
+import { featuredProjects } from '../../../_lib/featured-projects-data';
+import { listServices } from '../../../_lib/services-data';
+import { sectorData } from '../../../_lib/sectors-data'; // <-- Adjust this path to where you saved the sector array
+
 // Import Shadcn UI Carousel components
 import {
   Carousel,
@@ -17,9 +22,6 @@ import {
 } from "@/components/ui/carousel";
 
 const desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit...";
-
-// Configuration for CloudFront Domain (Fallback to placeholder if env not set)
-const CLOUDFRONT_BASE_URL = process.env.MEDIA_URL || "https://d2tbt8ofproiin.cloudfront.net";
 
 interface PageProps {
   params: Promise<{
@@ -44,9 +46,18 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
 
   const mainSlug = slug ? slug[0] : null;
   const subSlug = slug && slug.length > 1 ? slug[1] : null;
+  
+  // Find matching data based on the type
+  const project = type === 'project' && mainSlug ? featuredProjects.find((proj) => proj.slug === mainSlug) : null;
+  const service = type === 'services' && mainSlug ? listServices.find((item) => item.slug === mainSlug) : null;
+  const sector = type === 'sector' && mainSlug ? sectorData.find((sec) => sec.slug === mainSlug) : null;
+
+  // Dynamically set title and description (prioritizing extend_desc)
+  const pageTitle = project?.title ?? service?.title ?? sector?.name ?? mainSlug?.replace('-', ' ');
+  const pageDescription = project?.extend_desc ?? service?.extend_desc ?? sector?.extend_desc ??
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet elementum neque, vitae sodales augue. Nam sed lorem ornare dui vulputate rhoncus. Integer suscipit libero non odio interdum sagittis. Phasellus pretium lobortis ipsum, sed finibus justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.';
 
   // 2. Dynamically construct 3 CloudFront image URLs based on mainSlug
-  // Example: "Vending-Machine" -> "vending-machine"
   const formattedSlug = mainSlug ? mainSlug.toLowerCase() : 'default';
 
   // Generates 3 URLs: .../vending-machine-1.jpg, -2.jpg, -3.jpg
@@ -63,16 +74,53 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
       heroTitle = 'Services';
       heroTitleDesc = 'All services we are provided.';
     } else if (isSubLevel1) {
-      heroTitle = `Service: ${mainSlug?.replace('-', ' ')}`;
+      heroTitle = `Service: ${pageTitle}`;
       heroTitleDesc = 'Technical specifications of our main engineering service.';
     } else if (isSubLevel2) {
       heroTitle = `${subSlug?.replace('-', ' ')}`;
-      heroTitleDesc = `Specialized division under ${mainSlug?.replace('-', ' ')}.`;
+      heroTitleDesc = `Specialized division under ${pageTitle}.`;
+    }
+  } else if (type === 'sector') {
+    if (isIndexPage) {
+      heroTitle = 'Sectors';
+      heroTitleDesc = 'Industries we serve.';
+    } else if (isSubLevel1) {
+      heroTitle = `Sector: ${pageTitle}`;
+      heroTitleDesc = 'Specialized engineering support for this industry.';
     }
   } else {
     heroTitle = type.toUpperCase();
     heroTitleDesc = `Overview of ${type}`;
   }
+
+  const renderDescription = (text: string) => {
+    return text
+      .trim()
+      .split(/\n\s*\n/)
+      .filter(Boolean)
+      .map((paragraph, index) => {
+        const lines = paragraph.split(/\n/).map((line) => line.trim()).filter(Boolean);
+        const bulletLines = lines.filter((line) => line.startsWith('•'));
+        const introLines = lines.filter((line) => !line.startsWith('•'));
+
+        return (
+          <div key={index} className="space-y-4">
+            {introLines.length > 0 && (
+              <p className="text-[15px] text-muted-foreground leading-relaxed pl-8">
+                {introLines.join(' ')}
+              </p>
+            )}
+            {bulletLines.length > 0 && (
+              <ul className="list-disc pl-8 ml-6 text-[15px] text-muted-foreground leading-relaxed space-y-2">
+                {bulletLines.map((line, itemIndex) => (
+                  <li key={itemIndex}>{line.replace(/^•\s*/, '')}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      });
+  };
 
   return (
     <div className="font-sans antialiased text-vertex-fg bg-background overflow-x-hidden">
@@ -95,17 +143,12 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
             {/* Column 1: Text Description */}
             <div className="space-y-4">            
               <span className="text-xs font-bold uppercase tracking-widest text-chart-3">
-                Level 1: {type} Detail
+                {type} Detail
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground capitalize">
-                {mainSlug?.replace('-', ' ')}
+                {pageTitle}
               </h2>
-              <p className="text-[15px] text-muted-foreground leading-relaxed">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet elementum neque, vitae sodales augue. Nam sed lorem ornare dui vulputate rhoncus. Integer suscipit libero non odio interdum sagittis. Phasellus pretium lobortis ipsum, sed finibus justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. 
-              </p>
-              <p className="text-[15px] text-muted-foreground leading-relaxed">
-                Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque ac mauris posuere, tristique erat et, congue lectus.
-              </p>
+              <div>{renderDescription(pageDescription)}</div>
             </div>
             
             {/* Column 2: Dynamic CloudFront Carousel */}
@@ -141,7 +184,7 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
             <span className="text-xs font-bold uppercase tracking-widest text-rose-600">Level 2: Sub-Spesialisasi</span>
             <h2 className="text-2xl font-bold text-slate-900 mt-2 capitalize">{subSlug?.replace('-', ' ')}</h2>
             <p className="mt-4 text-slate-600">
-              Ini adalah halaman sub-spesifik baru Anda. Berada di dalam grup: <strong className="capitalize">{mainSlug}</strong>.
+              Ini adalah halaman sub-spesifik baru Anda. Berada di dalam grup: <strong className="capitalize">{pageTitle}</strong>.
             </p>
           </div>
         )}

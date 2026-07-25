@@ -1,13 +1,13 @@
 # `database/local/` — Shared local-storage foundation
 
 This module is the **single source of truth** for the on-device data
-layer used by every JaPa client surface. It implements the design
+layer used by every JaPaTek client surface. It implements the design
 in [DOCUMENT/Database-Local-Architecture.md](../../DOCUMENT/Database-Local-Architecture.md).
 
 | File | Purpose | Used by |
 |---|---|---|
 | [sqlite-schema.sql](sqlite-schema.sql) | DDL for the SQLite database (sessions, messages, attachments, artifacts, sync_outbox, schema_version) | Desktop, CLI, Office-VSTO, CAD, Mobile |
-| [idb-schema.ts](idb-schema.ts)         | IndexedDB object-store types + `openJaPaDB()` helper                                                | Browser ext, Office WebView, Web app |
+| [idb-schema.ts](idb-schema.ts)         | IndexedDB object-store types + `openJaPaTekDB()` helper                                                | Browser ext, Office WebView, Web app |
 | [sync-payload.ts](sync-payload.ts)     | JSON wire-format for the `sync_outbox` queue                                                          | All surfaces |
 | [local-paths.ts](local-paths.ts)       | Per-surface artifact-root resolver                                                                    | Filesystem surfaces |
 
@@ -18,7 +18,7 @@ in [DOCUMENT/Database-Local-Architecture.md](../../DOCUMENT/Database-Local-Archi
 1. Copy [sqlite-schema.sql](sqlite-schema.sql) into [src-tauri/migrations/001_init.sql](../../src-tauri/migrations/001_init.sql).
 2. In `main.rs`, resolve the DB path with the `desktop` surface:
    ```ts
-   import { resolveLocalPaths } from "@JaPa/local/local-paths";
+   import { resolveLocalPaths } from "@JaPaTek/local/local-paths";
    const paths = resolveLocalPaths("desktop");
    ```
 3. Open the SQLite file with `rusqlite::Connection::open(paths.sqliteFile)` and run all `migrations/*.sql` in order; bump `schema_version` after each.
@@ -31,14 +31,14 @@ in [DOCUMENT/Database-Local-Architecture.md](../../DOCUMENT/Database-Local-Archi
    ```ts
    import { resolveLocalPaths } from "../../database/local/local-paths";
    const paths = resolveLocalPaths("cli");
-   // paths.root === ~/.config/JaPa-cli
+   // paths.root === ~/.config/JaPaTek-cli
    ```
 3. Reuse the existing `history.json` writer until SQLite is wired; then migrate by inserting the JSON entries into `sessions` / `messages`.
 
 ### Browser extension (`wxt-browser-extension/`)
 
 1. `pnpm add idb`
-2. Call `openJaPaDB("JaPaDB")` from the background service worker on install.
+2. Call `openJaPaTekDB("JaPaTekDB")` from the background service worker on install.
 3. Store the auth token in `chrome.storage.session` (memory-only); never in IDB.
 4. Drain `syncOutbox` with `chrome.alarms.create("JaPa-sync", { periodInMinutes: 1 })`.
 
@@ -55,7 +55,7 @@ in [DOCUMENT/Database-Local-Architecture.md](../../DOCUMENT/Database-Local-Archi
 ### Office add-in (`office-extension/`)
 
 * **VSTO build (Windows desktop Office)**: filesystem-backed — use `resolveLocalPaths("office")`, ship the SQLite migrations like Desktop.
-* **Office-web / Mac**: WebView-only — use [`openJaPaDB("JaPaOffice")`](idb-schema.ts) instead.
+* **Office-web / Mac**: WebView-only — use [`openJaPaTekDB("JaPaOffice")`](idb-schema.ts) instead.
 
 ### CAD add-in (`cad-extension/`)
 

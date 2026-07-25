@@ -20,7 +20,7 @@ import RegisterCodeEmail   from "@/components/template-email/register-code-email
 // Shared constants
 // ---------------------------------------------------------------------------
 
-const FROM     = process.env.EMAIL_FROM    ?? "JaPa <noreply@aotamata.com>";
+const FROM     = process.env.EMAIL_FROM    ?? "JaPaTek <noreply@aotamata.com>";
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "JaPa";
 
 // ---------------------------------------------------------------------------

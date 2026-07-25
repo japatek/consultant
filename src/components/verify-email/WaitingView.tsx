@@ -29,7 +29,7 @@ export default function WaitingView({ onResend, isResending = false }: WaitingVi
       <h1 style={V.title}>Cek Kotak Masuk Anda</h1>
       <p style={V.body}>
         Kami telah mengirimkan tautan verifikasi ke alamat email Anda.
-        Klik tautan tersebut untuk mengaktifkan akun JaPa.
+        Klik tautan tersebut untuk mengaktifkan akun JaPaTek.
       </p>
 
       <div style={V.divider} />

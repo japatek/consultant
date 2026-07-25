@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 
 const slideImages = [
   { type: 'image', src: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?q=80&w=1470&auto=format&fit=crop' },
-  { type: 'video', src: 'https://media.istockphoto.com/id/480961036/id/video/skema.mp4?s=mp4-640x640-is&k=20&c=VKNdw1JtD9efX6R-s2PqMIEX8YUBnMDWgrFbBCvNhAs=' },
-  { type: 'image', src: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1920' }
+  { type: 'video', src: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-video-1.mp4' },
+  { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-3.jpg' }
 ]
 
 export const Hero: React.FC = () => {
@@ -83,12 +83,12 @@ export const Hero: React.FC = () => {
         </h1>
 
         <p className="text-base sm:text-lg text-white/80 max-w-lg leading-relaxed mb-10 md:mb-11 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-          Unlock next-generation capabilities. Experience JaPa’s advanced AI Tools and Agent to analyze, simulate, and optimize complex engineering challenges across industrial sectors in seconds.
+          Unlock next-generation capabilities. Experience JaPaTek’s advanced AI Tools and Agent to analyze, simulate, and optimize complex engineering challenges across industrial sectors in seconds.
         </p>
         
         {/* Tombol Aksi Utama untuk Mencoba AI */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
-          <a href="/tools" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
+          <a href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
             Explore Our AI Tools
             <ArrowRight size={16} strokeWidth={2} />
           </a>
@@ -120,7 +120,7 @@ export const Hero: React.FC = () => {
             { title: 'Our Services', desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
             { title: 'Our Sector', desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/sector' },
             {
-              title: 'Why Us?',
+              title: 'About Us',
               desc: 'Expert engineering solutions built on experience and precision.',
               bgColor: 'bg-[#2A6592]/30',
               link: '/landing/about'

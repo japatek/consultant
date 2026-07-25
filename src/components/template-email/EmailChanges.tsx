@@ -42,7 +42,7 @@ export default function EmailChanges({
               <table cellPadding={0} cellSpacing={0}><tr>
                 <td style={S.logoCell}><Text style={S.logoText}>IF</Text></td>
                 <td style={{ paddingLeft: 10, verticalAlign: "middle" }}>
-                  <Text style={S.logoName}>JaPa</Text>
+                  <Text style={S.logoName}>JaPaTek</Text>
                 </td>
               </tr></table>
             </td></tr></table>
@@ -58,7 +58,7 @@ export default function EmailChanges({
 
             <Text style={S.body2}>
               Anda telah meminta perubahan alamat email untuk akun{" "}
-              <strong style={{ color: "#00d4c8" }}>JaPa</strong> Anda.
+              <strong style={{ color: "#00d4c8" }}>JaPaTek</strong> Anda.
               Klik tombol di bawah untuk mengonfirmasi perubahan ini.
             </Text>
 
@@ -116,7 +116,7 @@ export default function EmailChanges({
               Email ini dikirim secara otomatis. Mohon tidak membalas email ini.
             </Text>
             <Text style={S.footerText}>
-               {new Date().getFullYear()} JaPa  Platform AI Pengisian Formulir Digital Otomatis.
+               {new Date().getFullYear()} JaPaTek  Platform AI Pengisian Formulir Digital Otomatis.
             </Text>
           </Section>
 
@@ -131,7 +131,7 @@ EmailChanges.PreviewProps = {
   newEmail:  "budi.baru@example.com",
   currentEmail:  "budi@example.com",
   verifyUrl: "http://localhost:3000/api/auth/verify?token=preview_token",
-  appName:"JaPa"
+  appName:"JaPaTek"
 } satisfies EmailChangeVerificationProps;
 
 const S: Record<string, React.CSSProperties> = {

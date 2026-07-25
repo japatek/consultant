@@ -41,7 +41,7 @@ export default function VerificationEmail({
       <Head />
 
       {/* Preview text shown in inbox before opening */}
-      <Preview>Verifikasi email Anda untuk mengaktifkan akun JaPa</Preview>
+      <Preview>Verifikasi email Anda untuk mengaktifkan akun JaPaTek</Preview>
 
       <Body style={body}>
         <Container style={container}>
@@ -76,7 +76,7 @@ export default function VerificationEmail({
             </Text>
 
             <Text style={bodyText}>
-              Terima kasih telah mendaftar di <strong style={{ color: "#00d4c8" }}>JaPa</strong> 
+              Terima kasih telah mendaftar di <strong style={{ color: "#00d4c8" }}>JaPaTek</strong> 
               platform AI Pengisian Formulir Digital Otomatis. Klik tombol di bawah untuk
               memverifikasi alamat email Anda dan mengaktifkan akun.
             </Text>
@@ -111,11 +111,11 @@ export default function VerificationEmail({
           {/*  Footer  */}
           <Section style={footerSection}>
             <Text style={footerText}>
-              Email ini dikirim oleh JaPa secara otomatis. Mohon tidak membalas
+              Email ini dikirim oleh JaPaTek secara otomatis. Mohon tidak membalas
               email ini.
             </Text>
             <Text style={footerText}>
-               {new Date().getFullYear()} JaPa  Platform AI Pengisian Formulir Digital Otomatis.
+               {new Date().getFullYear()} JaPaTek  Platform AI Pengisian Formulir Digital Otomatis.
             </Text>
           </Section>
 
@@ -133,7 +133,7 @@ VerificationEmail.PreviewProps = {
 
 //  Styles 
 // React Email uses inline styles  no CSS classes or variables.
-// Colors mirror JaPa's global.css tokens.
+// Colors mirror JaPaTek's global.css tokens.
 
 const body: React.CSSProperties = {
   backgroundColor: "#060d1a",

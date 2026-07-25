@@ -13,7 +13,7 @@ export function SidebarSupportCard() {
         <CardDescription>
           Open an issue or do reach out to me on&nbsp;
           <Link
-            href="https://x.com/JaPa"
+            href="https://x.com/JaPaTek"
             target="_blank"
             rel="noreferrer"
             aria-label="Reach out on X"

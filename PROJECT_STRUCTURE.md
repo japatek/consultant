@@ -29,7 +29,7 @@ next-shadcn-token-api-dashboard/
 ├── a/
 │   └── npm.sh
 ├── aws/
-│   └── ses-smtp-user.JaPa2026-07-24_credentials.csv
+│   └── ses-smtp-user.JaPaTek2026-07-24_credentials.csv
 ├── database/
 │   ├── package.json
 │   ├── prisma.config.ts
@@ -70,7 +70,7 @@ next-shadcn-token-api-dashboard/
     │   │       │   ├── nav-bar.tsx
     │   │       │   ├── sectors.tsx
     │   │       │   ├── services.tsx
-    │   │       │   └── whyus.tsx
+    │   │       │   └── JaPaTek.tsx
     │   │       ├── industries/
     │   │       ├── loading.tsx
     │   │       ├── page.tsx
