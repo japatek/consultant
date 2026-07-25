@@ -1,4 +1,0 @@
-node_modules/*
-migrations/*
-.env
-package.json
