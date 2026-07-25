@@ -30,5 +30,5 @@ export async function getAllCategories() {
     select: { category: true },
     distinct: ["category"],
   });
-  return ["All", ...categories.map((c) => c.category)];
+return ["All", ...categories.map((c: { category: string }) => c.category)];
 }
