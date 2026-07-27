@@ -1,4 +1,4 @@
-import { PrismaClient} from '../../../../generated/prisma/client';
+import { PrismaClient} from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import fs from "fs";
 import path from "path";
@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const csvFilePath = path.join(process.cwd(), "data", "tools.csv");
+  const csvFilePath = path.join(process.cwd(),"data", "tools.csv");
   const fileContent = fs.readFileSync(csvFilePath, "utf8");
 
   const parsed = Papa.parse(fileContent, {
