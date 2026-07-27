@@ -88,7 +88,7 @@ export const Hero: React.FC = () => {
         
         {/* Tombol Aksi Utama untuk Mencoba AI */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
-          <a href="/landing/marketplace" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
+          <a href="/marketplace" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
             Explore Our AI Tools
             <ArrowRight size={16} strokeWidth={2} />
           </a>
