@@ -32,6 +32,7 @@ model User {
   updatedAt       DateTime  @updatedAt
   emailChangeLogs EmailChangeLog[]
 
+  licenses        License[]
   @@map("users")
 }
 
@@ -123,6 +124,23 @@ model Tool {
   why           String   @db.Text
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  licenses      License[]
+}
+
+model License {
+  id         String   @id @default(cuid())
+  userId     String
+  toolId     String
+  orderId    String   @unique 
+  isActive   Boolean  @default(false) 
+  licenseKey String?  @unique
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([licenseKey])
 }
 
 
