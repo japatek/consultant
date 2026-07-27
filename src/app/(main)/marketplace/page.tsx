@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/auth"; // Your Auth.js v5 configuration
 import { prisma } from "@/lib/database/prisma";
-import { getToolsPaginated, getAllCategories } from "../../_lib/marketplace-data";
-import MarketplaceClient from "../../_components/marketplace";
+import { getToolsPaginated, getAllCategories } from "./_lib/marketplace-data";
+import MarketplaceClient from "../../(external)/landing/_components/marketplace";
 
 interface PageProps {
   searchParams: Promise<{
