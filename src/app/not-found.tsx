@@ -14,12 +14,12 @@ export default function NotFound() {
         </p>
 
         <div className="flex justify-center">
-          <Link prefetch={false} replace href="/dashboard">
+          <Link prefetch={false} replace href="/landing">
             <Button
               variant="outline"
               className="cursor-pointer h-auto rounded-lg border border-primary bg-transparent px-6 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-primary hover:text-white"
             >
-              Go back home
+              Go back
             </Button>   
           </Link>
         </div>
