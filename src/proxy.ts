@@ -9,6 +9,7 @@ import { decode } from "next-auth/jwt";
 const SIGN_IN_PATH = "/auth/v4/login" as const;
 const LANDING_PATH = "/landing" as const;
 const DASHBOARD_PATH = "/dashboard" as const;
+const MARKETPLACE    = "/marketplace" as const;
 
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
 const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
@@ -83,7 +84,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-
+    if (pathname === "/marketplace") {
+    return NextResponse.redirect(
+      new URL(isLoggedIn ? MARKETPLACE : SIGN_IN_PATH, request.url),
+    );
+  }
 
   // 4. Public external pages
   if (startsWithAny(pathname, PUBLIC_PREFIXES)) {
