@@ -1,5 +1,5 @@
-import { GetApiKey } from "@/components/ui/REMOVE_FOR_DEPLOY_DASHBOARD/form-get-api-key";
-import { DrawerContent } from "@/components/ui/REMOVE_FOR_DEPLOY_DASHBOARD/drawer-with-side";
+import { GetApiKey } from "@/components/ui/form-get-api-key";
+import { DrawerContent } from "@/components/ui/drawer-with-side";
 
 export interface OverviewButtonDataItem {
   id: string;
