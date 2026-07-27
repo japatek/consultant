@@ -61,6 +61,8 @@ spec:
       labels:
         app: mcp
     spec:
+      imagePullSecrets:
+      - name: ecr-secret
       containers:
       - name: mcp
         image: AWS_ACCOUNT_ID.dkr.ecr.AWS_REGION.amazonaws.com/japa/mcp:IMAGE_TAG
