@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { CapWidget } from "@/app/(external)/auth/v4/_components/child/cap-widget";
+import { CapWidget } from "@/components/ui/cap-widget";
 import { setCachedProfile } from "@/lib/auth/use-profile-cache";
 
 type ProfileEditorProps = {

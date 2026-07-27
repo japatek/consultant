@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 
 import { loginAction, type LoginActionState } from "../login/actions";
 import { CheckEmailNotice } from "./child/check-email-notif";
-import { CapWidget } from "./child/cap-widget";
+import { CapWidget } from "@/components/ui/cap-widget";
 import { CheckCircle } from "lucide-react";
 
 import {
