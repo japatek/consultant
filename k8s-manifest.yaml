@@ -37,7 +37,7 @@ spec:
         - name: AUTH_URL
           value: "http://47.129.183.178:30080"
         - name: CAP_BACKEND_URL
-          value: "http://cap-service:8080"
+          value: "http://47.129.183.178:8080"
 ---
 apiVersion: v1
 kind: Service
