@@ -17,6 +17,8 @@ spec:
       labels:
         app: landing
     spec:
+      imagePullSecrets:    
+      - name: ecr-secret
       containers:
       - name: nextjs
         image: AWS_ACCOUNT_ID.dkr.ecr.AWS_REGION.amazonaws.com/japa/consultant:IMAGE_TAG
