@@ -43,7 +43,7 @@ export async function loginAction(
   const callbackUrl =
     rawCallback.startsWith("/") && !rawCallback.startsWith("//")
       ? rawCallback
-      : "/dashboard";
+      : "/marketplace";
 
   // ── 2. Email format validation ─────────────────────────────────────────────
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -115,7 +115,7 @@ export async function googleAction(formData: FormData): Promise<void> {
   const callbackUrl =
     rawCallback.startsWith("/") && !rawCallback.startsWith("//")
       ? rawCallback
-      : "/dashboard/platoverview";
+      : "/marketplace";
 
   await signIn("google", { redirectTo: callbackUrl });
 }

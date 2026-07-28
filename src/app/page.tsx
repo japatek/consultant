@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth }     from "@/lib/auth/auth"; // Sesuaikan dengan path file auth.js v5 Anda
 
-export default async function DashboardRootPage() {
+export default async function LandingRootPage() {
   // 1. Ambil sesi pengguna saat ini (berjalan di server)
   // const session = await auth();
 

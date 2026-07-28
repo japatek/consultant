@@ -79,7 +79,7 @@ export function LoginForm({ urlError, callbackUrl }: LoginFormProps): React.JSX.
     const channel = new BroadcastChannel("auth_channel");
     channel.onmessage = (event) => {
       if (event.data === "login_success") {
-        router.replace(callbackUrl || `/dashboard/platoverview/`);
+        router.replace(callbackUrl || `/marketplace`);
       }
     };
     return () => {

@@ -12,7 +12,7 @@ const DASHBOARD_PATH = "/dashboard" as const;
 const MARKETPLACE    = "/marketplace" as const;
 
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
-const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
+const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized", "/marketplace"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some(
@@ -78,11 +78,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  if (pathname === "/dashboard") {
-    return NextResponse.redirect(
-      new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
-    );
-  }
+  // if (pathname === "/dashboard") {
+  //   return NextResponse.redirect(
+  //     new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
+  //   );
+  // }
 
     if (pathname === "/marketplace") {
     return NextResponse.redirect(
@@ -93,7 +93,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 4. Public external pages
   if (startsWithAny(pathname, PUBLIC_PREFIXES)) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL(DASHBOARD_PATH, request.url));
+      return NextResponse.redirect(new URL(LANDING_PATH, request.url));
     }
     return NextResponse.next();
   }
@@ -112,7 +112,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 // Ensure the matcher catches all multi-level nested dashboard segments explicitly
 export const config = {
   matcher: [
-    "/dashboard/:path*",
+    "/landing/:path*",
     "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot|otf)$).*)",
   ],
 };

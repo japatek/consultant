@@ -1,6 +1,6 @@
 import React from 'react';
 import Footer  from '@/components/Footer';
-import { Navbar } from '../../(external)/landing/_components/nav-bar';
+import { Navbar } from './_components/sidebar/nav-bar';
 
 export default function SharedPagesLayout({
   children,

@@ -1,4 +1,4 @@
-import { StarsBackground } from "@/components/ui/star-background";
+import { StarsBackground } from "../../../../../components/ui/star-background";
 
 export default function LoginLoading() {
   return (
