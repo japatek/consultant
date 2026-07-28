@@ -56,7 +56,6 @@ export async function loginAction(
   }
 
   const capBackendUrl = process.env.CAP_BACKEND_URL || "http://localhost:8080";
-  const siteKey       = process.env.NEXT_PUBLIC_CAP_SITE_KEY;
   const secretKey     = process.env.CAP_SECRET_KEY;
 
   try {
