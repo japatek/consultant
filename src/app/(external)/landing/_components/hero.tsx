@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 const slideImages = [
-  { type: 'image', src: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?q=80&w=1470&auto=format&fit=crop' },
+  { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/main-1.JPG' },
   { type: 'video', src: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-video-1.mp4' },
   { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-3.jpg' }
 ]

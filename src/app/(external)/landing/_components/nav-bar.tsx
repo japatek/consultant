@@ -306,7 +306,7 @@ export const Navbar: React.FC = () => {
                                             <SimpleIcon icon={siGithub} className="fill-primary-foreground" />
                                         </Link>
                                     </Button> */}
-                        <UserMenu user={loggedInUser} />
+                        {/* <UserMenu user={loggedInUser} /> */}
                     </div>
 
                 </div>

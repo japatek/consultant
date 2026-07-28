@@ -49,7 +49,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="m-0 text-[13px] text-muted-foreground flex flex-wrap items-baseline gap-2">
-             Multi-platform AI tools, skill and agents mechanical design engineer and teams.
+            Engineering consultant and ai tool/agent provider.
           </p>
           <div className="flex flex-col-4 gap-4">          
             <IconBrandWhatsapp className="cursor-pointer" href="https://wa.me/628988350450" />
