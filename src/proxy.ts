@@ -12,7 +12,7 @@ const DASHBOARD_PATH = "/dashboard" as const;
 const MARKETPLACE    = "/marketplace" as const;
 
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
-const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized", "/marketplace"] as const;
+const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some(
