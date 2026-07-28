@@ -5,9 +5,9 @@ import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
 import { featuredProjects } from '../_lib/featured-projects-data';
 import { listServices, ServiceItem } from '../_lib/services-data';
 import { sectorData, Sector } from '../_lib/sectors-data';
-import { ThemeSwitcher } from "../../../(main)/marketplace/_components/sidebar/theme-switcher";
+import { ThemeSwitcher } from "./theme-switcher";
 import { users } from "../../../../data/users";
-import { UserMenu } from "../../../(main)/marketplace/_components/sidebar/user-menu";
+import { UserMenu } from "./user-menu";
 
 const aboutData = {
     'Our Company': {
