@@ -1,98 +1,19 @@
-# Comment this code under this LoC for deploy only 
+Comment this code under this LoC for deploy only 
 
-# name: JAPA Deploy Kubeadm Docker Pipeline
-
-# on:
-#   push:
-#     branches:
-#       - main
-#     paths-ignore:
-#       - 'src/app/_unfinished-folder/**'
-#       - 'src/components/drafts/**'
-#       - 'src/app/(main)/**'
-#       - 'src/test/**'
-#       - 'src/app/(external)/auth/**'
-#       - 'src/app/(external)/(admin)/**'
-#   workflow_dispatch:
-
-# env:
-#   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-#   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-#   ECR_WEB_REPOSITORY: japa/consultant
-#   ECR_MCP_REPOSITORY: japa/mcp
-#   IMAGE_TAG: ${{ github.sha }}
-
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout Code
-#       uses: actions/checkout@v4
-
-#     - name: Configure AWS credentials
-#       uses: aws-actions/configure-aws-credentials@v4
-#       with:
-#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#         aws-region: ${{ secrets.AWS_REGION }}
-
-#     - name: Login to Amazon ECR
-#       uses: aws-actions/amazon-ecr-login@v2
-
-#     - name: Build, tag, and push Next.js Web image
-#       run: |
-#         docker build -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
-#         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
-#         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
-
-#     - name: Build, tag, and push MCP Server image
-#       run: |
-#         docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
-#         docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG
-#         docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest
-
-#     - name: Set up Kubeconfig
-#       run: |
-#         mkdir -p ~/.kube
-#         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-#         chmod 600 ~/.kube/config
-#         sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
-
-#     - name: Deploy to Kubeadm Cluster
-#       run: |
-#         # Replace placeholders in the k8s manifest
-#         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
-#         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
-#         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
-        
-#         # Apply updated manifests
-#         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
-        
-#         # Explicitly force image updates for deployments
-#         kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
-#         kubectl set image deployment/japa-mcp mcp=$ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
-        
-#         # Debugging status
-#         echo "=== Checking pod status ==="
-#         sleep 5
-#         kubectl get pods --insecure-skip-tls-verify
-        
-#         echo "=== Waiting for Next.js rollout ==="
-#         kubectl rollout status deployment/japa-consultant --timeout=10m --insecure-skip-tls-verify
-        
-#         echo "=== Waiting for MCP Server rollout ==="
-#         kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
-
-
-# Comment this code under this LoC for deploy and build
-
-name: Deploy to Kubeadm Cluster
+name: JAPA Deploy Kubeadm Docker Pipeline
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'src/app/_unfinished-folder/**'
+      - 'src/components/drafts/**'
+      - 'src/app/(main)/**'
+      - 'src/test/**'
+      - 'src/app/(external)/auth/**'
+      - 'src/app/(external)/(admin)/**'
+  workflow_dispatch:
 
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
@@ -102,48 +23,64 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Set up Kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Deploy to Kubeadm Cluster
-        run: |
-          # 1. Inject environment secrets into k8s manifest
-          sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
-          sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
-          sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
+    - name: Build, tag, and push Next.js Web image
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
+        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
 
-          # 2. Generate a fresh ECR auth secret in Kubernetes
-          kubectl delete secret ecr-secret --ignore-not-found --insecure-skip-tls-verify
-          kubectl create secret docker-registry ecr-secret \
-            --docker-server=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com \
-            --docker-username=AWS \
-            --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
-            --namespace=default \
-            --insecure-skip-tls-verify
+    - name: Build, tag, and push MCP Server image
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
+        docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest
 
-          # 3. Apply the deployment configuration
-          kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+        chmod 600 ~/.kube/config
+        sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
 
-          # 4. Restart deployment pods immediately
-          kubectl rollout restart deployment/japa-consultant --insecure-skip-tls-verify
-          kubectl rollout restart deployment/japa-mcp --insecure-skip-tls-verify
+    - name: Deploy to Kubeadm Cluster
+      run: |
+        # Replace placeholders in the k8s manifest
+        sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
+        sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
+        sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
+        
+        # Apply updated manifests
+        kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
+        
+        # Explicitly force image updates for deployments
+        kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
+        kubectl set image deployment/japa-mcp mcp=$ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
+        
+        # Debugging status
+        echo "=== Checking pod status ==="
+        sleep 5
+        kubectl get pods --insecure-skip-tls-verify
+        
+        echo "=== Waiting for Next.js rollout ==="
+        kubectl rollout status deployment/japa-consultant --timeout=10m --insecure-skip-tls-verify
+        
+        echo "=== Waiting for MCP Server rollout ==="
+        kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
 
-          # 5. Monitor rollout status
-          kubectl rollout status deployment/japa-consultant --timeout=5m --insecure-skip-tls-verify
