@@ -1,0 +1,15 @@
+{
+  "/(external)/auth/v4/login/page": "/auth/v4/login",
+  "/(external)/landing/(shared-layout)/[type]/[[...slug]]/page": "/landing/[type]/[[...slug]]",
+  "/(external)/landing/(shared-layout)/about/page": "/landing/about",
+  "/(external)/landing/page": "/landing",
+  "/(main)/marketplace/page": "/marketplace",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/api/checkout/route": "/api/checkout",
+  "/api/midtrans/route": "/api/midtrans",
+  "/api/verify-license/route": "/api/verify-license",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

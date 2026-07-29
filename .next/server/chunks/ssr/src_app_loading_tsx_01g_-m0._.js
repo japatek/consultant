@@ -1,0 +1,3 @@
+module.exports=[402747,a=>{"use strict";var b=a.i(907997),c=a.i(961574);a.s(["default",0,function(){return(0,b.jsxs)("div",{className:"flex min-h-screen w-full flex-col items-center justify-center gap-3",children:[(0,b.jsx)(c.Spinner,{className:"size-8 text-primary"}),(0,b.jsx)("p",{className:"text-sm text-chart-4",children:"Loading..."})]})}])},825210,a=>{a.n(a.i(402747))}];
+
+//# sourceMappingURL=src_app_loading_tsx_01g_-m0._.js.map

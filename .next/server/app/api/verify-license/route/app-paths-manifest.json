@@ -1,0 +1,3 @@
+{
+  "/api/verify-license/route": "app/api/verify-license/route.js"
+}

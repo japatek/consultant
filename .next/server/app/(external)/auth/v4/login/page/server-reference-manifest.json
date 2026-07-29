@@ -1,0 +1,17 @@
+{
+  "node": {
+    "6079a84e14733c71eb9528608861d5bc289b8edf00": {
+      "workers": {
+        "app/(external)/auth/v4/login/page": {
+          "moduleId": 104408,
+          "async": true,
+          "exportedName": "loginAction",
+          "filename": "src/app/(external)/auth/v4/login/actions.ts"
+        }
+      },
+      "exportedName": "loginAction",
+      "filename": "src/app/(external)/auth/v4/login/actions.ts"
+    }
+  },
+  "edge": {}
+}

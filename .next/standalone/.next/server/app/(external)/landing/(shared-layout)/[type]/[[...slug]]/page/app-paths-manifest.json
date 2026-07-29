@@ -1,0 +1,3 @@
+{
+  "/(external)/landing/(shared-layout)/[type]/[[...slug]]/page": "app/(external)/landing/(shared-layout)/[type]/[[...slug]]/page.js"
+}
