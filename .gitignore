@@ -1,68 +1,8 @@
 # Comment the under this line of code if want use deployment only without build on github action.
 
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-# /node_modules
-# /.pnp
-# .pnp.js
-# .yarn/install-state.gz
-
-# # testing
-# /coverage
-
-# # next.js
-# /.next/
-# /out/
-
-# # production
-# /build
-
-# # misc
-# .DS_Store
-# *.pem
-# *.sh
-
-# # debug
-# npm-debug.log*
-# yarn-debug.log*
-# yarn-error.log*
-
-# # local env files
-# .env*.local
-
-# # vercel
-# .vercel
-
-# # typescript
-# *.tsbuildinfo
-# next-env.d.ts
-# node_modules/*
-
-# globalsv1.css
-# docker-compose.yaml
-
-# secret.txt
-
-# aws/*
-
-# .vscode/*
-# /src/generated/prisma
-
-# /src/generated/prisma
-
-# /src/generated/prisma
-
-# /src/generated/prisma
-
-
-
-
-
-
-# Comment the code under this line for build and deploy with github action.
-
-# dependencies
+dependencies
 /node_modules
 /.pnp
 .pnp.js
@@ -71,26 +11,9 @@
 # testing
 /coverage
 
-# next.js build output
-/.next/cache    # Ignores the cache but keeps the built pages
+# next.js
+/.next/
 /out/
-
-# 2. Development and Diagnostic tools
-/.next/dev/
-/.next/diagnostics/
-
-# 3. Build traces and Turbopack logs
-/.next/trace
-/.next/trace-build
-/.next/turbopack
-
-# 4. TypeScript definitions (not needed for runtime)
-/.next/types/
-
-# 5. Local node_modules inside .next (if any)
-/.next/node_modules/
-# IMPORTANT: Ignore all source code
-/src/
 
 # production
 /build
@@ -105,25 +28,30 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# # local env files
 .env*.local
-.env
 
-# vercel
+# # vercel
 .vercel
 
-# typescript
+# # typescript
 *.tsbuildinfo
 next-env.d.ts
+node_modules/*
 
-# User specific ignores
 globalsv1.css
 docker-compose.yaml
-secret.txt
-aws/*
-.vscode/*
 
-mcp-server/node_modules
-mcp-server/src
-!/mcp-server/dist/
-/mcp-server/tsconfig.json
+secret.txt
+
+aws/*
+
+.vscode/*
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
