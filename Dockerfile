@@ -1,4 +1,4 @@
-Comment this code under this LoC for deploy only 
+#Comment this code under this LoC for deploy only 
 
 FROM node:24-alpine AS base
 
