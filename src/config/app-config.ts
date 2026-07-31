@@ -3,7 +3,7 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "JaPa Platform",
+  name: "JaPaTek Platform",
   version: packageJson.version,
   copyright: `© ${currentYear}, JaPaTek Platform`,
   meta: {

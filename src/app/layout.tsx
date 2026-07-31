@@ -13,6 +13,7 @@ import { getThemeBootCode }         from "@/scripts/theme-boot";
 import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provider";
 import { SessionProvider }          from "next-auth/react";
 
+
 import "./globals.css";
 
 // ---------------------------------------------------------------------------

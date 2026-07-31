@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Cookies from 'js-cookie'
 import { cn } from '@/lib/utils'
 
 export interface HeroMedia {
@@ -21,7 +22,7 @@ interface ChildHeroProps {
 }
 
 const DEFAULT_MEDIA: HeroMedia[] = [
-  { type: 'image', src: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/hero/child-1.jpg' },
   { type: 'video', src: 'https://media.istockphoto.com/id/480961036/id/video/skema.mp4?s=mp4-640x640-is&k=20&c=VKNdw1JtD9efX6R-s2PqMIEX8YUBnMDWgrFbBCvNhAs=' },
   { type: 'image', src: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1920' }
 ]
@@ -34,6 +35,21 @@ export function ChildHero({
   media = DEFAULT_MEDIA
 }: ChildHeroProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+
+  // 1. Listen for instant language changes
+  const [lang, setLang] = useState<string>('en')
+
+  useEffect(() => {
+    const currentLang = Cookies.get("language") || 'en';
+    setLang(currentLang);
+    
+    const handleLangChange = (e: any) => {
+      if (e.detail) setLang(e.detail);
+    };
+
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
 
   useEffect(() => {
     if (!media || media.length <= 1) return
@@ -71,23 +87,19 @@ export function ChildHero({
               ) : (
                 <img
                   src={item.src}
-                  alt="Hero background"
+                  alt={lang === 'id' ? 'Latar Belakang Hero' : 'Hero background'}
                   className="h-full w-full object-cover select-none pointer-events-none"
                 />
               )}
             </div>
           ))}
           
-          {/* MODERN DESIGN OVERLAY: Menggantikan filter hitam pekat lama. 
-              Menggunakan gradasi melengkung (radial/linear) agar bagian tengah gambar tetap cerah asli, 
-              namun sisi bawah dan kiri menggelap mulus demi legibilitas teks */}
           <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/40 to-transparent mix-blend-multiply" />
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-transparent to-black/30" />
         </div>
       )}
 
       {/* 2. OVERLAY GRID PATTERN */}
-      {/* Grid pattern yang diperhalus opacity-nya agar terlihat menyatu jernih di atas foto */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-20 opacity-25"
@@ -100,7 +112,6 @@ export function ChildHero({
         }}
       />
 
-      {/* Glow lembut khas desain modern */}
       <div
         aria-hidden
         className="pointer-events-none absolute -right-24 -top-24 z-20 h-[500px] w-[500px] rounded-full opacity-30 blur-[100px]"
@@ -129,7 +140,6 @@ export function ChildHero({
         )}
       </div>
 
-      {/* 4. BOTTOM SMOOTH BLEND INTO PAGE */}
       <div
         aria-hidden
         className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 h-32 bg-gradient-to-t from-background to-transparent"

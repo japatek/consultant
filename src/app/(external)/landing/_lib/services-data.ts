@@ -3,12 +3,19 @@ export interface ServiceItem {
   desc: string;
   extend_desc: string;
   slug: string;
+
+  // Added optional Indonesian translation fields
+  id_title?: string;
+  id_desc?: string;
+  id_extend_desc?: string;
 }
 
 export const listServices: ServiceItem[] = [
   {
     title: 'Inspection & Condition Assessment',
+    id_title: 'Inspeksi & Penilaian Kondisi',
     desc: 'Portfolio-proven inspection services that assess structural, mechanical, and operational condition across power, industrial, and infrastructure assets.',
+    id_desc: 'Layanan inspeksi teruji portofolio yang menilai kondisi struktural, mekanis, dan operasional di berbagai aset pembangkit, industri, dan infrastruktur.',
     extend_desc: `Industrial assets operate under continuous stress, and unexpected failures can lead to catastrophic downtime and safety hazards. Our Inspection & Condition Assessment service is a proactive, data-driven approach designed to evaluate the true health of your structural and mechanical systems. We go beyond basic visual checks, utilizing advanced diagnostic tools and field-proven methodologies to uncover hidden degradation before it compromises your operations.
 
 From heavy-duty rotary equipment in power plants to complex offshore structural nodes, we deploy a variety of techniques including drone-assisted Non-Destructive Evaluation (NDE) to safely access hazardous or confined areas. Our assessments translate raw field data into actionable intelligence, providing you with a clear picture of asset health, risk profiles, and precise repair prioritization.
@@ -22,7 +29,9 @@ We don't just hand you a list of problems; we deliver a structured roadmap for a
   },
   {
     title: 'Project Management',
+    id_title: 'Manajemen Proyek',
     desc: 'End-to-end project management for engineering, fabrication, and site execution with clear scope control, stakeholder alignment, and transparent progress reporting.',
+    id_desc: 'Manajemen proyek ujung-ke-ujung untuk rekayasa, fabrikasi, dan eksekusi lapangan dengan kontrol ruang lingkup yang jelas, penyelarasan pemangku kepentingan, dan pelaporan kemajuan yang transparan.',
     extend_desc: `Successfully delivering complex engineering projects requires more than just technical expertise; it demands rigorous oversight, multidisciplinary coordination, and uncompromising scope control. Our Project Management service is built on decades of hands-on delivery experience across the power, water, and industrial sectors. We act as the central nervous system of your project, aligning stakeholders, contractors, and technical teams toward a singular goal of flawless execution.
 
 We manage the entire project lifecycle—from initial feasibility studies and procurement through fabrication, site installation, and final commissioning. By implementing disciplined scheduling and proactive risk mitigation strategies, we identify potential bottlenecks before they impact your critical path. Our approach guarantees that technical specifications are met without scope creep, budget overruns, or scheduling delays.
@@ -36,7 +45,9 @@ With JaPaTek managing your project, you gain a dedicated partner committed to pr
   },
   {
     title: 'Structural Analysis & Design',
+    id_title: 'Analisis & Desain Struktural',
     desc: 'Advanced structural analysis and design for steel, concrete, and composite systems, delivering optimised solutions that are compliant and constructible.',
+    id_desc: 'Analisis dan desain struktural tingkat lanjut untuk sistem baja, beton, dan komposit, memberikan solusi optimal yang sesuai standar dan mudah dibangun.',
     extend_desc: `In heavy industry, structural integrity is the foundation of operational safety. Our Structural Analysis & Design service leverages cutting-edge computational modeling to engineer resilient load-bearing systems capable of withstanding extreme environmental and operational stresses. Whether we are designing towering industrial process plants, high-capacity water treatment facilities, or retrofitting existing mechanical support structures, we deliver solutions that balance maximum strength with material efficiency.
 
 We utilize state-of-the-art 3D Finite Element Analysis (FEA) and dynamic load simulations to test our designs against real-world scenarios—including seismic events, high-velocity winds, and extreme thermal expansion. This high-precision digital testing allows us to optimize the geometry and material selection of steel, concrete, and composite structures, ensuring 100% compliance with international engineering codes while minimizing construction costs.
@@ -50,7 +61,9 @@ Our philosophy is rooted in "constructability." We do not just design theoretica
   },
   {
     title: 'Laboratory Testing',
+    id_title: 'Pengujian Laboratorium',
     desc: 'Material and component testing services providing data-driven insights for asset health, failure investigation, and quality assurance.',
+    id_desc: 'Layanan pengujian material dan komponen yang memberikan wawasan berbasis data untuk kesehatan aset, investigasi kegagalan, dan jaminan kualitas.',
     extend_desc: `When field inspections uncover structural anomalies, or when critical components fail unexpectedly, visual assessments are no longer enough. Our Laboratory Testing service provides the hard empirical data required to solve complex metallurgical and mechanical mysteries. By combining physical testing with deep engineering analysis, we uncover the root causes of material degradation, ensuring that your repair strategies are based on science, not guesswork.
 
 We coordinate and analyze a comprehensive suite of material tests—ranging from tensile and hardness testing to advanced spectrographic and microscopic analysis. Whether you need to verify the chemical composition of a newly fabricated pressure vessel or investigate a catastrophic weld failure on an offshore platform, we translate complex laboratory data into clear, actionable engineering directives.
@@ -64,8 +77,10 @@ Laboratory testing removes ambiguity from asset management. By validating assump
   },
   {
     title: 'Manufacturing Surveillance',
+    id_title: 'Pengawasan Manufaktur',
     desc: 'Factory and workshop surveillance services that ensure fabrication quality, code compliance and traceability through every stage of assembly.',
-    extend_desc: `The integrity of an industrial facility is determined long before the equipment arrives on site; it is forged on the factory floor. Our Manufacturing Surveillance service acts as your independent eyes and ears during the fabrication process. We provide rigorous third-party Quality Assurance and Quality Control (QA/QC) to ensure that every weld, component, and assembly strictly adheres to your approved design specifications and international codes.
+    id_desc: 'Layanan pengawasan pabrik dan bengkel yang memastikan kualitas fabrikasi, kepatuhan kode, dan keterlacakan melalui setiap tahap perakitan.',
+     extend_desc: `The integrity of an industrial facility is determined long before the equipment arrives on site; it is forged on the factory floor. Our Manufacturing Surveillance service acts as your independent eyes and ears during the fabrication process. We provide rigorous third-party Quality Assurance and Quality Control (QA/QC) to ensure that every weld, component, and assembly strictly adheres to your approved design specifications and international codes.
 
 Discovering a manufacturing defect after an asset has been shipped to a remote mining site or offshore platform can result in devastating delays and massive rework costs. Our surveillance engineers monitor fabrication activities in real-time, conducting strategic hold-point inspections, verifying material traceability, and ensuring that non-conformances are identified and corrected immediately at the source.
 
@@ -78,7 +93,9 @@ By embedding our engineering expertise directly into the manufacturing supply ch
   },
   {
     title: 'Specification Development',
+    id_title: 'Pengembangan Spesifikasi',
     desc: 'Technical specification development for equipment, materials and inspection scopes, reducing ambiguity and safeguarding projects against costly variations.',
+    id_desc: 'Pengembangan spesifikasi teknis untuk peralatan, material, dan ruang lingkup inspeksi, mengurangi ambiguitas dan melindungi proyek dari variasi yang mahal.',
     extend_desc: `Ambiguity is the enemy of successful engineering projects. Poorly defined requirements lead to scope creep, contractor disputes, substandard material selection, and ultimately, compromised safety. Our Specification Development service creates the airtight technical foundation required to procure, fabricate, and install complex industrial assets flawlessly. 
 
 We write comprehensive, customized technical documents that leave no room for misinterpretation. By clearly defining exact material grades, dimensional tolerances, approved fabrication methodologies, and mandatory Inspection and Test Plans (ITPs), we align all vendors and contractors to a single standard of excellence. This rigorous documentation protects clients from bidding loopholes and ensures apples-to-apples comparisons during procurement.
@@ -92,7 +109,9 @@ A well-crafted specification is your strongest risk management tool. By defining
   },
   {
     title: 'Drafting Services',
+    id_title: 'Layanan Penyusunan (Drafting)',
     desc: 'Precision drafting and documentation services producing native CAD files and engineering drawings that integrate seamlessly with client workflows.',
+    id_desc: 'Layanan penyusunan dan dokumentasi presisi yang menghasilkan file CAD asli dan gambar teknik yang terintegrasi mulus dengan alur kerja klien.',
     extend_desc: `Great engineering design is only as effective as the documentation used to build it. Our Drafting Services bridge the gap between complex engineering calculations and real-world construction. We produce high-precision, clash-free technical drawings and native CAD deliverables that guide fabricators, installers, and maintenance teams with absolute clarity.
 
 From detailed Piping and Instrumentation Diagrams (P&ID) for sprawling water treatment facilities to incredibly complex 3D exploded views of gas turbine internals, our drafting team visualizes engineering at its highest level. We ensure seamless coordination across civil, structural, and mechanical disciplines, eliminating spatial conflicts before construction begins.
@@ -106,8 +125,10 @@ We deliver documentation that integrates flawlessly into your existing digital w
   },
   {
     title: 'Technical Training',
+    id_title: 'Pelatihan Teknis',
     desc: 'Practical training programs for installation, inspection and maintenance techniques, delivered by senior engineers to improve operational confidence.',
-    extend_desc: `The most advanced engineering systems in the world still rely on the competence of the personnel operating and maintaining them. Our Technical Training service bridges the critical skills gap, empowering your in-house teams with the practical knowledge required to manage heavy industrial assets safely and efficiently. Led by senior engineers with decades of field experience, our training goes far beyond standard textbook theory.
+    id_desc: 'Program pelatihan praktis untuk teknik instalasi, inspeksi, dan pemeliharaan, disampaikan oleh insinyur senior untuk meningkatkan kepercayaan operasional.',
+     extend_desc: `The most advanced engineering systems in the world still rely on the competence of the personnel operating and maintaining them. Our Technical Training service bridges the critical skills gap, empowering your in-house teams with the practical knowledge required to manage heavy industrial assets safely and efficiently. Led by senior engineers with decades of field experience, our training goes far beyond standard textbook theory.
 
 We utilize our advanced 3D visual simulations and exploded asset models to create highly immersive learning environments. Your teams will learn how to identify early signs of structural fatigue, execute complex maintenance workflows on rotary equipment, and conduct baseline condition assessments. By contextualizing the training around your specific site equipment, we ensure immediate, real-world applicability.
 

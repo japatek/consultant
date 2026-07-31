@@ -1,7 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 import { Tooltip } from 'radix-ui';
+import { translations, Language } from '@/translate/language-data';
 
 // Client data with added 'url' properties
 const clients = [
@@ -28,6 +30,22 @@ const clients = [
 ];
 
 export const OurClients: React.FC = () => {
+  const [lang, setLang] = useState<Language>('en');
+   useEffect(() => {
+    const currentLang = (Cookies.get("language") as Language) || 'en';
+    setLang(currentLang);
+    
+    const handleLangChange = (e: any) => {
+      if (e.detail) setLang(e.detail as Language);
+    };
+
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+
+    const t = translations[lang];
+
   return (
     <section className="py-20 bg-emerald-800 relative border-t border-white/10" id="clients">
       {/* Background subtle glow */}
@@ -38,12 +56,12 @@ export const OurClients: React.FC = () => {
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
             <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">
-              Trusted By Industry Leaders
+              {t.clientTag}
             </span>
             <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
           </div>
           <h2 className="font-serif text-3xl md:text-4xl text-white tracking-tight">
-            Our <span className="italic text-chart-3">Partners</span>
+            {t.titlePrefix}<span className="italic text-chart-3">{t.titleHighlight}</span>
           </h2>
         </div>
 
@@ -51,11 +69,10 @@ export const OurClients: React.FC = () => {
 
         <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 lg:gap-16">
           {clients.map((client, idx) => (
-            <Tooltip.Provider>
+            <Tooltip.Provider key={idx}>
               <Tooltip.Root>
                 <Tooltip.Trigger>
                   <a
-                    key={idx}
                     href={client.url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -81,11 +98,10 @@ export const OurClients: React.FC = () => {
           ))}
         </div>
 
-
         {/* Optional text or link below logos */}
         <div className="mt-12 text-center">
           <p className="text-sm text-white/40">
-            Delivering precision engineering to over 150+ companies worldwide.
+            {t.footerText}
           </p>
         </div>
       </div>

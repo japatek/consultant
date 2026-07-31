@@ -1,23 +1,34 @@
 'use client'
 import { ArrowRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-
+import Cookies from 'js-cookie';
+import { translations, Language } from "@/translate/language-data";
 const slideImages = [
-  { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/main-1.JPG' },
+  { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/hero/main-1.jpg' },
   { type: 'video', src: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-video-1.mp4' },
   { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-3.jpg' }
 ]
 
 export const Hero: React.FC = () => {
   const [currentImage, setCurrentImage] = useState(0);
+  const [lang, setLang] = useState<Language>('en');
 
   // Auto-play slideshow
   useEffect(() => {
+    const currentLang = (Cookies.get("language") as Language) || 'en';
+    setLang(currentLang);
+    const handleLangChange = (e: any) => {
+      if (e.detail) setLang(e.detail as Language);
+    };
+    window.addEventListener('languageChange', handleLangChange);
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % slideImages.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
+
+
+  const t = translations[lang];
 
   return (
     <section className="min-h-screen bg-slate-950 relative overflow-hidden flex items-center" id="home">
@@ -27,9 +38,8 @@ export const Hero: React.FC = () => {
         {slideImages.map((item, index) => (
           <div
             key={item.src} // PERBAIKAN: Menggunakan item.src (string) sebagai key unik
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentImage ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImage ? 'opacity-100' : 'opacity-0'
+              }`}
           >
             {/* PERBAIKAN: Deteksi kondisional untuk membedakan Image dan Video */}
             {item.type === 'video' ? (
@@ -48,7 +58,7 @@ export const Hero: React.FC = () => {
                 className="object-cover w-full h-full select-none pointer-events-none"
               />
             )}
-            
+
             {/* MODERN OVERLAY: Menjaga warna asli slideshow tetap hidup & teks kontras tinggi */}
             <div className="absolute inset-0 bg-gradient-to-r from-rose-950/80 via-slate-950/40 to-transparent mix-blend-multiply" />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-slate-950/20" />
@@ -57,7 +67,7 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* 2. OVERLAY PATTERNS (Soft Grid) */}
-      <div 
+      <div
         aria-hidden
         className="absolute inset-0 pointer-events-none z-10 opacity-20"
         style={{
@@ -74,26 +84,26 @@ export const Hero: React.FC = () => {
 
         <div className="inline-flex items-center gap-2.5 bg-primary/20 border border-primary/40 backdrop-blur-sm rounded-full px-3.5 py-1.5 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-chart-1 mb-7">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></div>
-          Design &amp; Engineering Specialists
+          {t.tagline}
         </div>
 
         <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-white font-normal tracking-tight max-w-3xl mb-7 leading-[1.1] md:leading-[1.02] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-          AI-Driven Engineering.<br />
-          <em className="italic text-chart-1">Instant Solutions.</em>
+          {t.title}<br />
+          <em className="italic text-chart-1">{t.subtitle}</em>
         </h1>
 
         <p className="text-base sm:text-lg text-white/80 max-w-lg leading-relaxed mb-10 md:mb-11 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-          Unlock next-generation capabilities. Experience JaPaTek’s advanced AI Tools and Agent to analyze, simulate, and optimize complex engineering challenges across industrial sectors in seconds.
+          {t.desc}
         </p>
-        
+
         {/* Tombol Aksi Utama untuk Mencoba AI */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
           <a href="/marketplace" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
-            Explore Our AI Tools
+            {t.explore}
             <ArrowRight size={16} strokeWidth={2} />
           </a>
           <a href="#services" className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto">
-            View Core Services
+            {t.core}
           </a>
         </div>
 
@@ -103,9 +113,8 @@ export const Hero: React.FC = () => {
             <button
               key={idx}
               onClick={() => setCurrentImage(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentImage ? 'w-8 bg-white' : 'w-2 bg-white/30 hover:bg-white/50'
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 ${idx === currentImage ? 'w-8 bg-white' : 'w-2 bg-white/30 hover:bg-white/50'
+                }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -116,12 +125,12 @@ export const Hero: React.FC = () => {
         {/* STATS BORDERED GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-8 overflow-hidden rounded-xl shadow-lg border border-white/10">
           {[
-            { title: 'Our Projects', desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
-            { title: 'Our Services', desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
-            { title: 'Our Sector', desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/sector' },
+            { title: t.ourProjects, desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
+            { title: t.ourServices, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
+            { title: t.ourSectors, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/sector' },
             {
-              title: 'About Us',
-              desc: 'Expert engineering solutions built on experience and precision.',
+              title: t.aboutUs,
+              desc: t.aboutDesc,
               bgColor: 'bg-[#2A6592]/30',
               link: '/landing/about'
             }
@@ -145,7 +154,7 @@ export const Hero: React.FC = () => {
                 href={item.link}
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors group/btn w-fit mt-auto"
               >
-                Explore
+                {t.exploreLink}
                 <span className="transition-transform duration-200 group-hover/btn:translate-x-1">
                   -&gt;
                 </span>

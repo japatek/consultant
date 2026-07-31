@@ -1,42 +1,59 @@
 // website/src/components/Footer.tsx
 //
-// JaPaTek footer (English only). Rendered on the marketing / non-app 
+// JaPaTek footer. Rendered on the marketing / non-app 
 // pages (login, download, documentation, terms, not-found, pricing) 
 // by importing <Footer /> at the bottom of each page's JSX. 
 // NOT used inside the chat shell, which keeps its own chrome-less layout.
 
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import { X } from "lucide-react";
 import { IconBrandInstagram, IconBrandTwitter, IconBrandWhatsapp, IconBrandWhatsappFilled } from "@tabler/icons-react";
 import XTwitterLogoIcon from "./ui/twitter";
 
+// 1. Added id_label for Indonesian translations
 const PRODUCT_SURFACES = [
-  { href: "/download", id: "web", label: "Website" },
-  { href: "/download#browser-extension", id: "ext", label: "Browser Extension" },
-  { href: "/download#vscode-ext", id: "vsc", label: "VSCode Extension" },
-  { href: "/download#office-ext", id: "off", label: "Office Add-in" },
-  { href: "/download/cad", id: "cad", label: "CAD Add-ins (Pro)" },
-  { href: "/download#desktop", id: "desk", label: "Desktop App" },
-  { href: "/download#mobile", id: "mob", label: "Mobile App" },
-  { href: "/download#cli", id: "cli", label: "Terminal CLI" },
+  { href: "/download", id: "web", label: "Website", id_label: "Situs Web" },
+  { href: "/download#browser-extension", id: "ext", label: "Browser Extension", id_label: "Ekstensi Peramban" },
+  { href: "/download#vscode-ext", id: "vsc", label: "VSCode Extension", id_label: "Ekstensi VSCode" },
+  { href: "/download#office-ext", id: "off", label: "Office Add-in", id_label: "Add-in Office" },
+  { href: "/download/cad", id: "cad", label: "CAD Add-ins (Pro)", id_label: "Add-in CAD (Pro)" },
+  { href: "/download#desktop", id: "desk", label: "Desktop App", id_label: "Aplikasi Desktop" },
+  { href: "/download#mobile", id: "mob", label: "Mobile App", id_label: "Aplikasi Seluler" },
+  { href: "/download#cli", id: "cli", label: "Terminal CLI", id_label: "Terminal CLI" },
 ] as const;
 
 const RESOURCES = [
-  { href: "/docs", id: "docs", label: "Documentation" },
-  { href: "/pricing", id: "price", label: "Pricing" },
-  { href: "/terms", id: "terms", label: "Terms of Service" },
-  { href: "/privacy", id: "privacy", label: "Privacy Policy" },
+  { href: "/docs", id: "docs", label: "Documentation", id_label: "Dokumentasi" },
+  { href: "/pricing", id: "price", label: "Pricing", id_label: "Harga" },
+  { href: "/terms", id: "terms", label: "Terms of Service", id_label: "Ketentuan Layanan" },
+  { href: "/privacy", id: "privacy", label: "Privacy Policy", id_label: "Kebijakan Privasi" },
 ] as const;
 
 const COMPANY = [
-  { href: "mailto:info@japtektek.com", id: "contact", label: "Contact" },
-  { href: "https://japtektek.com", id: "japtektek", label: "PT. Japa Teknika Solusi" },
+  { href: "mailto:info@japatek.com", id: "contact", label: "Contact", id_label: "Kontak" },
+  { href: "https://japatek.com", id: "japatek", label: "PT. Japa Teknika Solusi", id_label: "PT. Japa Teknika Solusi" },
 ] as const;
 
 export default function Footer() {
+  // 2. Setup Language State and Listener
+  const [lang, setLang] = useState<string>("en");
+
+  useEffect(() => {
+    const currentLang = Cookies.get("language") || "en";
+    setLang(currentLang);
+    
+    const handleLangChange = (e: any) => {
+      if (e.detail) setLang(e.detail);
+    };
+
+    window.addEventListener("languageChange", handleLangChange);
+    return () => window.removeEventListener("languageChange", handleLangChange);
+  }, []);
+
   return (
     <footer className="w-full bg-card text-foreground border-t border-border/20 text-2xl leading-relaxed">
       <div className="max-w-[1200px] mx-auto px-6 pt-10 pb-6 flex flex-col gap-7">
@@ -49,37 +66,48 @@ export default function Footer() {
             </span>
           </Link>
           <p className="m-0 text-[13px] text-muted-foreground flex flex-wrap items-baseline gap-2">
-            Engineering consultant and ai tool/agent provider.
+            {lang === "id" 
+              ? "Konsultan teknik dan penyedia alat/agen AI." 
+              : "Engineering consultant and ai tool/agent provider."}
           </p>
-          <div className="flex flex-col-4 gap-4">          
-            <IconBrandWhatsapp className="cursor-pointer" href="https://wa.me/628988350450" />
-            <IconBrandInstagram className="cursor-pointer" href="https://www.instagram.com/japateksolusi?igsh=cTY4YmVycHU5NTlw"/>
-            <XTwitterLogoIcon className="cursor-pointer pt-1" size={20}/>
-            
+          <div className="flex flex-col-4 gap-4 mt-2">
+            {/* Wrapped icons in anchor tags so the links actually work */}
+            <a href="https://wa.me/628988350450" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              <IconBrandWhatsapp className="cursor-pointer" />
+            </a>
+            <a href="https://www.instagram.com/japateksolusi?igsh=cTY4YmVycHU5NTlw" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              <IconBrandInstagram className="cursor-pointer" />
+            </a>
+            <a href="#" className="hover:text-primary transition-colors">
+              <XTwitterLogoIcon className="cursor-pointer pt-1" size={20}/>
+            </a>
           </div>
 
         </div>
 
         {/* Middle: nav columns */}
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 pb-4 border-b border-dashed border-border/20">
-          <FooterCol heading="Products" items={[...PRODUCT_SURFACES]} />
-          <FooterCol heading="Resources" items={[...RESOURCES]} />
-          <FooterCol heading="Company" items={[...COMPANY]} />
+          <FooterCol 
+            heading={lang === "id" ? "Produk" : "Products"} 
+            items={[...PRODUCT_SURFACES]} 
+            lang={lang} 
+          />
+          <FooterCol 
+            heading={lang === "id" ? "Sumber Daya" : "Resources"} 
+            items={[...RESOURCES]} 
+            lang={lang} 
+          />
+          <FooterCol 
+            heading={lang === "id" ? "Perusahaan" : "Company"} 
+            items={[...COMPANY]} 
+            lang={lang} 
+          />
         </div>
-
-        {/* Compliance / disclaimer */}
-        {/* <div className="p-3 bg-blue-400/4 border border-dashed border-amber-500/30 rounded-lg flex flex-col gap-1.5">
-          <p className="m-0 text-xs text-muted-foreground/80 leading-relaxed">
-            <strong>Disclaimer:</strong> JaPaTek is an AI engine. Anything it
-            produces may be wrong—always verify the output before relying on
-            it for production or business decisions.
-          </p>
-        </div> */}
 
         {/* Bottom bar */}
         <div className="flex flex-wrap justify-between items-center gap-3 pt-2 text-xs text-muted-foreground/60">
           <p className="m-0">
-            © {new Date().getFullYear()} PT. Japa Teknika Solusi · All rights reserved
+            © {new Date().getFullYear()} PT. Japa Teknika Solusi · {lang === "id" ? "Hak cipta dilindungi undang-undang" : "All rights reserved"}
           </p>
           <p className="m-0 inline-flex flex-wrap gap-1.5 items-baseline">
             <Link
@@ -93,14 +121,14 @@ export default function Footer() {
               href="/terms"
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
-              Terms
+              {lang === "id" ? "Ketentuan" : "Terms"}
             </Link>
             <span className="opacity-40">·</span>
             <Link
               href="/privacy"
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
-              Privacy
+              {lang === "id" ? "Privasi" : "Privacy"}
             </Link>
           </p>
         </div>
@@ -110,16 +138,19 @@ export default function Footer() {
   );
 }
 
+// 3. Updated Interface to accept id_label and lang
 interface ColItem {
   href: string;
   id: string;
   label: string;
+  id_label?: string; // Optional Indonesian label
 }
 
 function FooterCol({
   heading,
   items,
-}: Readonly<{ heading: string; items: ColItem[] }>) {
+  lang,
+}: Readonly<{ heading: string; items: ColItem[]; lang: string }>) {
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="m-0 text-xs font-semibold text-foreground uppercase tracking-widest flex flex-wrap gap-1.5 items-baseline">
@@ -132,7 +163,8 @@ function FooterCol({
               href={item.href}
               className="text-muted-foreground no-underline text-[13px] inline-flex flex-wrap items-baseline gap-1 hover:text-foreground transition-colors"
             >
-              {item.label}
+              {/* Uses Indonesian label if language is ID, otherwise English */}
+              {lang === "id" && item.id_label ? item.id_label : item.label}
             </Link>
           </li>
         ))}

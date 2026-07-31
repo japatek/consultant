@@ -1,5 +1,8 @@
-import React from 'react';
+'use client'; // <-- Changed to a Client Component!
+
+import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
+import Cookies from 'js-cookie'; // <-- Using js-cookie instead of next/headers
 
 import { Navbar } from '../../../_components/nav-bar';
 import { ChildHero } from '../../../_components/child-hero';
@@ -10,9 +13,8 @@ import { FeaturedProjects } from '../../../_components/featured-projects';
 // Data imports
 import { featuredProjects } from '../../../_lib/featured-projects-data';
 import { listServices } from '../../../_lib/services-data';
-import { sectorData } from '../../../_lib/sectors-data'; // <-- Adjust this path to where you saved the sector array
+import { sectorData } from '../../../_lib/sectors-data';
 
-// Import Shadcn UI Carousel components
 import {
   Carousel,
   CarouselContent,
@@ -21,76 +23,97 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-const desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit...";
+const desc = "JaPaTek Solution";
 
 interface PageProps {
   params: Promise<{
     type: string;
-    slug?: string[]; // Catches ['sub-1', 'sub-2', etc.]
+    slug?: string[]; 
   }>;
 }
 
-export default async function CombinedDynamicPage({ params }: PageProps) {
-  const { type, slug } = await params;
+export default function CombinedDynamicPage({ params }: PageProps) {
+  // 1. Unwrap the params Promise (Next.js 15 Client Component rule)
+  const { type, slug } = React.use(params);
 
-  // 1. URL Validation
+  // 2. Setup Instant Language Listener
+  const [lang, setLang] = useState<string>('en');
+
+  useEffect(() => {
+    const currentLang = Cookies.get("language") || 'en';
+    setLang(currentLang);
+    
+    const handleLangChange = (e: any) => {
+      if (e.detail) setLang(e.detail);
+    };
+
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  // URL Validation
   const allowedTypes = ['sector', 'services', 'project'];
   if (!allowedTypes.includes(type)) {
     notFound();
   }
 
-  // Determine URL depth levels
-  const isIndexPage = !slug || slug.length === 0;       // /landing/services
-  const isSubLevel1 = slug && slug.length === 1;        // /landing/project/Vending-Machine
-  const isSubLevel2 = slug && slug.length === 2;        // /landing/services/civil/structural
+  const isIndexPage = !slug || slug.length === 0;       
+  const isSubLevel1 = slug && slug.length === 1;        
+  const isSubLevel2 = slug && slug.length === 2;        
 
   const mainSlug = slug ? slug[0] : null;
   const subSlug = slug && slug.length > 1 ? slug[1] : null;
   
-  // Find matching data based on the type
   const project = type === 'project' && mainSlug ? featuredProjects.find((proj) => proj.slug === mainSlug) : null;
   const service = type === 'services' && mainSlug ? listServices.find((item) => item.slug === mainSlug) : null;
   const sector = type === 'sector' && mainSlug ? sectorData.find((sec) => sec.slug === mainSlug) : null;
 
-  // Dynamically set title and description (prioritizing extend_desc)
-  const pageTitle = project?.title ?? service?.title ?? sector?.name ?? mainSlug?.replace('-', ' ');
-  const pageDescription = project?.extend_desc ?? service?.extend_desc ?? sector?.extend_desc ??
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet elementum neque, vitae sodales augue. Nam sed lorem ornare dui vulputate rhoncus. Integer suscipit libero non odio interdum sagittis. Phasellus pretium lobortis ipsum, sed finibus justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.';
+  // 3. Dynamically set title and description based on LANGUAGE
+  let pageTitle = mainSlug?.replace('-', ' ') || '';
+  let pageDescription = desc;
 
-  // 2. Dynamically construct 3 CloudFront image URLs based on mainSlug
+  if (type === 'project' && project) {
+    pageTitle = (lang === 'id' && (project as any).id_title) ? (project as any).id_title : project.title;
+    pageDescription = (lang === 'id' && (project as any).id_extend_desc) ? (project as any).id_extend_desc : project.extend_desc;
+  } else if (type === 'services' && service) {
+    pageTitle = (lang === 'id' && (service as any).id_title) ? (service as any).id_title : service.title;
+    pageDescription = (lang === 'id' && (service as any).id_extend_desc) ? (service as any).id_extend_desc : service.extend_desc;
+  } else if (type === 'sector' && sector) {
+    pageTitle = (lang === 'id' && (sector as any).id_name) ? (sector as any).id_name : sector.name;
+    pageDescription = (lang === 'id' && (sector as any).id_extend_desc) ? (sector as any).id_extend_desc : sector.extend_desc;
+  }
+
   const formattedSlug = mainSlug ? mainSlug.toLowerCase() : 'default';
-
-  // Generates 3 URLs: .../vending-machine-1.jpg, -2.jpg, -3.jpg
   const slideshowImages = [1, 2, 3].map(
     (index) => `https://d2tbt8ofproiin.cloudfront.net/${mainSlug}/${formattedSlug}-${index}.jpg`
   );
 
-  // 3. Set dynamic Hero Banner titles
+  // 4. Set dynamic Hero Banner titles based on LANGUAGE
   let heroTitle = '';
   let heroTitleDesc = '';
 
   if (type === 'services') {
     if (isIndexPage) {
-      heroTitle = 'Services';
-      heroTitleDesc = 'All services we are provided.';
+      heroTitle = lang === 'id' ? 'Layanan' : 'Services';
+      heroTitleDesc = lang === 'id' ? 'Semua layanan yang kami sediakan.' : 'All services we are provided.';
     } else if (isSubLevel1) {
-      heroTitle = `Service: ${pageTitle}`;
-      heroTitleDesc = 'Technical specifications of our main engineering service.';
+      heroTitle = lang === 'id' ? `Layanan: ${pageTitle}` : `Service: ${pageTitle}`;
+      heroTitleDesc = lang === 'id' ? 'Spesifikasi teknis dari layanan teknik utama kami.' : 'Technical specifications of our main engineering service.';
     } else if (isSubLevel2) {
       heroTitle = `${subSlug?.replace('-', ' ')}`;
-      heroTitleDesc = `Specialized division under ${pageTitle}.`;
+      heroTitleDesc = lang === 'id' ? `Divisi khusus di bawah ${pageTitle}.` : `Specialized division under ${pageTitle}.`;
     }
   } else if (type === 'sector') {
     if (isIndexPage) {
-      heroTitle = 'Sectors';
-      heroTitleDesc = 'Industries we serve.';
+      heroTitle = lang === 'id' ? 'Sektor' : 'Sectors';
+      heroTitleDesc = lang === 'id' ? 'Industri yang kami layani.' : 'Industries we serve.';
     } else if (isSubLevel1) {
-      heroTitle = `Sector: ${pageTitle}`;
-      heroTitleDesc = 'Specialized engineering support for this industry.';
+      heroTitle = lang === 'id' ? `Sektor: ${pageTitle}` : `Sector: ${pageTitle}`;
+      heroTitleDesc = lang === 'id' ? 'Dukungan teknik khusus untuk industri ini.' : 'Specialized engineering support for this industry.';
     }
   } else {
     heroTitle = type.toUpperCase();
-    heroTitleDesc = `Overview of ${type}`;
+    heroTitleDesc = lang === 'id' ? `Gambaran umum tentang ${type}` : `Overview of ${type}`;
   }
 
   const renderDescription = (text: string) => {
@@ -125,9 +148,10 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
   return (
     <div className="font-sans antialiased text-vertex-fg bg-background overflow-x-hidden">
       <Navbar />
+      
+      {/* 5. The ChildHero now gets instantly updated strings whenever the toggle is clicked! */}
       <ChildHero title={heroTitle} titledesc={heroTitleDesc} description={desc} />
 
-      {/* Main Content Body */}
       <main className="mx-auto py-16">
         {isIndexPage && (
           <>
@@ -136,14 +160,11 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
           </>
         )}
 
-        {/* LEVEL 1: Detail with Text & Dynamic CloudFront Slideshow */}
         {isSubLevel1 && (
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Column 1: Text Description */}
             <div className="space-y-4">            
               <span className="text-xs font-bold uppercase tracking-widest text-chart-3">
-                {type} Detail
+                {lang === 'id' ? `Detail ${type}` : `${type} Detail`}
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground capitalize">
                 {pageTitle}
@@ -151,7 +172,6 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
               <div>{renderDescription(pageDescription)}</div>
             </div>
             
-            {/* Column 2: Dynamic CloudFront Carousel */}
             <div className="w-full flex justify-center items-center px-4 md:px-10">            
               <Carousel className="w-full max-w-md md:max-w-xl">
                 <CarouselContent>
@@ -169,28 +189,29 @@ export default async function CombinedDynamicPage({ params }: PageProps) {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                {/* Carousel Navigation Buttons */}
                 <CarouselPrevious className="cursor-pointer md:inline-flex -left-12" />
                 <CarouselNext className="cursor-pointer md:inline-flex -right-12" />
               </Carousel>
             </div>
-
           </div>
         )}
 
-        {/* LEVEL 2: Sub-Specialization */}
         {isSubLevel2 && (
           <div className="bg-rose-50/50 p-8 rounded-2xl border border-rose-100 max-w-4xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-widest text-rose-600">Level 2: Sub-Spesialisasi</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-rose-600">
+              {lang === 'id' ? 'Level 2: Sub-Spesialisasi' : 'Level 2: Sub-Specialization'}
+            </span>
             <h2 className="text-2xl font-bold text-slate-900 mt-2 capitalize">{subSlug?.replace('-', ' ')}</h2>
             <p className="mt-4 text-slate-600">
-              Ini adalah halaman sub-spesifik baru Anda. Berada di dalam grup: <strong className="capitalize">{pageTitle}</strong>.
+              {lang === 'id' 
+                ? <>Ini adalah halaman sub-spesifik baru Anda. Berada di dalam grup: <strong className="capitalize">{pageTitle}</strong>.</>
+                : <>This is your new sub-specific page. Located inside group: <strong className="capitalize">{pageTitle}</strong>.</>
+              }
             </p>
           </div>
         )}
       </main>
 
-      {/* Parent Footer Layout */}
       <FeaturedProjects />
     </div>
   );
