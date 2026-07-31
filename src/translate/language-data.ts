@@ -42,7 +42,7 @@ export const translations = {
         clientTag: 'Trusted By Industry Leaders',
         titlePrefix: 'Our ',
         titleHighlight: 'Partners',
-        footerText: 'Delivering precision engineering to over 150+ companies worldwide.',
+        footerText: 'Delivering precision engineering.',
 
         // About Us Page
         aboutTagline: 'Why Engage JaPaTek',
@@ -107,7 +107,7 @@ export const translations = {
         clientTag: 'Dipercaya Oleh Pemimpin Industri',
         titlePrefix: 'Mitra ',
         titleHighlight: 'Kami',
-        footerText: 'Memberikan rekayasa presisi ke lebih dari 150+ perusahaan di seluruh dunia.',
+        footerText: 'Memberikan rekayasa yang presisi',
 
         // About Us Page
         aboutTagline: 'Mengapa Memilih JaPaTek',
