@@ -9,9 +9,10 @@ on:
     paths-ignore:
       - 'src/app/_unfinished-folder/**'
       - 'src/components/drafts/**'
-      - 'src/app/(main)/**'
+      - 'src/app/(main)/_dashboard'
+      - 'src/app/(main)/_mail'
+      - 'src/app/(main)/_unauthorized'
       - 'src/test/**'
-      - 'src/app/(external)/auth/**'
       - 'src/app/(external)/(admin)/**'
   workflow_dispatch:
 
