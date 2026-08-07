@@ -38,6 +38,8 @@ spec:
           value: "http://47.129.183.178:30080"
         - name: CAP_BACKEND_URL
           value: "http://cap-service:8080"
+        - name: DATABASE_URL
+          value: 'postgres://3198291bd9db991a8484e4f5ee5e6941b2ca1f77a9227f5a5ca9436afa9b55dc:sk_h67OvH1rlrUxBoq0lJ3iG@db.prisma.io:5432/postgres?sslmode=require'
 ---
 apiVersion: v1
 kind: Service
