@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
 import { featuredProjects } from '../../../../(external)/landing/_lib/featured-projects-data';
 // import { listServices, ServiceItem } from '../../../../(external)/landing/_lib/services-data';
-import { sectorData, Sector } from '../../../../(external)/landing/_lib/services-data';
+import { servicesData, Services } from '../../../../(external)/landing/_lib/services-data';
 import { SearchDialog } from './search-dialog';
 
 import { UserMenu } from "./user-menu";
@@ -19,7 +19,7 @@ const aboutData = {
     'Our Team': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/002.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/001.jpg' },
 }
 
-const sectorMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
+const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
     'heavy-machinery': { leftImg:'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/root-blower.jpg' },
     'robotics': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' },
     'structural': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/struktural-beam.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/sheet-metal.jpg' },
@@ -32,20 +32,20 @@ const projectMenuMedia: Record<string, { leftImg: string; rightImg: string }> = 
     'vending-machine': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-2.jpg' },
     'edu-bot': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' }
 };
-
+type MenuCategory = 'services' |  /* 'sectors' | */ 'project' | 'about';
 const getMenuImages = (menu: MenuCategory, slug: string) => {
     // if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['inspection-condition-assessment'];
-    if (menu === 'sectors') return sectorMenuMedia[slug] ?? sectorMenuMedia['oil-gas'];
+    if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['structural'];
     if (menu === 'project') return projectMenuMedia[slug] ?? projectMenuMedia['pln-ip'];
     return aboutData[slug as AboutKeys] ?? aboutData['Our Company'];
 };
 
-type MenuCategory = /* 'services' | */ 'sectors' | 'project' | 'about';
+
 type AboutKeys = keyof typeof aboutData;
 
 const getPageHref = (menu: MenuCategory, slug?: string) => {
     // if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
-    if (menu === 'sectors') return slug ? `/landing/sector/${slug}` : '/landing/sector';
+    if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
     if (menu === 'project') return slug ? `/landing/project/${slug}` : '/landing/project';
     return '/landing';
 };
@@ -54,14 +54,14 @@ const formatMenuLabel = (item: any) => item.title ?? item.name ?? item.slug ?? '
 
 const getMenuItems = (menu: MenuCategory) => {
     // if (menu === 'services') return listServices;
-    if (menu === 'sectors') return sectorData;
+    if (menu === 'services') return servicesData;
     if (menu === 'project') return featuredProjects;
     return Object.keys(aboutData).map((name) => ({ slug: name, title: name, desc: '' }));
 };
 
 const getInitialHoverSlug = (menu: MenuCategory) => {
     // if (menu === 'services') return listServices[0]?.slug ?? '';
-    if (menu === 'sectors') return sectorData[0]?.slug ?? '';
+    if (menu === 'services') return servicesData[0]?.slug ?? '';
     if (menu === 'project') return featuredProjects[0]?.slug ?? '';
     return Object.keys(aboutData)[0];
 };
@@ -69,8 +69,8 @@ const getInitialHoverSlug = (menu: MenuCategory) => {
 export const Navbar: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [activeMenu, setActiveMenu] = useState<MenuCategory | null>(null);
-    // const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
-    const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('sectors'));
+    const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
+    // const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('services'));
     const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string>(getInitialHoverSlug('project'));
     const [hoveredAbout, setHoveredAbout] = useState<AboutKeys>('Our Company');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
     }, []);
 
     // Fungsi Toggle Accordion di Mobile
-    const toggleMobileAccordion = (menu: /* 'services' | */ 'sectors' | 'project' | 'about') => {
+    const toggleMobileAccordion = (menu: 'services' |  /* 'sectors' | */ 'project' | 'about') => {
         setMobileExpandedMenu(mobileExpandedMenu === menu ? null : menu);
     };
 
@@ -96,8 +96,8 @@ export const Navbar: React.FC = () => {
         const items = getMenuItems(activeMenu);
         const selectedSlug = /* activeMenu === 'services'
             ? hoveredServiceSlug
-            : */ activeMenu === 'sectors'
-                ? hoveredSectorSlug
+            : */ activeMenu === 'services'
+                ? hoveredServiceSlug
                 : activeMenu === 'project'
                     ? hoveredProjectSlug
                     : hoveredAbout;
@@ -127,7 +127,7 @@ export const Navbar: React.FC = () => {
                                 href={href}
                                 onMouseEnter={() => {
                                     // if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
-                                    if (activeMenu === 'sectors') setHoveredSectorSlug(item.slug);
+                                    if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
                                     if (activeMenu === 'project') setHoveredProjectSlug(item.slug);
                                     if (activeMenu === 'about') setHoveredAbout(item.slug as AboutKeys);
                                 }}
@@ -191,11 +191,11 @@ export const Navbar: React.FC = () => {
 
                     <Link
                         href="/landing/sector"
-                        onMouseEnter={() => setActiveMenu('sectors')}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeMenu === 'sectors' ? 'bg-muted text-foreground' : textStyle}`}
+                        onMouseEnter={() => setActiveMenu('services')}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-muted text-foreground' : textStyle}`}
                     >
                         Sectors
-                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'sectors' ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
                     </Link>
 
                     <Link
@@ -273,14 +273,14 @@ export const Navbar: React.FC = () => {
 
                     <div>
                         <button
-                            onClick={() => toggleMobileAccordion('sectors')}
+                            onClick={() => toggleMobileAccordion('services')}
                             className="flex items-center justify-between w-full py-2.5 font-semibold border-b border-border/20 text-left"
                         >
                             Sectors
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'sectors' ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'services' ? 'rotate-180' : ''}`} />
                         </button>
-                        <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'sectors' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-                            {sectorData.map((sector: Sector) => (
+                        <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'services' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
+                            {servicesData.map((sector: Services) => (
                                 <Link
                                     key={sector.slug}
                                     href={`/landing/sector/${sector.slug}`}
