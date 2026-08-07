@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const csvFilePath = path.join(process.cwd(),"data", "tools.csv");
+  const csvFilePath = path.join(process.cwd(),"prisma","data", "tools.csv");
   const fileContent = fs.readFileSync(csvFilePath, "utf8");
 
   const parsed = Papa.parse(fileContent, {

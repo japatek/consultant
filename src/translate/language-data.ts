@@ -19,6 +19,7 @@ export const translations = {
         ourProjects: 'Our Projects',
         ourServices: 'Our Services',
         ourSectors: 'Our Sectors',
+        ourTools: 'Our AI Tools',
         aboutUs: 'About Us',
         aboutDesc: 'Expert engineering solutions built on experience and precision.',
         exploreLink: 'Explore',
@@ -56,7 +57,7 @@ export const translations = {
         ],
         aboutStats: [
             { val: '100%', lbl: 'Standards Compliant' },
-            { val: '50+', lbl: 'Projects Delivered' },
+            { val: '80+', lbl: 'Component Created' },
             { val: '3D/FEA', lbl: 'Advanced Simulation' },
             { val: '100%', lbl: 'Client Satisfaction' }
         ]
@@ -80,6 +81,7 @@ export const translations = {
         ourProjects: 'Proyek Kami',
         ourServices: 'Layanan Kami',
         ourSectors: 'Sektor Kami',
+        ourTools: 'Alat AI kami',
         aboutUs: 'Tentang Kami',
         aboutDesc: 'Solusi teknik ahli yang dibangun berdasarkan pengalaman dan presisi.',
         exploreLink: 'Jelajahi',

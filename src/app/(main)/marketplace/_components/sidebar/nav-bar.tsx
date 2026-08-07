@@ -3,125 +3,48 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
 import { featuredProjects } from '../../../../(external)/landing/_lib/featured-projects-data';
-import { listServices, ServiceItem } from '../../../../(external)/landing/_lib/services-data';
-import { sectorData, Sector } from '../../../../(external)/landing/_lib/sectors-data';
+// import { listServices, ServiceItem } from '../../../../(external)/landing/_lib/services-data';
+import { sectorData, Sector } from '../../../../(external)/landing/_lib/services-data';
 import { SearchDialog } from './search-dialog';
 
 import { UserMenu } from "./user-menu";
-import { LayoutControls } from "./layout-controls";
 import { ThemeSwitcher } from "./theme-switcher";
 
-import { SimpleIcon } from "../../../../../components/simple-icon";
-import { Button } from "../../../../../components/ui/button";
-
-import { siGithub } from "simple-icons";
-
 import { users } from "../../../../../data/users";
+import { LanguageSelector } from '@/components/ui/language-selector';
+
 
 const aboutData = {
-    'Our Company': {
-        leftImg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80&w=600'
-    },
-    'Our Team': {
-        leftImg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600'
-    },
-    'Careers': {
-        leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600'
-    }
-};
-
-const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'inspection-condition-assessment': {
-        leftImg: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600'
-    },
-    'structural-analysis-design': {
-        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
-    },
-    'project-management': {
-        leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600'
-    },
-    'laboratory-testing': {
-        leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600'
-    },
-    'manufacturing-surveillance': {
-        leftImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600'
-    },
-    'specification-development': {
-        leftImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600'
-    },
-    'drafting-services': {
-        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
-    },
-    'technical-training': {
-        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
-    }
-};
+    'Our Company': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/logo/logo.png', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/logo/pic2.jpg' },
+    'Our Team': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/002.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/001.jpg' },
+}
 
 const sectorMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'oil-and-gas': {
-        leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600'
-    },
-    'mining-and-resources': {
-        leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600'
-    },
-    'water-and-wastewater': {
-        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
-    },
-    'industrial': {
-        leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600'
-    },
-    'infrastructure': {
-        leftImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600'
-    }
+    'heavy-machinery': { leftImg:'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/root-blower.jpg' },
+    'robotics': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' },
+    'structural': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/struktural-beam.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/sheet-metal.jpg' },
+    'others': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/pc-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/sectors/3dp-1.jpg' }
 };
 
 const projectMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'pln-ip': {
-        leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600'
-    },
-    'ipal': {
-        leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600'
-    },
-    'vending-machine': {
-        leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600'
-    },
-    'edu-bot': {
-        leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600',
-        rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600'
-    }
+    'pln-ip': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg' },
+    'ipal': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/ipal-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/ipal-2.jpg' },
+    'vending-machine': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-2.jpg' },
+    'edu-bot': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' }
 };
 
 const getMenuImages = (menu: MenuCategory, slug: string) => {
-    if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['inspection-condition-assessment'];
-    if (menu === 'sectors') return sectorMenuMedia[slug] ?? sectorMenuMedia['oil-and-gas'];
+    // if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['inspection-condition-assessment'];
+    if (menu === 'sectors') return sectorMenuMedia[slug] ?? sectorMenuMedia['oil-gas'];
     if (menu === 'project') return projectMenuMedia[slug] ?? projectMenuMedia['pln-ip'];
     return aboutData[slug as AboutKeys] ?? aboutData['Our Company'];
 };
 
-type MenuCategory = 'services' | 'sectors' | 'project' | 'about';
+type MenuCategory = /* 'services' | */ 'sectors' | 'project' | 'about';
 type AboutKeys = keyof typeof aboutData;
 
 const getPageHref = (menu: MenuCategory, slug?: string) => {
-    if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
+    // if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
     if (menu === 'sectors') return slug ? `/landing/sector/${slug}` : '/landing/sector';
     if (menu === 'project') return slug ? `/landing/project/${slug}` : '/landing/project';
     return '/landing';
@@ -130,14 +53,14 @@ const getPageHref = (menu: MenuCategory, slug?: string) => {
 const formatMenuLabel = (item: any) => item.title ?? item.name ?? item.slug ?? '';
 
 const getMenuItems = (menu: MenuCategory) => {
-    if (menu === 'services') return listServices;
+    // if (menu === 'services') return listServices;
     if (menu === 'sectors') return sectorData;
     if (menu === 'project') return featuredProjects;
     return Object.keys(aboutData).map((name) => ({ slug: name, title: name, desc: '' }));
 };
 
 const getInitialHoverSlug = (menu: MenuCategory) => {
-    if (menu === 'services') return listServices[0]?.slug ?? '';
+    // if (menu === 'services') return listServices[0]?.slug ?? '';
     if (menu === 'sectors') return sectorData[0]?.slug ?? '';
     if (menu === 'project') return featuredProjects[0]?.slug ?? '';
     return Object.keys(aboutData)[0];
@@ -146,7 +69,7 @@ const getInitialHoverSlug = (menu: MenuCategory) => {
 export const Navbar: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [activeMenu, setActiveMenu] = useState<MenuCategory | null>(null);
-    const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
+    // const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
     const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('sectors'));
     const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string>(getInitialHoverSlug('project'));
     const [hoveredAbout, setHoveredAbout] = useState<AboutKeys>('Our Company');
@@ -163,7 +86,7 @@ export const Navbar: React.FC = () => {
     }, []);
 
     // Fungsi Toggle Accordion di Mobile
-    const toggleMobileAccordion = (menu: 'services' | 'sectors' | 'project' | 'about') => {
+    const toggleMobileAccordion = (menu: /* 'services' | */ 'sectors' | 'project' | 'about') => {
         setMobileExpandedMenu(mobileExpandedMenu === menu ? null : menu);
     };
 
@@ -171,9 +94,9 @@ export const Navbar: React.FC = () => {
         if (!activeMenu) return null;
 
         const items = getMenuItems(activeMenu);
-        const selectedSlug = activeMenu === 'services'
+        const selectedSlug = /* activeMenu === 'services'
             ? hoveredServiceSlug
-            : activeMenu === 'sectors'
+            : */ activeMenu === 'sectors'
                 ? hoveredSectorSlug
                 : activeMenu === 'project'
                     ? hoveredProjectSlug
@@ -203,7 +126,7 @@ export const Navbar: React.FC = () => {
                                 key={item.slug}
                                 href={href}
                                 onMouseEnter={() => {
-                                    if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
+                                    // if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
                                     if (activeMenu === 'sectors') setHoveredSectorSlug(item.slug);
                                     if (activeMenu === 'project') setHoveredProjectSlug(item.slug);
                                     if (activeMenu === 'about') setHoveredAbout(item.slug as AboutKeys);
@@ -257,14 +180,14 @@ export const Navbar: React.FC = () => {
 
                 {/* 1. DESKTOP NAVIGATION LINKS */}
                 <div className="hidden md:flex items-center gap-0.5">
-                    <Link
+                    {/* <Link
                         href="/landing/services"
                         onMouseEnter={() => setActiveMenu('services')}
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-muted text-foreground' : textStyle}`}
                     >
                         Services
                         <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
-                    </Link>
+                    </Link> */}
 
                     <Link
                         href="/landing/sector"
@@ -316,6 +239,7 @@ export const Navbar: React.FC = () => {
                             <SimpleIcon icon={siGithub} className="fill-primary-foreground" />
                         </Link>
                     </Button> */}
+                     <LanguageSelector />
                     <UserMenu user={loggedInUser} />
                 </div>
 
@@ -346,28 +270,6 @@ export const Navbar: React.FC = () => {
             >
                 <div className="px-6 py-6 flex flex-col gap-4 text-foreground">
 
-                    {/* Mobile Accordion: Services */}
-                    <div>
-                        <button
-                            onClick={() => toggleMobileAccordion('services')}
-                            className="flex items-center justify-between w-full py-2.5 font-semibold border-b border-border/20 text-left"
-                        >
-                            Services
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'services' ? 'rotate-180' : ''}`} />
-                        </button>
-                        <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'services' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-                            {listServices.map((service: ServiceItem) => (
-                                <Link
-                                    key={service.slug}
-                                    href={`/landing/services/${service.slug}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="py-2 text-sm text-foreground/75 hover:text-vertex-primary"
-                                >
-                                    {service.title}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
 
                     <div>
                         <button

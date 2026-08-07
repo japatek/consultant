@@ -47,14 +47,14 @@ export function LanguageSelector() {
       <ToggleGroupItem 
         value="en" 
         aria-label="English"
-        className="h-7 px-2.5 text-xs font-bold transition-all data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+        className="h-7 px-2.5 text-xs font-bold transition-all data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm cursor-pointer"
       >
         EN
       </ToggleGroupItem>
       <ToggleGroupItem 
         value="id" 
         aria-label="Indonesian"
-        className="h-7 px-2.5 text-xs font-bold transition-all data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+        className="h-7 px-2.5 text-xs font-bold transition-all data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm cursor-pointer"
       >
         ID
       </ToggleGroupItem>

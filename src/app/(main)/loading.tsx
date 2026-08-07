@@ -5,9 +5,9 @@
  * ┌─────────────────────────────────────────────────────────────────────┐
  * │  ONE FILE COVERS THE ENTIRE (main) ROUTE GROUP                      │
  * │                                                                     │
- * │  Next.js hoists a loading.tsx to every route segment below it via  │
+ * │  Next.js hoists a loading.tsx to every route segment below it via   │
  * │  an automatic <Suspense> boundary. Placing this at the route-group  │
- * │  level means you do NOT need per-page loading files for:           │
+ * │  level means you do NOT need per-page loading files for:            │
  * │                                                                     │
  * │    /dashboard                 ← covered                             │
  * │    /dashboard/platchat        ← covered                             │

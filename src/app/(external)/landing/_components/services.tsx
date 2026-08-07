@@ -1,52 +1,33 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { 
-  ClipboardCheck, 
-  Briefcase, 
-  Layers, 
-  FlaskConical, 
-  Factory, 
-  FileText, 
-  Compass, 
-  GraduationCap,
-  ArrowRight 
+  Fuel, 
+  Pickaxe, 
+  Droplet, 
+  Settings, 
+  Construction, 
+  ArrowRight, 
+  StrikethroughIcon,
+  EllipseIcon,
+  Ellipsis
 } from 'lucide-react';
 
-import { listServices } from '../_lib/services-data';
+import { servicesData } from '../_lib/services-data';
 import { translations, Language } from '@/translate/language-data';
 
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-const serviceIcons: Record<string, React.ReactNode> = {
-  'inspection-condition-assessment': <ClipboardCheck size={18} strokeWidth={1.5} />,
-  'project-management': <Briefcase size={18} strokeWidth={1.5} />,
-  'structural-analysis-design': <Layers size={18} strokeWidth={1.5} />,
-  'laboratory-testing': <FlaskConical size={18} strokeWidth={1.5} />,
-  'manufacturing-surveillance': <Factory size={18} strokeWidth={1.5} />,
-  'specification-development': <FileText size={18} strokeWidth={1.5} />,
-  'drafting-services': <Compass size={18} strokeWidth={1.5} />,
-  'technical-training': <GraduationCap size={18} strokeWidth={1.5} />,
+const servicesIcons: Record<string, React.ReactNode> = {
+  'heavy-machinery': <Fuel size={16} strokeWidth={1.5} />, // Fixed key to match your slug!
+  'robotics': <Settings size={16} strokeWidth={1.5} />, // Fixed key to match your slug!
+  'structural': <Construction size={16} strokeWidth={1.5}/>,
+  'others':<Ellipsis size={16} strokeWidth={1.5}/>
 };
 
 export const Services: React.FC = () => {
-  const pathname = usePathname();
-  const isLandingMain = pathname === '/landing';
-  const displayedServices = isLandingMain ? listServices.slice(0, 4) : listServices;
-
-  // 1. Setup Language State
+  const [activeTab, setActiveTab] = useState<number>(0);
   const [lang, setLang] = useState<Language>('en');
 
-  // 2. Listen to Language Changes immediately
   useEffect(() => {
     const currentLang = (Cookies.get("language") as Language) || 'en';
     setLang(currentLang);
@@ -55,58 +36,95 @@ export const Services: React.FC = () => {
       if (e.detail) setLang(e.detail as Language);
     };
 
+    // FIXED: Added the missing event listener here!
     window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
+
+    return () => {
+      // FIXED: Matched the exact camelCase event name 'languageChange'
+      window.removeEventListener('languageChange', handleLangChange);
+    };
   }, []);
 
-  // 3. Load UI translations
   const t = translations[lang];
+  const current = servicesData[activeTab];
+
+  // Dynamic variables based on current language
+  const currentName = lang === 'id' && current.id_name ? current.id_name : current.name;
+  const currentDesc = lang === 'id' && current.id_desc ? current.id_desc : current.desc;
+  const currentCaps = lang === 'id' && current.id_caps ? current.id_caps : current.caps;
 
   return (
-    <section className="bg-background" id="services">
+    <section className="py-24 bg-background" id="services">
       <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between md:items-end mb-10 gap-8">
+          <div>
+            <div className="text-[11px] font-bold tracking-widest uppercase text-chart-3 mb-2.5">
+              {t.ourSectors || t.tagline}
+            </div>
+            {/* Note: make sure heading1 and heading2 exist in your language-data.ts, or use t.title */}
+            <h2 className="font-serif text-3xl md:text-5xl text-foreground tracking-tight leading-none">
+              {(t as any).heading1 || "Sectors"}<br />{(t as any).heading2 || "Overview"}
+            </h2>
+          </div>
+          <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[320px] md:text-right">
+            {t.subtitle}
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] border border-border rounded-[20px] overflow-hidden bg-card shadow-sm">
+          {/* Tabs header */}
+          <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible border-b lg:border-b-0 lg:border-r border scrollbar-none">
+            {servicesData.map((tab, idx) => {
+              // Get the correct tab name based on language
+              const tabName = lang === 'id' && tab.id_name ? tab.id_name : tab.name;
+              
+              return (
+                <button 
+                  key={idx} 
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex items-center lg:items-center gap-3 p-4 lg:p-4.5 w-full text-left bg-transparent border-0 border-r lg:border-r-0 lg:border-b border last:border-none cursor-pointer transition-all min-w-[150px] lg:min-w-0 flex-col lg:flex-row text-center lg:text-left ${
+                    activeTab === idx ? 'bg-[oklch(0.488_0.243_264.376_/_0.05)]' : 'hover:bg-muted'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                    activeTab === idx ? 'bg-primary text-white' : 'bg-muted text-foreground/40'
+                  }`}>
+                    {servicesIcons[tab.slug] || <Pickaxe size={16} strokeWidth={1.5} />}
+                  </div>
+                  <span className={`text-sm transition-colors ${
+                    activeTab === idx ? 'text-chart-2 font-semibold' : 'text-muted-fg font-medium group-hover:text-foreground/40'
+                  }`}>
+                    {tabName}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
           
-          {isLandingMain && (
-            <Button asChild variant="ghost" className="text-vertex-primary hover:text-vertex-primary/90 hover:bg-vertex-muted p-0 px-4 h-10 font-semibold gap-1.5 transition-all hover:gap-2.5">
-              <Link href="/landing/services">
-                {/* Translated "View Core Services" */}
-                {t.core}
+          {/* Tab content panel */}
+          <div className="p-8 md:p-12">
+            <div className="font-serif text-3xl text-foreground mb-4 leading-tight">{currentName}</div>
+            <div className="text-[15px] text-foreground/40 leading-relaxed mb-8">{currentDesc}</div>
+            
+            <ul className="list-none grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {currentCaps.map((cap, cIdx) => (
+                <li key={cIdx} className="flex items-center gap-2.5 text-[13px] font-medium text-foreground/40">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+                  {cap}
+                </li>
+              ))}
+            </ul>
+            
+            <div className="mt-8">
+              <Link 
+                href={`/landing/services/${current.slug}`} 
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-chart-3 transition-all hover:gap-2.5"
+              >
+                {t.exploreLink || t.explore} {currentName} 
                 <ArrowRight size={14} strokeWidth={1.75} />
               </Link>
-            </Button>
-          )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
-          {displayedServices.map((service, idx) => (
-            <Link key={idx} href={`/landing/services/${service.slug}`} className="group block h-full">
-              <Card className="h-full border-vertex-border bg-card rounded-2xl p-[26px] transition-all duration-250 relative overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-[oklch(0.488_0.243_264.376_/_0.3)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-vertex-primary after:scale-x-0 after:origin-left hover:after:scale-x-100 after:transition-transform after:duration-250">
-                
-                <CardHeader className="p-0 mb-5 space-y-0">
-                  <div className="w-10 h-10 rounded-lg bg-vertex-muted text-vertex-primary flex items-center justify-center mb-5 transition-all duration-250 group-hover:bg-chart-1 group-hover:text-white">
-                    {serviceIcons[service.slug]}
-                  </div>
-                  <CardTitle className="font-semibold text-sm text-vertex-fg leading-snug group-hover:text-vertex-primary transition-colors duration-200">
-                    {/* Translate Title dynamically */}
-                    {lang === 'id' && service.id_title ? service.id_title : service.title}
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent className="p-0 space-y-4">
-                  <CardDescription className="text-[13px] text-vertex-muted-fg leading-relaxed">
-                    {/* Translate Description dynamically */}
-                    {lang === 'id' && service.id_desc ? service.id_desc : service.desc}
-                  </CardDescription>
-                  
-                  <div className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-vertex-primary opacity-0 -translate-x-1 transition-all duration-250 group-hover:opacity-100 group-hover:translate-x-0">
-                    {/* Translated "Explore" or "Learn More" */}
-                    {t.exploreLink}
-                    <ArrowRight size={12} strokeWidth={1.75} />
-                  </div>
-                </CardContent>
-
-              </Card>
-            </Link>
-          ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

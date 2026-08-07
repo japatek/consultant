@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/auth"; // Your Auth.js v5 configuration
 import { prisma } from "@/lib/database/prisma";
 import { getToolsPaginated, getAllCategories } from "./_lib/marketplace-data";
-import MarketplaceClient from "../../(external)/landing/_components/marketplace";
+import MarketplaceClient from "./marketplace";
 
 interface PageProps {
   searchParams: Promise<{
@@ -11,7 +11,6 @@ interface PageProps {
 }
 
 export default async function MarketplacePage({ searchParams }: PageProps) {
-  // 1. Await Next.js searchParams (handles Next.js 15+ async searchParams safely)
   const resolvedParams = await searchParams;
   const currentPage = Number(resolvedParams?.page) || 1;
   const currentCategory = resolvedParams?.category || "All";

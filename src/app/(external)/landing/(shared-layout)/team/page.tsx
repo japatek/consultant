@@ -1,5 +1,5 @@
 import { ChildHero } from '../../_components/child-hero';
-import { AboutUs } from '../../_components/aboutus';
+import { Team } from '../../_components/team';
 import { FeaturedProjects } from '../../_components/featured-projects';
 import { CTA } from '../../_components/CTA';
 
@@ -8,7 +8,7 @@ export default function AboutPage() {
   return(
       <div className="font-sans antialiased text-vertex-fg bg-white overflow-x-hidden selection:bg-[royalblue] selection:text-white">
       <ChildHero title= 'About' titledesc= 'About Us' description={desc} />
-      <AboutUs/>
+      <Team/>
       <FeaturedProjects />
       <CTA />
     </div>

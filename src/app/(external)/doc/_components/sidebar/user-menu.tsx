@@ -33,11 +33,15 @@ import { useProfileCache, clearCachedProfile } from "@/lib/auth/use-profile-cach
 interface UserProps {
   readonly name: string;
   readonly email: string;
-  readonly image?: string | null;
+  readonly image?: string | null; // Matches Prisma / Auth.js schema
 }
 
 export function UserMenu({ user }: { readonly user: UserProps }) {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+
+  // Read name/image from the local browser cache first (instant, no DB
+  // round trip); falls back to the session-provided `user` prop until the
+  // cache has been seeded. Updated instantly by the profile editor on save.
   const displayUser = useProfileCache(user?.email ?? "", user?.name ?? null, user?.image ?? null);
   const displayName = displayUser.name || user?.name || "";
   const displayImage = displayUser.image;
@@ -54,6 +58,8 @@ export function UserMenu({ user }: { readonly user: UserProps }) {
         Cookies.remove(cookieName, { path: "/", domain: window.location.hostname });
       }
     });
+    // Wipe the cached avatar/name too, so the next person on this browser
+    // doesn't briefly see the previous account's profile.
     clearCachedProfile();
 
     await signOut({

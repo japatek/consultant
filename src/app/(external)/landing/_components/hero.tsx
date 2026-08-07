@@ -126,8 +126,9 @@ export const Hero: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-8 overflow-hidden rounded-xl shadow-lg border border-white/10">
           {[
             { title: t.ourProjects, desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
-            { title: t.ourServices, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
-            { title: t.ourSectors, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/sector' },
+            // { title: t.ourServices, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
+            { title: t.ourTools, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/marketplace' },
+            { title: t.ourServices, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/services' },
             {
               title: t.aboutUs,
               desc: t.aboutDesc,

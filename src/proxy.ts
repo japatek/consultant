@@ -59,7 +59,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const isLoggedIn = !!(token && (token.sub || token.id));
 
   // ── CRITICAL SECURITY FIX FOR BUG 1 ───────────────────────────────────────
-  // Explicitly intercept and force validation on ANY route nested inside /dashboard
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
@@ -78,22 +77,23 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // if (pathname === "/dashboard") {
-  //   return NextResponse.redirect(
-  //     new URL(isLoggedIn ? DASHBOARD_PATH : SIGN_IN_PATH, request.url),
-  //   );
-  // }
-
-    if (pathname === "/marketplace") {
-    return NextResponse.redirect(
-      new URL(isLoggedIn ? MARKETPLACE : SIGN_IN_PATH, request.url),
-    );
+  // FIXED: Prevent /marketplace infinite loop
+  if (pathname === "/marketplace") {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(SIGN_IN_PATH, request.url));
+    }
+    return NextResponse.next(); // They are logged in, let them see the page
   }
 
   // 4. Public external pages
+  // FIXED: Prevent /landing infinite loop
   if (startsWithAny(pathname, PUBLIC_PREFIXES)) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL(LANDING_PATH, request.url));
+      // Only redirect if they are NOT already on the landing page
+      // (e.g., this will kick logged-in users out of /auth and send them to /landing)
+      if (pathname !== LANDING_PATH) {
+        return NextResponse.redirect(new URL(LANDING_PATH, request.url));
+      }
     }
     return NextResponse.next();
   }

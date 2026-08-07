@@ -1,19 +1,17 @@
-'use client'; // <-- Changed to a Client Component!
+'use client'; 
 
 import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
-import Cookies from 'js-cookie'; // <-- Using js-cookie instead of next/headers
+import Cookies from 'js-cookie'; 
 
 import { Navbar } from '../../../_components/nav-bar';
 import { ChildHero } from '../../../_components/child-hero';
-import { Sectors } from '../../../_components/sectors';
 import { Services } from '../../../_components/services';
 import { FeaturedProjects } from '../../../_components/featured-projects';
 
 // Data imports
 import { featuredProjects } from '../../../_lib/featured-projects-data';
-import { listServices } from '../../../_lib/services-data';
-import { sectorData } from '../../../_lib/sectors-data';
+import { servicesData } from '../../../_lib/services-data';
 
 import {
   Carousel,
@@ -23,26 +21,137 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 const desc = "JaPaTek Solution";
 
 interface PageProps {
   params: Promise<{
     type: string;
-    slug?: string[]; 
+    slug?: string[];
   }>;
 }
 
-export default function CombinedDynamicPage({ params }: PageProps) {
-  // 1. Unwrap the params Promise (Next.js 15 Client Component rule)
-  const { type, slug } = React.use(params);
+// Sub-component that handles media fallback & controlled tooltip behavior
+function SlideshowItem({
+  baseUrl,
+  mainSlug,
+  index,
+  lang,
+  api,
+}: {
+  baseUrl: string;
+  mainSlug: string | null;
+  index: number;
+  lang: string;
+  api: any;
+}) {
+  const [isVideoError, setIsVideoError] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  // 2. Setup Instant Language Listener
+  const mp4Url = `${baseUrl}.mp4`;
+  const jpgUrl = `${baseUrl}.jpg`;
+
+  // Automatically dismiss the tooltip as soon as the carousel begins sliding
+  useEffect(() => {
+    if (!api) return;
+
+    const handleSlideChange = () => {
+      setTooltipOpen(false);
+    };
+
+    api.on('select', handleSlideChange);
+    api.on('scroll', handleSlideChange);
+
+    return () => {
+      api.off('select', handleSlideChange);
+      api.off('scroll', handleSlideChange);
+    };
+  }, [api]);
+
+  return (
+    <CarouselItem>
+      <Dialog>
+        <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+          <DialogTrigger asChild>
+            <TooltipTrigger asChild>
+              <div className="p-1 cursor-pointer focus:outline-none">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-vertex-border bg-muted shadow-md group">
+                  {!isVideoError ? (
+                    <video
+                      src={mp4Url}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      onError={() => setIsVideoError(true)}
+                    />
+                  ) : (
+                    <img
+                      src={jpgUrl}
+                      alt={`Slideshow ${mainSlug} ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                </div>
+              </div>
+            </TooltipTrigger>
+          </DialogTrigger>
+
+          <TooltipContent className="bg-gold/10 pointer-events-none">
+            <p>{lang === 'id' ? 'Klik untuk memperbesar media' : 'Click to view full media'}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <DialogContent className="!max-w-[95vw] !w-[95vw] h-[90vh] md:h-[95vh] p-2 md:p-8 bg-background/5 backdrop-blur border-none shadow-2xl rounded-xl flex items-center justify-center overflow-hidden">
+          <DialogTitle className="sr-only">Full Media View</DialogTitle>
+          <DialogDescription className="sr-only">
+            A full screen view of the selected project media.
+          </DialogDescription>
+
+          <div className="relative w-full h-full flex items-center justify-center">
+            {!isVideoError ? (
+              <video
+                src={mp4Url}
+                className="w-full h-full object-contain drop-shadow-lg"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={jpgUrl}
+                alt={`Full view ${mainSlug} ${index + 1}`}
+                className="w-full h-full object-contain drop-shadow-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </CarouselItem>
+  );
+}
+
+export default function CombinedDynamicPage({ params }: PageProps) {
+  const { type, slug } = React.use(params);
   const [lang, setLang] = useState<string>('en');
+  const [api, setApi] = useState<any>();
 
   useEffect(() => {
     const currentLang = Cookies.get("language") || 'en';
     setLang(currentLang);
-    
+
     const handleLangChange = (e: any) => {
       if (e.detail) setLang(e.detail);
     };
@@ -51,44 +160,41 @@ export default function CombinedDynamicPage({ params }: PageProps) {
     return () => window.removeEventListener('languageChange', handleLangChange);
   }, []);
 
-  // URL Validation
-  const allowedTypes = ['sector', 'services', 'project'];
+  const allowedTypes = ['services', 'project'];
   if (!allowedTypes.includes(type)) {
     notFound();
   }
 
-  const isIndexPage = !slug || slug.length === 0;       
-  const isSubLevel1 = slug && slug.length === 1;        
-  const isSubLevel2 = slug && slug.length === 2;        
+  const isIndexPage = !slug || slug.length === 0;
+  const isSubLevel1 = slug && slug.length === 1;
+  const isSubLevel2 = slug && slug.length === 2;
 
   const mainSlug = slug ? slug[0] : null;
   const subSlug = slug && slug.length > 1 ? slug[1] : null;
-  
-  const project = type === 'project' && mainSlug ? featuredProjects.find((proj) => proj.slug === mainSlug) : null;
-  const service = type === 'services' && mainSlug ? listServices.find((item) => item.slug === mainSlug) : null;
-  const sector = type === 'sector' && mainSlug ? sectorData.find((sec) => sec.slug === mainSlug) : null;
 
-  // 3. Dynamically set title and description based on LANGUAGE
+  // PERBAIKAN: Ubah 'sec' menjadi 'services'
+  const project = type === 'project' && mainSlug ? featuredProjects.find((proj) => proj.slug === mainSlug) : null;
+  const service = type === 'services' && mainSlug ? servicesData.find((sec) => sec.slug === mainSlug) : null;
+
   let pageTitle = mainSlug?.replace('-', ' ') || '';
   let pageDescription = desc;
 
+  // PERBAIKAN: service sudah dikenali, tipe any bisa dihapus (opsional tapi lebih bersih)
   if (type === 'project' && project) {
     pageTitle = (lang === 'id' && (project as any).id_title) ? (project as any).id_title : project.title;
     pageDescription = (lang === 'id' && (project as any).id_extend_desc) ? (project as any).id_extend_desc : project.extend_desc;
   } else if (type === 'services' && service) {
-    pageTitle = (lang === 'id' && (service as any).id_title) ? (service as any).id_title : service.title;
-    pageDescription = (lang === 'id' && (service as any).id_extend_desc) ? (service as any).id_extend_desc : service.extend_desc;
-  } else if (type === 'sector' && sector) {
-    pageTitle = (lang === 'id' && (sector as any).id_name) ? (sector as any).id_name : sector.name;
-    pageDescription = (lang === 'id' && (sector as any).id_extend_desc) ? (sector as any).id_extend_desc : sector.extend_desc;
+    pageTitle = (lang === 'id' && service.id_name) ? service.id_name : service.name;
+    pageDescription = (lang === 'id' && service.id_extend_desc) ? service.id_extend_desc : service.extend_desc;
   }
 
   const formattedSlug = mainSlug ? mainSlug.toLowerCase() : 'default';
-  const slideshowImages = [1, 2, 3].map(
-    (index) => `https://d2tbt8ofproiin.cloudfront.net/${mainSlug}/${formattedSlug}-${index}.jpg`
+
+  // Base URLs without extensions (1, 2, 3...)
+  const slideshowBaseUrls = [1, 2, 3].map(
+    (index) => `https://d2tbt8ofproiin.cloudfront.net/${mainSlug}/${formattedSlug}-${index}`
   );
 
-  // 4. Set dynamic Hero Banner titles based on LANGUAGE
   let heroTitle = '';
   let heroTitleDesc = '';
 
@@ -103,18 +209,7 @@ export default function CombinedDynamicPage({ params }: PageProps) {
       heroTitle = `${subSlug?.replace('-', ' ')}`;
       heroTitleDesc = lang === 'id' ? `Divisi khusus di bawah ${pageTitle}.` : `Specialized division under ${pageTitle}.`;
     }
-  } else if (type === 'sector') {
-    if (isIndexPage) {
-      heroTitle = lang === 'id' ? 'Sektor' : 'Sectors';
-      heroTitleDesc = lang === 'id' ? 'Industri yang kami layani.' : 'Industries we serve.';
-    } else if (isSubLevel1) {
-      heroTitle = lang === 'id' ? `Sektor: ${pageTitle}` : `Sector: ${pageTitle}`;
-      heroTitleDesc = lang === 'id' ? 'Dukungan teknik khusus untuk industri ini.' : 'Specialized engineering support for this industry.';
-    }
-  } else {
-    heroTitle = type.toUpperCase();
-    heroTitleDesc = lang === 'id' ? `Gambaran umum tentang ${type}` : `Overview of ${type}`;
-  }
+  } 
 
   const renderDescription = (text: string) => {
     return text
@@ -148,21 +243,19 @@ export default function CombinedDynamicPage({ params }: PageProps) {
   return (
     <div className="font-sans antialiased text-vertex-fg bg-background overflow-x-hidden">
       <Navbar />
-      
-      {/* 5. The ChildHero now gets instantly updated strings whenever the toggle is clicked! */}
+
       <ChildHero title={heroTitle} titledesc={heroTitleDesc} description={desc} />
 
       <main className="mx-auto py-16">
         {isIndexPage && (
           <>
-            {type === 'sector' && <Sectors />}
             {type === 'services' && <Services />}
           </>
         )}
 
         {isSubLevel1 && (
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-4">            
+            <div className="space-y-4">
               <span className="text-xs font-bold uppercase tracking-widest text-chart-3">
                 {lang === 'id' ? `Detail ${type}` : `${type} Detail`}
               </span>
@@ -171,27 +264,34 @@ export default function CombinedDynamicPage({ params }: PageProps) {
               </h2>
               <div>{renderDescription(pageDescription)}</div>
             </div>
-            
-            <div className="w-full flex justify-center items-center px-4 md:px-10">            
-              <Carousel className="w-full max-w-md md:max-w-xl">
-                <CarouselContent>
-                  {slideshowImages.map((src, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1">
-                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-vertex-border bg-muted shadow-md group">
-                          <img 
-                            src={src} 
-                            alt={`Slideshow ${mainSlug} ${index + 1}`}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="cursor-pointer md:inline-flex -left-12" />
-                <CarouselNext className="cursor-pointer md:inline-flex -right-12" />
-              </Carousel>
+
+            <div className="w-full flex justify-center items-center px-4 md:px-10">
+              <TooltipProvider>
+                <Carousel
+                  setApi={setApi}
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  className="w-full"
+                >
+                  <CarouselContent>
+                    {slideshowBaseUrls.map((baseUrl, index) => (
+                      <SlideshowItem
+                        key={index}
+                        baseUrl={baseUrl}
+                        mainSlug={mainSlug}
+                        index={index}
+                        lang={lang}
+                        api={api}
+                      />
+                    ))}
+                  </CarouselContent>
+                  
+                  <CarouselPrevious className="cursor-pointer md:inline-flex -left-12" />
+                  <CarouselNext className="cursor-pointer md:inline-flex -right-12" />
+                </Carousel>
+              </TooltipProvider>
             </div>
           </div>
         )}
@@ -203,7 +303,7 @@ export default function CombinedDynamicPage({ params }: PageProps) {
             </span>
             <h2 className="text-2xl font-bold text-slate-900 mt-2 capitalize">{subSlug?.replace('-', ' ')}</h2>
             <p className="mt-4 text-slate-600">
-              {lang === 'id' 
+              {lang === 'id'
                 ? <>Ini adalah halaman sub-spesifik baru Anda. Berada di dalam grup: <strong className="capitalize">{pageTitle}</strong>.</>
                 : <>This is your new sub-specific page. Located inside group: <strong className="capitalize">{pageTitle}</strong>.</>
               }

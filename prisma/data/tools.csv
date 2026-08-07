@@ -1,16 +1,16 @@
-id,name,category,description,url
-b6892df2-15b4-4a3f-99a8-ce5aeb6bffe5,Prisma,Database,Next-generation Node.js and TypeScript ORM.,https://www.prisma.io
-1e8fd930-4818-404b-9d07-d957782addd9,Next.js,Framework,The React Framework for the Web.,https://nextjs.org
-bcdde2d0-918a-4d45-a139-0bc4a9208764,Tailwind CSS,Frontend,A utility-first CSS framework for rapid UI development.,https://tailwindcss.com
-06eaf3f2-6ff3-423d-8dd8-082b4212cde6,Docker,DevOps,"Platform designed to help developers build, share, and run modern applications.",https://www.docker.com
-d3c082cc-c4bd-4f5c-807d-437e78060522,Kubernetes,DevOps,Production-grade container orchestration.,https://kubernetes.io
-d98fc25f-d97b-4050-ad1d-c7783a83358c,PostgreSQL,Database,The world's most advanced open source relational database.,https://www.postgresql.org
-55519af8-d33f-43d4-a267-e46de90e750d,Vercel,Hosting,"Develop, preview, and ship. The platform for frontend developers.",https://vercel.com
-b7c56d0b-48c5-4ab1-ae7a-1dca0fc84c92,AWS EC2,Hosting,Secure and resizable compute capacity in the cloud.,https://aws.amazon.com/ec2/
-6dbc2ef0-d86d-469d-bdcc-9d1ada6ad327,GitHub Actions,CI/CD,Automate your workflow from idea to production.,https://github.com/features/actions
-b0776cd9-44f1-4fc2-893c-951bdf481409,GitLab CI,CI/CD,A single application for the entire software development lifecycle.,https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/
-db9d5c7f-8b2b-45bd-9d4d-c08d689b7991,Prometheus,Monitoring,An open-source systems monitoring and alerting toolkit.,https://prometheus.io/
-a1d7eaf5-a3f6-4eba-9aa9-4efb26d9d16b,Grafana,Monitoring,The open observability platform.,https://grafana.com/
-97ee410c-4f21-4dcd-b429-8f2293fd7326,React,Frontend,A JavaScript library for building user interfaces.,https://reactjs.org
-6414b40f-0dfa-49d7-9e4f-6f0fe60589a8,Valibot,Validation,The modular and type safe schema library for validating structural data.,https://valibot.dev/
-4147df6c-d292-4509-9706-23aa81f87a13,Redis,Database,"The open source, in-memory data store used by millions.",https://redis.io/
+slug,name,category,docNo,icon,priceUSD,priceIDR,tagline,examplePrompt,exampleCode,exampleResult,how,forWhat,where,whenBuilt,why
+chatgpt,ChatGPT,AI Chatbot,DOC-001,BotIcon,20,320000,Your AI assistant,Write a python script to parse CSV,import pandas as pd\ndf = pd.read_csv('tools.csv'),Success,Using Large Language Models,General purpose text generation,Cloud,2022-11-30,To democratize AI
+prisma,Prisma,Database,DOC-002,DatabaseIcon,0,0,Next-generation Node.js ORM,How to upsert in Prisma?,prisma.tool.upsert({ where: { slug } }),Data inserted,Type-safe database client,Database interactions,Server-side,2016-01-01,To make database access easy
+nextjs,Next.js,Framework,DOC-003,GlobeIcon,0,0,The React Framework,How to add middleware?,export function middleware(req) {},NextResponse.next(),React with SSR and SSG,Building full-stack web applications,Vercel,2016-10-25,To simplify React routing
+tailwind,Tailwind CSS,Styling,DOC-004,PaletteIcon,0,0,Rapidly build modern websites,Center a div in Tailwind,"<div class=""flex justify-center items-center"">",Centered Div,Utility-first CSS,Styling UI components,Frontend,2017-11-01,To eliminate writing custom CSS
+react,React,Framework,DOC-005,ReactIcon,0,0,A JavaScript library for building interfaces,How to use state?,"const [count, setCount] = useState(0)",State updated,Component-based architecture,Building Single Page Apps,Frontend,2013-05-29,To build interactive UIs
+typescript,TypeScript,Language,DOC-006,TSIcon,0,0,Typed JavaScript at Any Scale,Define a user interface,interface User { name: string },Type checked,Adding static types to JavaScript,Large scale applications,Everywhere,2012-10-01,To catch errors early
+nodejs,Node.js,Runtime,DOC-007,NodeIcon,0,0,JavaScript runtime built on Chrome V8,Create a simple server,http.createServer(),Server running,Event-driven non-blocking I/O,Backend services,Server,2009-05-27,To run JS outside the browser
+supabase,Supabase,Database,DOC-008,SupaIcon,25,400000,The open source Firebase alternative,Fetch data from tools table,supabase.from('tools').select(),Data retrieved,PostgreSQL under the hood,Backend as a Service,Cloud,2020-01-01,To accelerate backend development
+figma,Figma,Design,DOC-009,FigmaIcon,15,240000,The collaborative interface design tool,How to auto layout?,Press Shift + A,Layout created,Vector graphics editor,UI/UX prototyping,Web,2016-09-27,To collaborate on designs
+docker,Docker,DevOps,DOC-010,DockerIcon,0,0,Empowering App Development for Developers,Build a docker image,docker build -t app .,Image built,Containerization,Consistent environments,Server,2013-03-20,To eliminate it works on my machine
+github,GitHub,VCS,DOC-011,GithubIcon,4,60000,Where the world builds software,Push code to main branch,git push origin main,Code pushed,Git repository hosting,Version control and collaboration,Cloud,2008-04-10,To share code globally
+vercel,Vercel,Hosting,DOC-012,VercelIcon,20,320000,Develop. Preview. Ship.,Deploy your application,vercel deploy,App live,Global Edge Network,Hosting frontend frameworks,Cloud,2015-11-01,To make deployment seamless
+stripe,Stripe,Payment,DOC-013,StripeIcon,0,0,Financial infrastructure for the internet,Create a payment intent,stripe.paymentIntents.create(),Intent created,API for processing payments,E-commerce and SaaS,Cloud,2011-09-29,To accept money online
+framermotion,Framer Motion,Animation,DOC-014,FramerIcon,0,0,A production-ready motion library,Animate a div element,<motion.div animate={{ x: 100 }} />,Div animated,Declarative animations,Web animations,Frontend,2019-01-01,To make UI interactive
+trpc,tRPC,API,DOC-015,TrpcIcon,0,0,Move Fast and Break Nothing,Define a backend router,t.router({ user: t.procedure.query() }),Router defined,End-to-end typesafe APIs,Full-stack TypeScript apps,Server,2020-07-01,To ensure API type safety

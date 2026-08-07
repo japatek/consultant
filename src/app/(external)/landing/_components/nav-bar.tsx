@@ -5,59 +5,65 @@ import Cookies from "js-cookie";
 import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
 
 import { featuredProjects } from '../_lib/featured-projects-data';
-import { listServices, ServiceItem } from '../_lib/services-data';
-import { sectorData, Sector } from '../_lib/sectors-data';
+// import { listServices, ServiceItem } from '../_lib/services2-data';
+import { servicesData, Services } from '../_lib/services-data';
 import { ThemeSwitcher } from "./theme-switcher";
 import { users } from "../../../../data/users";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { translations, Language } from "@/translate/language-data"; 
 
-const aboutData = {
-    'Our Company': { leftImg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80&w=600' },
-    'Our Team': { leftImg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/001.jpg' },
-    'Careers': { leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600' }
+const defaultMedia = { 
+    leftImg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600', 
+    rightImg: 'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80&w=600' 
 };
+
+const aboutData = {
+    'Our Company': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/logo/logo.png', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/logo/pic2.jpg' },
+    'Our Team': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/002.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/about-us/001.jpg' },
+    // 'Careers': { leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600' }
+};
+
+// const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
+//     'inspection-condition-assessment': { leftImg: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600' },
+//     'structural-analysis-design': { leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600' },
+//     'project-management': { leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600' },
+//     'laboratory-testing': { leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600' },
+//     // 'manufacturing-surveillance': { leftImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600' },
+//     'specification-development': { leftImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600' },
+//     'drafting-services': { leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600' },
+//     // 'technical-training': { leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600' }
+// };
 
 const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'inspection-condition-assessment': { leftImg: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600' },
-    'structural-analysis-design': { leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600' },
-    'project-management': { leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600' },
-    'laboratory-testing': { leftImg: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600' },
-    'manufacturing-surveillance': { leftImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600' },
-    'specification-development': { leftImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600' },
-    'drafting-services': { leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600' },
-    'technical-training': { leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600' }
-};
-
-const sectorMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'oil-and-gas': { leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600' },
-    'mining-and-resources': { leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600' },
-    'water-and-wastewater': { leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600' },
-    'industrial': { leftImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600' },
-    'infrastructure': { leftImg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=600' }
+    'heavy-machinery': { leftImg:'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/root-blower.jpg' },
+    // 'construction': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/piping-system.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/piping-r.jpg' },
+    'robotics': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' },
+    'structural': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/struktural-beam.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/sheet-metal.jpg' },
+    'others': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/pc-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/3dp-1.jpg' }
 };
 
 const projectMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
-    'pln-ip': { leftImg: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1574689049757-0a25227d81cc?auto=format&fit=crop&q=80&w=600' },
-    'ipal': { leftImg: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1509391366360-1e97d5259d81?auto=format&fit=crop&q=80&w=600' },
-    'vending-machine': { leftImg: 'https://images.unsplash.com/photo-1541888087625-f8148faa5c17?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1504307651254-35680f356f12?auto=format&fit=crop&q=80&w=600' },
-    'edu-bot': { leftImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=600', rightImg: 'https://images.unsplash.com/photo-1536895058696-a69b1c7ba34d?auto=format&fit=crop&q=80&w=600' }
+    'pln-ip': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg' },
+    'ipal': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/ipal-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/ipal-2.jpg' },
+    'vending-machine': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-2.jpg' },
+    'edu-bot': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' }
 };
 
 const getMenuImages = (menu: MenuCategory, slug: string) => {
-    if (menu === 'services') return serviceMenuMedia[slug] ?? serviceMenuMedia['inspection-condition-assessment'];
-    if (menu === 'sectors') return sectorMenuMedia[slug] ?? sectorMenuMedia['oil-and-gas'];
-    if (menu === 'project') return projectMenuMedia[slug] ?? projectMenuMedia['pln-ip'];
-    return aboutData[slug as AboutKeys] ?? aboutData['Our Company'];
+    // if (menu === 'services') return serviceMenuMedia[slug] || serviceMenuMedia['inspection-condition-assessment'] || defaultMedia;
+    if (menu === 'services') return serviceMenuMedia[slug] || serviceMenuMedia['piping-system'] || defaultMedia;
+    if (menu === 'project') return projectMenuMedia[slug] || projectMenuMedia['pln-ip'] || defaultMedia;
+    return aboutData[slug as AboutKeys] || aboutData['Our Company'] || defaultMedia;
 };
 
-type MenuCategory = 'services' | 'sectors' | 'project' | 'about';
+type MenuCategory = /*'services'*/ | 'services' | 'project' | 'about';
 type AboutKeys = keyof typeof aboutData;
 
 const getPageHref = (menu: MenuCategory, slug?: string) => {
+    // if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
     if (menu === 'services') return slug ? `/landing/services/${slug}` : '/landing/services';
-    if (menu === 'sectors') return slug ? `/landing/sector/${slug}` : '/landing/sector';
     if (menu === 'project') return slug ? `/landing/project/${slug}` : '/landing/project';
+    if (menu === 'about') return slug === 'Our Team' ? '/landing/team' : '/landing/about';
     return '/landing';
 };
 
@@ -66,24 +72,22 @@ const formatMenuLabel = (item: any, lang: Language) => {
     if (lang === 'id') {
         if (item.id_title) return item.id_title;
         if (item.id_name) return item.id_name;
-        // Manual translation for the hardcoded "About" keys
         if (item.slug === 'Our Company') return 'Perusahaan Kami';
         if (item.slug === 'Our Team') return 'Tim Kami';
-        if (item.slug === 'Careers') return 'Karir';
+        // if (item.slug === 'Careers') return 'Karir';
     }
     return item.title ?? item.name ?? item.slug ?? '';
 };
 
 const getMenuItems = (menu: MenuCategory) => {
-    if (menu === 'services') return listServices;
-    if (menu === 'sectors') return sectorData;
+    // if (menu === 'services') return listServices;
+    if (menu === 'services') return servicesData;
     if (menu === 'project') return featuredProjects;
     return Object.keys(aboutData).map((name) => ({ slug: name, title: name, desc: '' }));
 };
 
 const getInitialHoverSlug = (menu: MenuCategory) => {
-    if (menu === 'services') return listServices[0]?.slug ?? '';
-    if (menu === 'sectors') return sectorData[0]?.slug ?? '';
+    if (menu === 'services') return servicesData[0]?.slug ?? '';
     if (menu === 'project') return featuredProjects[0]?.slug ?? '';
     return Object.keys(aboutData)[0];
 };
@@ -92,13 +96,11 @@ export const Navbar: React.FC = () => {
     const [lang, setLang] = useState<Language>('en'); 
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [activeMenu, setActiveMenu] = useState<MenuCategory | null>(null);
-    const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string>(getInitialHoverSlug('services'));
-    const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('sectors'));
+    const [hoveredSectorSlug, setHoveredSectorSlug] = useState<string>(getInitialHoverSlug('services'));
     const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string>(getInitialHoverSlug('project'));
     const [hoveredAbout, setHoveredAbout] = useState<AboutKeys>('Our Company');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const [mobileExpandedMenu, setMobileExpandedMenu] = useState<MenuCategory | null>(null);
-    const loggedInUser = users[0];
 
     useEffect(() => {
         // Read cookie on load
@@ -122,7 +124,7 @@ export const Navbar: React.FC = () => {
 
     const t = translations[lang];
 
-    const toggleMobileAccordion = (menu: 'services' | 'sectors' | 'project' | 'about') => {
+    const toggleMobileAccordion = (menu: /* 'services' | */ 'services' | 'project' | 'about') => {
         setMobileExpandedMenu(mobileExpandedMenu === menu ? null : menu);
     };
 
@@ -130,29 +132,37 @@ export const Navbar: React.FC = () => {
         if (!activeMenu) return null;
 
         const items = getMenuItems(activeMenu);
-        const selectedSlug = activeMenu === 'services' ? hoveredServiceSlug : activeMenu === 'sectors' ? hoveredSectorSlug : activeMenu === 'project' ? hoveredProjectSlug : hoveredAbout;
-        const selectedItem = items.find((item: any) => item.slug === selectedSlug) ?? items[0];
-        const menuImages = getMenuImages(activeMenu, selectedItem.slug);
+        
+        // ADDED: Safety check to prevent items[0] from returning undefined
+        if (!items || items.length === 0) return null; 
+
+        const selectedSlug = /* activeMenu === 'services' ? hoveredServiceSlug : */ activeMenu === 'services' ? hoveredSectorSlug : activeMenu === 'project' ? hoveredProjectSlug : hoveredAbout;
+        
+        // UPDATED: Use || items[0]
+        const selectedItem = items.find((item: any) => item.slug === selectedSlug) || items[0];
+        
+        // UPDATED: Pass safe chaining and ultimate fallback
+        const menuImages = getMenuImages(activeMenu, selectedItem?.slug) || defaultMedia;
 
         return (
             <div className="grid grid-cols-3 gap-8 items-center h-full p-8">
                 <div className="h-[400px] overflow-hidden bg-muted rounded-[32px]">
+                    {/* Safe to render now */}
                     <img src={menuImages.leftImg} alt={`${formatMenuLabel(selectedItem, lang)} left`} className="w-full h-full object-cover transition-opacity duration-300" />
                 </div>
                 <div className="flex flex-col gap-1.5 justify-center py-4">
                     {items.map((item: any) => {
-                        // UPDATED: Now passes 'lang' to get the translated label
                         const label = formatMenuLabel(item, lang);
-                        const href = activeMenu === 'about' ? '/landing/about' : getPageHref(activeMenu, item.slug);
-                        const isSelected = item.slug === selectedItem.slug;
+                        const href = activeMenu === 'about' && item.slug === 'Our Team' ? '/landing/team' : getPageHref(activeMenu, item.slug);
+                        const isSelected = item.slug === selectedItem?.slug;
 
                         return (
                             <Link
                                 key={item.slug}
                                 href={href}
                                 onMouseEnter={() => {
-                                    if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
-                                    if (activeMenu === 'sectors') setHoveredSectorSlug(item.slug);
+                                    // if (activeMenu === 'services') setHoveredServiceSlug(item.slug);
+                                    if (activeMenu === 'services') setHoveredSectorSlug(item.slug);
                                     if (activeMenu === 'project') setHoveredProjectSlug(item.slug);
                                     if (activeMenu === 'about') setHoveredAbout(item.slug as AboutKeys);
                                 }}
@@ -164,6 +174,7 @@ export const Navbar: React.FC = () => {
                     })}
                 </div>
                 <div className="h-[400px] overflow-hidden bg-muted rounded-[32px]">
+                    {/* Safe to render now */}
                     <img src={menuImages.rightImg} alt={`${formatMenuLabel(selectedItem, lang)} right`} className="w-full h-full object-cover transition-opacity duration-300" />
                 </div>
             </div>
@@ -194,11 +205,11 @@ export const Navbar: React.FC = () => {
 
                 {/* 1. DESKTOP NAVIGATION LINKS */}
                 <div className="hidden md:flex items-center gap-0.5">
-                    <Link href="/landing/services" onMouseEnter={() => setActiveMenu('services')} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-card/10 text-foreground' : textStyle}`}>
+                    {/* <Link href="/landing/services" onMouseEnter={() => setActiveMenu('services')} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-card/10 text-foreground' : textStyle}`}>
                         {t.services} <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
-                    </Link>
-                    <Link href="/landing/sector" onMouseEnter={() => setActiveMenu('sectors')} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'sectors' ? 'bg-card/10 text-foreground' : textStyle}`}>
-                        {t.sectors} <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'sectors' ? 'rotate-180' : ''}`} />
+                    </Link> */}
+                    <Link href="/landing/services" onMouseEnter={() => setActiveMenu('services')} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'services' ? 'bg-card/10 text-foreground' : textStyle}`}>
+                        {t.services} <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'services' ? 'rotate-180' : ''}`} />
                     </Link>
                     <Link href="/landing/project" onMouseEnter={() => setActiveMenu('project')} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/85 font-medium transition-all duration-200 ${activeMenu === 'project' ? 'bg-card/10 text-foreground' : textStyle}`}>
                         {t.projects} <ChevronDown className={`w-3.5 h-3.5 opacity-65 transition-transform duration-200 ${activeMenu === 'project' ? 'rotate-180' : ''}`} />
@@ -237,11 +248,10 @@ export const Navbar: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- MOBILE ACCORDION DRAWER --- */}
             <div className={`md:hidden absolute top-full left-0 w-full bg-card shadow-2xl transition-all duration-300 ease-in-out origin-top overflow-y-auto max-h-[80vh] ${isMobileMenuOpen ? 'opacity-100 scale-y-100 pointer-events-auto' : 'opacity-0 scale-y-0 pointer-events-none'}`}>
                 <div className="px-6 py-6 flex flex-col gap-4 text-foreground">
 
-                    <div>
+                    {/* <div>
                         <button onClick={() => toggleMobileAccordion('services')} className="flex items-center justify-between w-full py-2.5 font-semibold border-b border-border/20 text-left">
                             {t.services}
                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'services' ? 'rotate-180' : ''}`} />
@@ -249,23 +259,22 @@ export const Navbar: React.FC = () => {
                         <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'services' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
                             {listServices.map((service: ServiceItem) => (
                                 <Link key={service.slug} href={`/landing/services/${service.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">
-                                    {/* UPDATED: Dynamic Service Label */}
                                     {lang === 'id' && service.id_title ? service.id_title : service.title}
                                 </Link>
                             ))}
-                        </div>
-                    </div>
+                        </div> 
+                    </div> */}
 
                     <div>
-                        <button onClick={() => toggleMobileAccordion('sectors')} className="flex items-center justify-between w-full py-2.5 font-semibold border-b border-border/20 text-left">
-                            {t.sectors}
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'sectors' ? 'rotate-180' : ''}`} />
+                        <button onClick={() => toggleMobileAccordion('services')} className="flex items-center justify-between w-full py-2.5 font-semibold border-b border-border/20 text-left">
+                            {t.services}
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileExpandedMenu === 'services' ? 'rotate-180' : ''}`} />
                         </button>
-                        <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'sectors' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
-                            {sectorData.map((sector: Sector) => (
-                                <Link key={sector.slug} href={`/landing/sector/${sector.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">
+                        <div className={`flex flex-col gap-1 pl-4 overflow-hidden transition-all duration-300 ${mobileExpandedMenu === 'services' ? 'max-h-[300px] mt-2' : 'max-h-0'}`}>
+                            {servicesData.map((services: Services) => (
+                                <Link key={services.slug} href={`/landing/services/${services.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">
                                     {/* UPDATED: Dynamic Sector Label */}
-                                    {lang === 'id' && sector.id_name ? sector.id_name : sector.name}
+                                    {lang === 'id' && services.id_name ? services.id_name : services.name}
                                 </Link>
                             ))}
                         </div>
@@ -290,9 +299,11 @@ export const Navbar: React.FC = () => {
                                         : name === 'Our Team' ? 'Tim Kami' 
                                         : 'Karir')
                                     : name;
+                                    
+                                const href = name === 'Our Team' ? '/landing/team' : '/landing/about';
 
                                 return (
-                                    <Link key={name} href="/landing/about" onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">
+                                    <Link key={name} href={href} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-sm text-foreground/75 hover:text-vertex-primary">
                                         {translatedName}
                                     </Link>
                                 );

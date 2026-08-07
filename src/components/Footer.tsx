@@ -10,25 +10,20 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { X } from "lucide-react";
-import { IconBrandInstagram, IconBrandTwitter, IconBrandWhatsapp, IconBrandWhatsappFilled } from "@tabler/icons-react";
+import { IconBrandInstagram, IconBrandWhatsapp } from "@tabler/icons-react";
 import XTwitterLogoIcon from "./ui/twitter";
 
 // 1. Added id_label for Indonesian translations
-const PRODUCT_SURFACES = [
+const SERVICES_SURFACES = [
   { href: "/download", id: "web", label: "Website", id_label: "Situs Web" },
-  { href: "/download#browser-extension", id: "ext", label: "Browser Extension", id_label: "Ekstensi Peramban" },
-  { href: "/download#vscode-ext", id: "vsc", label: "VSCode Extension", id_label: "Ekstensi VSCode" },
-  { href: "/download#office-ext", id: "off", label: "Office Add-in", id_label: "Add-in Office" },
-  { href: "/download/cad", id: "cad", label: "CAD Add-ins (Pro)", id_label: "Add-in CAD (Pro)" },
-  { href: "/download#desktop", id: "desk", label: "Desktop App", id_label: "Aplikasi Desktop" },
-  { href: "/download#mobile", id: "mob", label: "Mobile App", id_label: "Aplikasi Seluler" },
-  { href: "/download#cli", id: "cli", label: "Terminal CLI", id_label: "Terminal CLI" },
+  { href: "/download/ui", id: "ext", label: "Desktop App", id_label: "Aplikasi Desktop" },
+  { href: "/download/documentation", id: "off", label: "Documentation", id_label: "Dokumentasi" },
+  { href: "/download/cad", id: "cad", label: "CAD Add-ins (Pro)", id_label: "Add-in Software CAD/CAE" },
 ] as const;
 
 const RESOURCES = [
   { href: "/docs", id: "docs", label: "Documentation", id_label: "Dokumentasi" },
-  { href: "/pricing", id: "price", label: "Pricing", id_label: "Harga" },
+  { href: "/marketplace", id: "tool", label: "Tools", id_label: "Alat" },
   { href: "/terms", id: "terms", label: "Terms of Service", id_label: "Ketentuan Layanan" },
   { href: "/privacy", id: "privacy", label: "Privacy Policy", id_label: "Kebijakan Privasi" },
 ] as const;
@@ -89,7 +84,7 @@ export default function Footer() {
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 pb-4 border-b border-dashed border-border/20">
           <FooterCol 
             heading={lang === "id" ? "Produk" : "Products"} 
-            items={[...PRODUCT_SURFACES]} 
+            items={[...SERVICES_SURFACES]} 
             lang={lang} 
           />
           <FooterCol 

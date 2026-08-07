@@ -20,10 +20,10 @@ export interface Project {
 
 export const featuredProjects: Project[] = [
   {
-    tag: "Power Plant",
-    id_tag: "Pembangkit Listrik",
-    title: "Inspection Simulation For Gas Turbine M701F Owned by PT. Indonesia Power based on Indonesia",
-    id_title: "Simulasi Inspeksi Turbin Gas M701F Milik PT. Indonesia Power di Indonesia",
+    tag: "Heavy Machinery",
+    id_tag: "Alat Berat",
+    title: "Inspection Simulation For Gas Turbine M701F",
+    id_title: "Simulasi Inspeksi Turbin Gas M701F",
     desc: "Development of a complex 3D exploded view and visual simulation for the M701F gas turbine, detailed to highlight internal components and maintenance inspection workflows for digital website content.",
     id_desc: "Pengembangan tampilan pecahan (exploded view) 3D yang kompleks dan simulasi visual untuk turbin gas M701F, dirinci untuk menyoroti komponen internal dan alur kerja inspeksi pemeliharaan untuk konten situs web digital.",
     slug: "pln-ip",
@@ -107,7 +107,7 @@ export const featuredProjects: Project[] = [
     tag: "Robotics",
     id_tag: "Robotika",
     title: "Pharmacy Vending Machine",
-    id_title: "Mesin Penjual Otomatis Farmasi",
+    id_title: "Mesin Penjual Obat Otomatis",
     desc: "Interactive automated medication dispensing system design with mechanical motion control, internal slot arrangement, and user-friendly interface.",
     id_desc: "Desain sistem pengeluaran obat otomatis interaktif dengan kontrol gerak mekanis, pengaturan slot internal, dan antarmuka yang ramah pengguna.",
     slug: "vending-machine",

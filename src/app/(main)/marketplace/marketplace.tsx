@@ -166,8 +166,8 @@ export default function MarketplaceClient({
 
       <div className="min-h-screen bg-background text-foreground font-sans">
         {/* Header Section */}
-        <section className="px-6 pt-14 pb-10 md:px-10 md:pt-20 md:pb-14 max-w-6xl mx-auto">
-          <div className="border-l-2 pl-5 md:pl-6 border-[var(--gold)]">
+        <section className="px-20 pt-14 pb-10 md:px-10 md:pt-20 md:pb-14 max-w-6xl mx-auto">
+          <div className="border-l-2 pl-5 md:pl-6 border-[var(--primary)] mt-8">
             <span className="font-mono text-xs tracking-widest uppercase text-[var(--teal)]">
               Engineering AI Tools Bank
             </span>
@@ -184,8 +184,8 @@ export default function MarketplaceClient({
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`border border-border text-muted-foreground bg-transparent transition-all duration-150 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-mono uppercase tracking-wide hover:border-[var(--gold)] hover:text-foreground ${
-                  currentCategory === cat ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]" : ""
+                className={`border border-border text-muted-foreground bg-transparent transition-all duration-150 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-mono uppercase tracking-wide hover:border-[var(--primary)] hover:text-foreground ${
+                  currentCategory === cat ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]" : ""
                 }`}
               >
                 {cat}
@@ -209,7 +209,7 @@ export default function MarketplaceClient({
                   <div className="p-5 pb-4 border-b border-border">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="w-11 h-11 rounded-md flex items-center justify-center shrink-0 bg-secondary border border-border">
-                        <IconComponent size={20} className="text-[var(--gold)]" />
+                        <IconComponent size={20} className="text-[var(--primary)]" />
                       </div>
                       <span className="text-xs font-mono px-2 py-1 rounded bg-[var(--teal)]/10 text-[var(--teal)] border border-[var(--teal)]">
                         {tool.docNo}
@@ -220,7 +220,7 @@ export default function MarketplaceClient({
                       {tool.category}
                     </p>
                     <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="font-sans text-2xl font-bold text-[var(--gold)]">
+                      <span className="font-sans text-2xl font-bold text-[var(--primary)]">
                         ${tool.priceUSD.toLocaleString("en-US")}
                       </span>
                       <span className="text-xs font-mono text-muted-foreground">
@@ -240,31 +240,31 @@ export default function MarketplaceClient({
 
                     {!hasPurchased && (
                       <div className="absolute inset-0 rounded-lg overflow-hidden flex flex-col bg-background/80 backdrop-blur-md items-center justify-center gap-2 z-10">
-                        <Lock size={18} className="text-[var(--gold)]" />
+                        <Lock size={18} className="text-[var(--chart-1)]" />
                         <p className="text-xs font-mono text-foreground">Purchase to unlock.</p>
                       </div>
                     )}
                   </div>
 
                   {/* Actions & Config Snippet */}
-                  <div className="p-5 pt-0 flex flex-col gap-2.5 relative z-20">
+                  <div className="p-5 pt-0 flex flex-col gap-2.5 relative z-20 mt-4">
                     {!hasPurchased ? (
                       <div className="flex items-center gap-2.5">
                         <button
                           onClick={() => showDocHint(tool.id)}
-                          className="border border-border rounded-md px-3.5 py-2 text-xs font-mono flex-1 transition-colors hover:bg-secondary"
+                          className="border border-border rounded-md px-3.5 py-2 text-xs font-mono flex-1 transition-colors hover:bg-secondary cursor-pointer"
                         >
                           {docHint === tool.id ? `→ Docs` : "View Docs"}
                         </button>
                         <button
                           onClick={() => handleBuy(tool)}
                           disabled={isProcessing === tool.id}
-                          className="bg-[var(--gold)] text-background rounded-md px-3.5 py-2 text-xs font-mono font-semibold flex-1 flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-70 cursor-pointer"
+                          className="bg-emerald-700 text-foreground rounded-md px-3.5 py-2 text-xs font-mono font-semibold flex-1 flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-70 cursor-pointer hover:bg-emerald-600"
                         >
                           {isProcessing === tool.id ? (
                             "Processing..."
                           ) : (
-                            <><ArrowRight size={13} /> Buy</>
+                            <><ArrowRight size={13} /> Purchase</>
                           )}
                         </button>
                       </div>

@@ -54,11 +54,11 @@ export const OurClients: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10">
         <div className="text-center mb-12 md:mb-16">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
+            <div className="w-8 h-[1px] bg-primary"></div>
             <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">
               {t.clientTag}
             </span>
-            <div className="w-8 h-[1px] bg-JaPaTek-primary"></div>
+            <div className="w-8 h-[1px] bg-primary"></div>
           </div>
           <h2 className="font-serif text-3xl md:text-4xl text-white tracking-tight">
             {t.titlePrefix}<span className="italic text-chart-3">{t.titleHighlight}</span>
@@ -90,7 +90,7 @@ export const OurClients: React.FC = () => {
                 <Tooltip.Portal>
                   <Tooltip.Content className="TooltipContent bg-gold/50 rounded-sm p-1" sideOffset={2}>
                     {client.name}
-                    <Tooltip.Arrow className="TooltipArrow" />
+                    <Tooltip.Arrow className="bg-primary fill-primary" />
                   </Tooltip.Content>
                 </Tooltip.Portal>
               </Tooltip.Root>
