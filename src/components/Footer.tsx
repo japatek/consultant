@@ -1,9 +1,4 @@
 // website/src/components/Footer.tsx
-//
-// JaPaTek footer. Rendered on the marketing / non-app 
-// pages (login, download, documentation, terms, not-found, pricing) 
-// by importing <Footer /> at the bottom of each page's JSX. 
-// NOT used inside the chat shell, which keeps its own chrome-less layout.
 
 "use client";
 
@@ -17,8 +12,7 @@ import XTwitterLogoIcon from "./ui/twitter";
 const SERVICES_SURFACES = [
   { href: "/download", id: "web", label: "Website", id_label: "Situs Web" },
   { href: "/download/ui", id: "ext", label: "Desktop App", id_label: "Aplikasi Desktop" },
-  { href: "/download/documentation", id: "off", label: "Documentation", id_label: "Dokumentasi" },
-  { href: "/download/cad", id: "cad", label: "CAD Add-ins (Pro)", id_label: "Add-in Software CAD/CAE" },
+  { href: "/documentation", id: "off", label: "Documentation", id_label: "Dokumentasi" },
 ] as const;
 
 const RESOURCES = [
