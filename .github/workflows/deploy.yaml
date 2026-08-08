@@ -71,6 +71,10 @@ jobs:
         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
         
+        # INJECT SECRETS SAFELY
+        sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
+        sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
+        
         # Apply updated manifests
         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
         
@@ -89,3 +93,5 @@ jobs:
         echo "=== Waiting for MCP Server rollout ==="
         kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
 
+
+        
