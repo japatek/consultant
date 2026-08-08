@@ -27,6 +27,15 @@ import { sendMagicLinkEmail }       from "./email";
 export type { Session }   from "next-auth";
 export type { JWT }       from "next-auth/jwt";
 
+// Determine if connection is HTTPS (DO NOT rely solely on NODE_ENV)
+const useSecureCookies =
+  process.env.AUTH_URL?.startsWith("https://") ??
+  process.env.NEXTAUTH_URL?.startsWith("https://") ??
+  false;
+
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+const hostPrefix   = useSecureCookies ? "__Host-"   : "";
+
 // ---------------------------------------------------------------------------
 // Email provider — switches between Resend (dev) and Nodemailer (prod)
 // ---------------------------------------------------------------------------
@@ -74,6 +83,9 @@ const emailProvider =
 const config: NextAuthConfig = {
   ...authConfig,
 
+  // Force Auth.js to trust reverse proxies (Nginx Ingress / Docker)
+  trustHost: true,
+
   pages: {
     signIn:        "/auth/v4/login",
     verifyRequest: "/auth/v4/login",
@@ -101,35 +113,29 @@ const config: NextAuthConfig = {
 
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Secure-authjs.session-token"
-        : "authjs.session-token",
+      name: `${cookiePrefix}authjs.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path:     "/",
-        secure:   process.env.NODE_ENV === "production",
+        secure:   useSecureCookies,
       },
     },
     callbackUrl: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Secure-authjs.callback-url"
-        : "authjs.callback-url",
+      name: `${cookiePrefix}authjs.callback-url`,
       options: {
         sameSite: "lax",
         path:     "/",
-        secure:   process.env.NODE_ENV === "production",
+        secure:   useSecureCookies,
       },
     },
     csrfToken: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Host-authjs.csrf-token"
-        : "authjs.csrf-token",
+      name: `${hostPrefix}authjs.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path:     "/",
-        secure:   process.env.NODE_ENV === "production",
+        secure:   useSecureCookies,
       },
     },
   },
@@ -142,28 +148,23 @@ const config: NextAuthConfig = {
         const dbUser = user as AdapterUser & { role?: string };
         token.id   = dbUser.id;
         token.role = dbUser.role ?? "USER";
-        token.email = dbUser.email; // Simpan email ke dalam token
-        token.name = dbUser.name;   // Simpan nama ke dalam token
+        token.email = dbUser.email;
+        token.name = dbUser.name;
       }
 
-      // Memastikan cookie session (JWT) ikut terupdate jika dipanggil dari klien
       if (trigger === "update" && session?.user) {
         const updated = session.user as { id?: string; role?: string; image?: string; email?: string; name?: string };
         
         if (updated.id)    token.id    = updated.id;
         if (updated.role)  token.role  = updated.role;
-        if (updated.email) token.email = updated.email; // Update email di cookie
-        if (updated.name)  token.name  = updated.name;  // Update nama di cookie
+        if (updated.email) token.email = updated.email;
+        if (updated.name)  token.name  = updated.name;
         
-        // Mencegah Base64 masuk saat user mengupdate profile via session.update()
         if (updated.image) {
           token.picture = updated.image.startsWith("data:image") ? null : updated.image;
         }
       }
 
-      // ==========================================================
-      // FIX HTTP 431 ERROR: FILTERING GAMBAR BASE64
-      // ==========================================================
       if (token.picture && typeof token.picture === "string" && token.picture.startsWith("data:image")) {
         token.picture = null; 
       }
@@ -175,7 +176,6 @@ const config: NextAuthConfig = {
       session.user.id    = token.id    as string ?? "";
       session.user.role  = token.role  as string ?? "USER";
       
-      // Sinkronisasi data utama kembali ke session
       if (token.email) session.user.email = token.email;
       if (token.name)  session.user.name  = token.name;
       
