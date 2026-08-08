@@ -51,6 +51,9 @@ jobs:
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
 
+        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
+        
     - name: Build, tag, and push MCP Server image
       run: |
         docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
