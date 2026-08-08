@@ -40,6 +40,10 @@ spec:
           value: "http://cap-service:8080"
         - name: DATABASE_URL
           value: "DATABASE_URL_PLACEHOLDER"
+        - name: GOOGLE_CLIENT_ID
+          value: "GOOGLE_CLIENT_ID_PLACEHOLDER"
+        - name: GOOGLE_CLIENT_SECRET
+          value: "GOOGLE_CLIENT_SECRET_PLACEHOLDER"
 ---
 apiVersion: v1
 kind: Service

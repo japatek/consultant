@@ -46,10 +46,10 @@ jobs:
         docker build \
           --build-arg AUTH_SECRET=${{ secrets.AUTH_SECRET }} \
           --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+          --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
-        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
 
     - name: Build, tag, and push MCP Server image
       run: |
@@ -74,7 +74,10 @@ jobs:
         # INJECT SECRETS SAFELY
         sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
         sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
-        
+
+        sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
+        sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" k8s-manifest.yaml
+     
         # Apply updated manifests
         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
         
