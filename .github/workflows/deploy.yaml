@@ -66,26 +66,37 @@ jobs:
 
     - name: Deploy to Kubeadm Cluster
       run: |
-        # Replace placeholders in the k8s manifest
+        - name: Deploy to Kubeadm Cluster
+      run: |
+        # ==========================================
+        # 1. REFRESH ECR SECRET (FIX FOR IMAGEPULLBACKOFF)
+        # ==========================================
+        kubectl create secret docker-registry ecr-secret \
+          --docker-server=${{ env.ECR_REGISTRY }} \
+          --docker-username=AWS \
+          --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
+          --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
+
+        # ==========================================
+        # 2. REPLACE PLACEHOLDERS
+        # ==========================================
         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
         
-        # INJECT SECRETS SAFELY
         sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
         sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
-
         sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
         sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" k8s-manifest.yaml
-     
-        # Apply updated manifests
+        
+        # ==========================================
+        # 3. APPLY AND UPDATE
+        # ==========================================
         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
         
-        # Explicitly force image updates for deployments
         kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         kubectl set image deployment/japa-mcp mcp=$ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
-        # Debugging status
         echo "=== Checking pod status ==="
         sleep 5
         kubectl get pods --insecure-skip-tls-verify
@@ -95,6 +106,3 @@ jobs:
         
         echo "=== Waiting for MCP Server rollout ==="
         kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
-
-
-        
