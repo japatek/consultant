@@ -29,9 +29,9 @@ build/
 # ---------------------------------------------------
 # CUSTOM: Unfinished / Draft Folders to Ignore
 # ---------------------------------------------------
-src/app/(main)/*
+# src/app/(main)/*
 src/test/*
-src/app/(external)/auth
+# src/app/(external)/auth
 src/app/(external)/(admin)
-src/app/api/user/change-email/route.ts
+# src/app/api/user/change-email/route.ts
 # Add any other paths here that you want Docker to skip
