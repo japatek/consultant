@@ -7,7 +7,7 @@ import type { NextRequest } from "next/server";
 import { decode } from "next-auth/jwt";
 
 const SIGN_IN_PATH = "/auth/v4/login" as const;
-const LANDING_PATH = "/" as const;
+const LANDING_PATH = "/landing" as const;
 const DASHBOARD_PATH = "/dashboard" as const;
 const MARKETPLACE    = "/marketplace" as const;
 
@@ -58,7 +58,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const token = await getSessionFromCookie(request);
   const isLoggedIn = !!(token && (token.sub || token.id));
 
-  // ── CRITICAL SECURITY FIX FOR BUG 1 ───────────────────────────────────────
+  // 3. Protected Dashboard Paths
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
@@ -68,37 +68,28 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.next();
   }
-  // ──────────────────────────────────────────────────────────────────────────
 
-  // 3. Root "/" Smart Redirect
-  if (pathname === "/") {
-    return NextResponse.redirect(
-      new URL(LANDING_PATH, request.url),
-    );
-  }
-
-  // FIXED: Prevent /marketplace infinite loop
-  if (pathname === "/marketplace") {
+  // 4. Protected Marketplace
+  if (pathname === "/marketplace" || pathname.startsWith("/marketplace/")) {
     if (!isLoggedIn) {
       return NextResponse.redirect(new URL(SIGN_IN_PATH, request.url));
-    }
-    return NextResponse.next(); // They are logged in, let them see the page
-  }
-
-  // 4. Public external pages
-  // FIXED: Prevent /landing infinite loop
-  if (startsWithAny(pathname, PUBLIC_PREFIXES)) {
-    if (isLoggedIn) {
-      // Only redirect if they are NOT already on the landing page
-      // (e.g., this will kick logged-in users out of /auth and send them to /landing)
-      if (pathname !== LANDING_PATH) {
-        return NextResponse.redirect(new URL(LANDING_PATH, request.url));
-      }
     }
     return NextResponse.next();
   }
 
-  // 5. Fallback catch-all for any other unhandled private pages
+  // 5. Root "/" and Public Pages
+  if (pathname === "/" || startsWithAny(pathname, PUBLIC_PREFIXES)) {
+    // If a LOGGED IN user tries to go to the login/register page, 
+    // redirect them to the dashboard (or landing) so they don't see the auth forms again.
+    if (isLoggedIn && pathname.startsWith("/auth")) {
+      return NextResponse.redirect(new URL(DASHBOARD_PATH, request.url));
+    }
+    
+    // Otherwise, allow everyone (logged in or not) to view "/", "/docs", "/landing", etc.
+    return NextResponse.next();
+  }
+
+  // 6. Fallback catch-all for any other unhandled private pages
   if (!isLoggedIn) {
     const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
     return NextResponse.redirect(
