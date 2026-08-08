@@ -19,7 +19,7 @@ interface PasswordChangedEmailProps {
 export default function PasswordChanges({
   name,
   changedAt,
-  supportUrl = "mailto:support@aotamata.space",
+  supportUrl = "mailto:support@japatek.space",
 }: PasswordChangedEmailProps) {
   const formattedTime = new Date(changedAt).toLocaleString("id-ID", {
     dateStyle: "long",

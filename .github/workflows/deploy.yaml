@@ -50,10 +50,10 @@ jobs:
           --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
-
+          
         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
-        
+
     - name: Build, tag, and push MCP Server image
       run: |
         docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
@@ -69,18 +69,14 @@ jobs:
 
     - name: Deploy to Kubeadm Cluster
       run: |
-        # ==========================================
-        # 1. REFRESH ECR SECRET (FIX FOR IMAGEPULLBACKOFF)
-        # ==========================================
+        # Refresh ECR Secret
         kubectl create secret docker-registry ecr-secret \
           --docker-server=${{ env.ECR_REGISTRY }} \
           --docker-username=AWS \
           --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
 
-        # ==========================================
-        # 2. REPLACE PLACEHOLDERS
-        # ==========================================
+        # Replace Placeholders in Manifest
         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
@@ -89,6 +85,13 @@ jobs:
         sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
         sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
         sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" k8s-manifest.yaml
+        sed -i "s|SMTP_HOST_PLACEHOLDER|${{ secrets.SMTP_HOST }}|g" k8s-manifest.yaml
+        sed -i "s|SMTP_USER_PLACEHOLDER|${{ secrets.SMTP_USER }}|g" k8s-manifest.yaml
+        sed -i "s|SMTP_PASS_PLACEHOLDER|${{ secrets.SMTP_PASS }}|g" k8s-manifest.yaml
+
+        # Apply to Cluster
+        kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
+        kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
         # ==========================================
         # 3. APPLY AND UPDATE

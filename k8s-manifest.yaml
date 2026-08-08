@@ -35,7 +35,7 @@ spec:
         - name: AUTH_SECRET
           value: "AUTH_SECRET_PLACEHOLDER"
         - name: AUTH_URL
-          value: "http://47.129.183.178:30080"
+          value: "https://japatek.space"
         - name: CAP_BACKEND_URL
           value: "http://cap-service:8080"
         - name: DATABASE_URL
@@ -44,6 +44,30 @@ spec:
           value: "GOOGLE_CLIENT_ID_PLACEHOLDER"
         - name: GOOGLE_CLIENT_SECRET
           value: "GOOGLE_CLIENT_SECRET_PLACEHOLDER"
+        - name: AUTH_URL
+          value: "https://japatek.space"
+        - name: AUTH_TRUST_HOST
+          value: "true"
+        - name: DATABASE_URL
+          value: "DATABASE_URL_PLACEHOLDER"
+        - name: AUTH_SECRET
+          value: "AUTH_SECRET_PLACEHOLDER"
+        - name: GOOGLE_CLIENT_ID
+          value: "GOOGLE_CLIENT_ID_PLACEHOLDER"
+        - name: GOOGLE_CLIENT_SECRET
+          value: "GOOGLE_CLIENT_SECRET_PLACEHOLDER"
+        - name: SMTP_HOST
+          value: "SMTP_HOST_PLACEHOLDER"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USER
+          value: "SMTP_USER_PLACEHOLDER"
+        - name: SMTP_PASS
+          value: "SMTP_PASS_PLACEHOLDER"
+        - name: EMAIL_FROM
+          value: "admin@japatek.space"
+        - name: ENV
+          value: production
 ---
 apiVersion: v1
 kind: Service

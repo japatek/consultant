@@ -6,6 +6,7 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
+        "japatek.space",
         "47.129.183.178:30080", // Your AWS deployment
         "localhost:3000"        // Your local PC
       ],
