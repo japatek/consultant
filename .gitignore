@@ -39,7 +39,6 @@ next-env.d.ts
 node_modules/*
 
 globalsv1.css
-# docker-compose.yaml
 
 secret.txt
 

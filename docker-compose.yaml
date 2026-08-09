@@ -3,7 +3,7 @@ services:
     image: tiago2/cap:latest
     container_name: cap
     ports:
-      - "8080:8080"
+      - "8080:3000"
     environment:
       ADMIN_KEY: "superadmin12"
       REDIS_URL: redis://valkey:6379
