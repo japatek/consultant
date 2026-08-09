@@ -209,45 +209,6 @@ spec:
   selector:
     app: cap
 
----
-# ==========================================
-# 5. DEPLOY CAP BACKEND
-# ==========================================
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cap-backend
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cap-backend
-  template:
-    metadata:
-      labels:
-        app: cap-backend
-    spec:
-      imagePullSecrets:
-        - name: ecr-secret  
-      containers:
-        - name: cap-container
-          image: 062995001999.dkr.ecr.ap-southeast-1.amazonaws.com/cap-backend:latest 
-          ports:
-            - containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cap-service 
-spec:
-  selector:
-    app: cap-backend
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
----
 
 # ==========================================
 # 6. UNIFIED INGRESS CONTROLLER
