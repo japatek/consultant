@@ -223,7 +223,7 @@ spec:
   replicas: 1
   selector:
   imagePullSecrets:
-      - name: ecr-secret
+    - name: ecr-secret
     matchLabels:
       app: cap-backend
   template:
