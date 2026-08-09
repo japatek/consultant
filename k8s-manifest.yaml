@@ -213,7 +213,6 @@ spec:
 # ==========================================
 # 5. DEPLOY CAP BACKEND
 # ==========================================
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -222,8 +221,6 @@ metadata:
 spec:
   replicas: 1
   selector:
-  imagePullSecrets:
-   name: ecr-secret
     matchLabels:
       app: cap-backend
   template:
@@ -231,13 +228,14 @@ spec:
       labels:
         app: cap-backend
     spec:
+      imagePullSecrets:
+        - name: ecr-secret  
       containers:
         - name: cap-container
           image: 062995001999.dkr.ecr.ap-southeast-1.amazonaws.com/cap-backend:latest 
           ports:
             - containerPort: 8080
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
