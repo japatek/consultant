@@ -68,6 +68,10 @@ spec:
           value: "admin@japatek.space"
         - name: ENV
           value: production
+        - name: NEXT_PUBLIC_CAP_SITE_KEY
+          value: "NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER"
+        - name: CAP_BACKEND_URL
+          value: "http://cap-service:8080"
 ---
 apiVersion: v1
 kind: Service
