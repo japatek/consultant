@@ -54,3 +54,5 @@ aws/*
 
 /src/generated/prisma
 
+.env
+
