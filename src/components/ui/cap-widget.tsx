@@ -39,7 +39,7 @@ export function CapWidget({ onVerify, onExpire }: CapWidgetProps): React.JSX.Ele
     containerRef.current.innerHTML = "";
 
     const siteKey = process.env.NEXT_PUBLIC_CAP_SITE_KEY;
-    const capInstanceUrl = process.env.CAP_BACKEND_URL || "http://localhost:8080";
+    const capInstanceUrl = "/api/cap" 
     
     if (!siteKey) {
       console.error("[CapWidget] Error: NEXT_PUBLIC_CAP_SITE_KEY is missing from .env");
