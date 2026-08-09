@@ -5,6 +5,7 @@ import { LoginForm } from "../_components/login-form";
 import { SignInGoogle } from "../_components/child/google-auth";
 import { CheckEmailNotice } from "../_components/child/check-email-notif";
 import { StarsBackground } from "@/components/ui/star-background";
+import NotifLogin from '../_components/notif'
 import Footer from "@/components/Footer";
 
 
@@ -51,10 +52,12 @@ export default async function LoginPage({
   return (
     <>
       <StarsBackground className="relative flex flex-colw-full h-screen font-sans text-foreground selection:bg-primary selection:text-primary-foreground">
-        <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
+      
+        <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 gap-2">
+          <NotifLogin/>
           {/* ── Card ──────────────────────────────────────────────────────────── */}
           <div className="w-full max-w-[400px] space-y-6 rounded-2xl border border-border/40 bg-card/90 px-8 py-10 shadow-xl backdrop-blur-md">
-
+            
             {/* ── Branding ──────────────────────────────────────────────────── */}
             <div className="space-y-1 text-center">
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -66,6 +69,7 @@ export default async function LoginPage({
                   : (metadata.description)}
               </p>
             </div>
+            
 
             {isVerifyState ? (
               /* ── "Check your inbox" state ─────────────────────────────────── */
