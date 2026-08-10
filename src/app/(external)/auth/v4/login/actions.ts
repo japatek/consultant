@@ -2,6 +2,7 @@
 
 import { signIn }   from "@/lib/auth/auth";
 import { prisma }   from "@/lib/database/prisma";
+import { redirect } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,8 +56,13 @@ export async function loginAction(
     return { error: "Please complete the security verification." };
   }
 
-  const capBackendUrl = process.env.CAP_BACKEND_URL || "http://localhost:8080";
-  const secretKey     = process.env.CAP_SECRET_KEY;
+  // FALLBACK LOKAL: Jika .env masih cap-service, kita paksa pakai 127.0.0.1 di dev stage
+  let capBackendUrl = process.env.CAP_BACKEND_URL || "http://127.0.0.1:8080/api/cap";
+  if (capBackendUrl.includes("cap-service") && process.env.NODE_ENV !== "production") {
+    capBackendUrl = "http://127.0.0.1:8080/api/cap"; 
+  }
+  
+  const secretKey = process.env.CAP_SECRET_KEY;
 
   try {
     const verifyResponse = await fetch(`${capBackendUrl}/siteverify`, {
@@ -87,22 +93,27 @@ export async function loginAction(
     console.error("[loginAction] Token cleanup failed:", err);
   }
 
-  // ── 5. Trigger Auth.js magic-link email ────────────────────────────────────
+// ── 5. Trigger Auth.js magic-link email (Diubah ke SMTP/Email) ─────────────
   try {
-    await signIn("resend", {
+    // ID standar bawaan NextAuth untuk SMTP adalah "email" (bukan "nodemailer")
+    // Jika di file auth.ts Anda secara spesifik menamainya "smtp", ubah "email" di bawah menjadi "smtp".
+    await signIn("email", { 
       email,
+      redirect: false, // Kita matikan redirect otomatis bawaan NextAuth
       redirectTo: callbackUrl, 
     });
   } catch (err) {
-    // Memanfaatkan helper isNextRedirect untuk menangani arsitektur bypass Next.js
-    if (isNextRedirect(err)) {
-      throw err;
+    // Jika NextAuth tetap memaksa melempar NEXT_REDIRECT (karena ini Server Action)
+    // kita tangkap error-nya agar tidak dieksekusi NextAuth.
+    if (!isNextRedirect(err)) {
+      console.error("[loginAction] signIn error:", err);
+      return { error: "Failed to send magic link. Please try again." };
     }
-    console.error("[loginAction] signIn error:", err);
-    return { error: "Failed to send magic link. Please try again." };
   }
 
-  return { error: null };
+  // ── 6. PAKSA REDIRECT KE HALAMAN NOTIFIKASI ────────────────────────────────
+  // Kita arahkan sendiri secara manual ke halaman UI "Check Email" milik Anda
+  redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
 
 // ---------------------------------------------------------------------------

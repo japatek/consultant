@@ -9,7 +9,6 @@
 import NextAuth                     from "next-auth";
 import { PrismaAdapter }            from "@auth/prisma-adapter";
 import Google                       from "next-auth/providers/google";
-import Resend                       from "next-auth/providers/resend";
 import Nodemailer                   from "next-auth/providers/nodemailer";
 import type { DefaultSession }      from "next-auth";
 import type { JWT }                 from "next-auth/jwt";
@@ -55,27 +54,22 @@ async function sendVerificationRequest({
   await sendMagicLinkEmail({ to: email, url });
 }
 
-const emailProvider =
-  process.env.NODE_ENV === "production"
-    ? Nodemailer({
-        server: {
-          host:   process.env.SMTP_HOST!,
-          port:   Number(process.env.SMTP_PORT ?? 587),
-          secure: process.env.SMTP_SECURE === "false",
-          auth: {
-            user: process.env.SMTP_USER!,
-            pass: process.env.SMTP_PASS!,
-          },
-        },
-        from:                     process.env.EMAIL_FROM!,
-        sendVerificationRequest,
-      })
-    : Resend({
-        apiKey:                   process.env.RESEND_API_KEY!,
-        from:                     process.env.EMAIL_FROM!,
-        sendVerificationRequest,
-      });
-
+// Langsung gunakan Nodemailer tanpa kondisi production/development
+const emailProvider = Nodemailer({
+  server: {
+    host:   process.env.SMTP_HOST!,
+    port:   Number(process.env.SMTP_PORT ?? 587),
+    secure: process.env.SMTP_SECURE === "true", // Pastikan true jika pakai port 465, false jika 587
+    auth: {
+      user: process.env.SMTP_USER!,
+      pass: process.env.SMTP_PASS!,
+    },
+    logger: true,
+    debug:  true
+  },
+  from: process.env.EMAIL_FROM!,
+  sendVerificationRequest,
+});
 // ---------------------------------------------------------------------------
 // Core config (merged with edge-safe authConfig)
 // ---------------------------------------------------------------------------

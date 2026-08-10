@@ -138,7 +138,7 @@ export function LoginForm({ urlError, callbackUrl }: LoginFormProps): React.JSX.
           </span>
         </Label>
 
-        {isEmailInputValid && (
+        {isEmailInputValid && !captchaToken && (
           <div className="animate-in fade-in duration-200">
             <CapWidget
               key={widgetKey}

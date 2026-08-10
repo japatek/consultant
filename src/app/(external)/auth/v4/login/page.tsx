@@ -54,7 +54,7 @@ export default async function LoginPage({
       <StarsBackground className="relative flex flex-colw-full h-screen font-sans text-foreground selection:bg-primary selection:text-primary-foreground">
       
         <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 gap-2">
-          <NotifLogin/>
+          {/* <NotifLogin/> */}
           {/* ── Card ──────────────────────────────────────────────────────────── */}
           <div className="w-full max-w-[400px] space-y-6 rounded-2xl border border-border/40 bg-card/90 px-8 py-10 shadow-xl backdrop-blur-md">
             

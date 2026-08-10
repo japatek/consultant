@@ -27,7 +27,7 @@ const nextConfig = {
     return [
       {
         source: '/api/cap/:path*',
-        destination: 'http://cap-service:8080/:path*', // Next.js will fetch this inside Kubernetes!
+        destination: "http://127.0.0.1:8080/:path*", // Next.js will fetch this inside Kubernetes!
       },
     ];
   },

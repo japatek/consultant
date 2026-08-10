@@ -36,9 +36,8 @@ const aboutData = {
 
 const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
     'heavy-machinery': { leftImg:'https://d2tbt8ofproiin.cloudfront.net/megadropdown/pln-2.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/root-blower.jpg' },
-    // 'construction': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/piping-system.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/piping-r.jpg' },
     'robotics': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/vending-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/edu-bot-2.jpg' },
-    'structural': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/struktural-beam.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/sheet-metal.jpg' },
+    'structural': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/struktural-beam.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/pipe-drawing.jpg' },
     'others': { leftImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/pc-1.jpg', rightImg: 'https://d2tbt8ofproiin.cloudfront.net/megadropdown/services/3dp-1.jpg' }
 };
 
