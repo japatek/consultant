@@ -35,7 +35,7 @@ spec:
         - name: AUTH_SECRET
           value: "AUTH_SECRET_PLACEHOLDER"
         - name: AUTH_URL
-          value: "https://japatek.space"
+          value: "AUTH_URL_PLACEHOLDER"
         - name: CAP_BACKEND_URL
           value: "http://cap-service:8080"
         - name: DATABASE_URL

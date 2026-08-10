@@ -82,7 +82,7 @@ jobs:
         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
-        
+        sed -i "s|AUTH_URL_PLACEHOLDER|${{ secrets.AUTH_URL }}|g" k8s-manifest.yaml
         sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
         sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
         sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
