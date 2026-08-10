@@ -94,17 +94,14 @@ export async function loginAction(
   }
 
 // ── 5. Trigger Auth.js magic-link email (Diubah ke SMTP/Email) ─────────────
-  try {
-    // ID standar bawaan NextAuth untuk SMTP adalah "email" (bukan "nodemailer")
-    // Jika di file auth.ts Anda secara spesifik menamainya "smtp", ubah "email" di bawah menjadi "smtp".
-    await signIn("email", { 
+ try {
+    // UBAH "email" MENJADI "nodemailer"
+    await signIn("nodemailer", { 
       email,
       redirect: false, // Kita matikan redirect otomatis bawaan NextAuth
       redirectTo: callbackUrl, 
     });
   } catch (err) {
-    // Jika NextAuth tetap memaksa melempar NEXT_REDIRECT (karena ini Server Action)
-    // kita tangkap error-nya agar tidak dieksekusi NextAuth.
     if (!isNextRedirect(err)) {
       console.error("[loginAction] signIn error:", err);
       return { error: "Failed to send magic link. Please try again." };
@@ -112,10 +109,8 @@ export async function loginAction(
   }
 
   // ── 6. PAKSA REDIRECT KE HALAMAN NOTIFIKASI ────────────────────────────────
-  // Kita arahkan sendiri secara manual ke halaman UI "Check Email" milik Anda
   redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
-
 // ---------------------------------------------------------------------------
 // googleAction — OAuth sign-in
 // ---------------------------------------------------------------------------

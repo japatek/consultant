@@ -30,6 +30,7 @@ interface LoginFormProps {
 const INITIAL_STATE: LoginActionState = { error: null };
 
 export function LoginForm({ urlError, callbackUrl }: LoginFormProps): React.JSX.Element {
+
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(loginAction, INITIAL_STATE);
 
@@ -175,7 +176,7 @@ export function LoginForm({ urlError, callbackUrl }: LoginFormProps): React.JSX.
 
           {/* Tooltip hanya muncul jika tombol disabled karena captchaToken belum diisi */}
           {!captchaToken && !isPending && (
-            <TooltipContent side="right" className="bg-background text-foreground">
+            <TooltipContent side="bottom" className="bg-background text-foreground">
               <p>Enter email first or Check the box</p>
             </TooltipContent>
           )}

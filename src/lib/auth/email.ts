@@ -2,14 +2,13 @@
  * src/lib/auth/email.ts
  *
  * Email transport layer.
- * Switches between Resend (development) and Nodemailer (production)
- * based on NODE_ENV, sharing a single React Email template for both.
+ * Uses Nodemailer (AWS SES / SMTP) exclusively for all environments,
+ * sharing a single React Email template.
  *
  * Usage:
  * import { sendMagicLinkEmail, sendChangeEmailVerification, sendOTPEmail } from "@/lib/auth/email";
  */
 
-import { Resend }      from "resend";
 import nodemailer      from "nodemailer";
 import { render }      from "@react-email/render";
 import MagicLinkEmail  from "@/components/template-email/login-link-email";
@@ -20,25 +19,15 @@ import RegisterCodeEmail   from "@/components/template-email/register-code-email
 // Shared constants
 // ---------------------------------------------------------------------------
 
-const FROM     = process.env.EMAIL_FROM    ?? "JaPaTek <noreply@aotamata.com>";
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "JaPa";
+const FROM     = process.env.EMAIL_FROM    ?? "JaPaTek <dev@japatek.space>";
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "JaPaTek";
 
 // ---------------------------------------------------------------------------
 // Transport factory
 // ---------------------------------------------------------------------------
 
 /**
- * Lazy-initialised Resend client (dev only).
- * Tree-shaken in production builds.
- */
-function getResendClient(): Resend {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error("RESEND_API_KEY is not set.");
-  return new Resend(key);
-}
-
-/**
- * Lazy-initialised Nodemailer transporter (production only).
+ * Lazy-initialised Nodemailer transporter.
  */
 function getNodemailerTransporter(): nodemailer.Transporter {
   return nodemailer.createTransport({
@@ -52,8 +41,6 @@ function getNodemailerTransporter(): nodemailer.Transporter {
   });
 }
 
-
-
 // ---------------------------------------------------------------------------
 // Core send utility
 // ---------------------------------------------------------------------------
@@ -66,30 +53,15 @@ interface SendOptions {
 }
 
 async function send(opts: SendOptions): Promise<void> {
-  if (process.env.NODE_ENV === "production") {
-    // ── Production: Nodemailer ──────────────────────────────────────────────
-    const transporter = getNodemailerTransporter();
-    await transporter.sendMail({
-      from:    FROM,
-      to:      opts.to,
-      subject: opts.subject,
-      html:    opts.html,
-      text:    opts.text,
-    });
-  } else {
-    // ── Development: Resend ────────────────────────────────────────────────
-    const resend = getResendClient();
-    const { error } = await resend.emails.send({
-      from:    FROM,
-      to:      opts.to,
-      subject: opts.subject,
-      html:    opts.html,
-      text:    opts.text,
-    });
-    if (error) {
-      throw new Error(`[Resend] ${error.message}`);
-    }
-  }
+  // ── Always use Nodemailer for both Dev and Prod ─────────────────────────
+  const transporter = getNodemailerTransporter();
+  await transporter.sendMail({
+    from:    FROM,
+    to:      opts.to,
+    subject: opts.subject,
+    html:    opts.html,
+    text:    opts.text,
+  });
 }
 
 // ---------------------------------------------------------------------------
