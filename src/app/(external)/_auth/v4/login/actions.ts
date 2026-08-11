@@ -57,9 +57,9 @@ export async function loginAction(
   }
 
   // FALLBACK LOKAL: Jika .env masih cap-service, kita paksa pakai 127.0.0.1 di dev stage
-let capBackendUrl = process.env.CAP_BACKEND_URL || "http://127.0.0.1:8080";
+  let capBackendUrl = process.env.CAP_BACKEND_URL || "https://localhost:3000";
   if (capBackendUrl.includes("cap-service") && process.env.NODE_ENV !== "production") {
-    capBackendUrl = "http://127.0.0.1:8080"; 
+    capBackendUrl = "http://lo"; 
   }
   
   const secretKey = process.env.CAP_SECRET_KEY;
