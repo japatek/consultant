@@ -11,8 +11,7 @@ const LANDING_PATH = "/landing" as const;
 const DASHBOARD_PATH = "/dashboard" as const;
 const MARKETPLACE    = "/marketplace" as const;
 
-// 1. TAMBAHKAN "/marketplace" KE DALAM PUBLIC_PREFIXES
-const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test", "/marketplace"] as const;
+const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/upcontent", "/test"] as const;
 const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
@@ -70,7 +69,15 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return NextResponse.next();
   }
 
-  // 4. Root "/" and Public Pages (Termasuk Marketplace)
+  // 4. Protected Marketplace
+  if (pathname === "/marketplace" || pathname.startsWith("/marketplace/")) {
+    if (!isLoggedIn) {
+      return NextResponse.redirect(new URL(SIGN_IN_PATH, request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 5. Root "/" and Public Pages
   if (pathname === "/" || startsWithAny(pathname, PUBLIC_PREFIXES)) {
     // If a LOGGED IN user tries to go to the login/register page, 
     // redirect them to the dashboard (or landing) so they don't see the auth forms again.
@@ -78,11 +85,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL(DASHBOARD_PATH, request.url));
     }
     
-    // Otherwise, allow everyone (logged in or not) to view "/", "/docs", "/marketplace", etc.
+    // Otherwise, allow everyone (logged in or not) to view "/", "/docs", "/landing", etc.
     return NextResponse.next();
   }
 
-  // 5. Fallback catch-all for any other unhandled private pages
+  // 6. Fallback catch-all for any other unhandled private pages
   if (!isLoggedIn) {
     const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
     return NextResponse.redirect(

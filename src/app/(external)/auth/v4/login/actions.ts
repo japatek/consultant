@@ -38,7 +38,6 @@ export async function loginAction(
 ): Promise<LoginActionState> {
   // ── 1. Parse form fields ───────────────────────────────────────────────────
   const email        = ((formData.get("email") as string | null) ?? "").trim().toLowerCase();
-  const captchaToken = formData.get("cap-token") as string | null; 
   const rawCallback  = ((formData.get("callbackUrl") as string | null) ?? "");
 
   const callbackUrl =
@@ -51,49 +50,14 @@ export async function loginAction(
     return { error: "Please enter a valid email address." };
   }
 
-  // ── 3. Server-side Cap Widget verification ─────────────────────────────────
-  if (!captchaToken) {
-    return { error: "Please complete the security verification." };
-  }
-
-  // FALLBACK LOKAL: Jika .env masih cap-service, kita paksa pakai 127.0.0.1 di dev stage
-  let capBackendUrl = process.env.CAP_BACKEND_URL || "https://localhost:3000";
-  if (capBackendUrl.includes("cap-service") && process.env.NODE_ENV !== "production") {
-    capBackendUrl = "http://lo"; 
-  }
-  
-  const secretKey = process.env.CAP_SECRET_KEY;
-
-  try {
-    const verifyResponse = await fetch(`${capBackendUrl}/siteverify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        secret: secretKey,
-        response: captchaToken,
-      }),
-    });
-
-    const verificationResult = await verifyResponse.json();
-
-    if (!verificationResult.success) {
-      return { error: "Security verification failed or expired. Please try again." };
-    }
-  } catch (error) {
-    console.error("[loginAction] Cap verification error:", error);
-    return { error: "Security service is temporarily unavailable. Please try again later." };
-  }
-
-  // ── 4. Invalidate any stale pending tokens for this email ──────────────────
+  // ── 3. Invalidate any stale pending tokens for this email ──────────────────
   try {
     await prisma.verificationToken.deleteMany({ where: { identifier: email } });
   } catch (err) {
     console.error("[loginAction] Token cleanup failed:", err);
   }
 
-// ── 5. Trigger Auth.js magic-link email (Diubah ke SMTP/Email) ─────────────
+// ── 4. Trigger Auth.js magic-link email (Diubah ke SMTP/Email) ─────────────
  try {
     // UBAH "email" MENJADI "nodemailer"
     await signIn("nodemailer", { 
@@ -108,9 +72,10 @@ export async function loginAction(
     }
   }
 
-  // ── 6. PAKSA REDIRECT KE HALAMAN NOTIFIKASI ────────────────────────────────
+  // ── 5. PAKSA REDIRECT KE HALAMAN NOTIFIKASI ────────────────────────────────
   redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
+
 // ---------------------------------------------------------------------------
 // googleAction — OAuth sign-in
 // ---------------------------------------------------------------------------
