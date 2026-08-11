@@ -226,3 +226,10 @@ spec:
             name: japa-mcp-service
             port:
               number: 8080
+      - path: /api/cap
+        pathType: Prefix
+        backend:
+          service:
+            name: cap-service
+            port:
+              number: 8080
