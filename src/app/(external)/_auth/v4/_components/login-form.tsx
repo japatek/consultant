@@ -71,7 +71,6 @@ export function LoginForm({ urlError, callbackUrl }: LoginFormProps): React.JSX.
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-
       <Button
         type="submit"
         className="flex h-12 w-full items-center justify-center gap-2 bg-gradient-to-br from-rose-400 to-emerald-600 font-semibold text-white cursor-pointer"

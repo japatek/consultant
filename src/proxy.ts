@@ -70,12 +70,12 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   // 4. Protected Marketplace
-  if (pathname === "/marketplace" || pathname.startsWith("/marketplace/")) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL(SIGN_IN_PATH, request.url));
-    }
-    return NextResponse.next();
-  }
+  // if (pathname === "/marketplace" || pathname.startsWith("/marketplace/")) {
+  //   if (!isLoggedIn) {
+  //     return NextResponse.redirect(new URL(MARKETPLACE, request.url));
+  //   }
+  //   return NextResponse.next();
+  // }
 
   // 5. Root "/" and Public Pages
   if (pathname === "/" || startsWithAny(pathname, PUBLIC_PREFIXES)) {
