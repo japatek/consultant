@@ -25,31 +25,21 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
-        env:
+       env:
         - name: PORT
           value: "3000"
         - name: NODE_ENV
           value: "production"
+        - name: ENV
+          value: "production"
         - name: AUTH_TRUST_HOST
           value: "true"
-        - name: AUTH_SECRET
-          value: "AUTH_SECRET_PLACEHOLDER"
         - name: AUTH_URL
           value: "AUTH_URL_PLACEHOLDER"
-        - name: CAP_BACKEND_URL
-          value: "http://cap-service:8080"
-        - name: DATABASE_URL
-          value: "DATABASE_URL_PLACEHOLDER"
-        - name: GOOGLE_CLIENT_ID
-          value: "GOOGLE_CLIENT_ID_PLACEHOLDER"
-        - name: GOOGLE_CLIENT_SECRET
-          value: "GOOGLE_CLIENT_SECRET_PLACEHOLDER"
-        - name: AUTH_TRUST_HOST
-          value: "true"
-        - name: DATABASE_URL
-          value: "DATABASE_URL_PLACEHOLDER"
         - name: AUTH_SECRET
           value: "AUTH_SECRET_PLACEHOLDER"
+        - name: DATABASE_URL
+          value: "DATABASE_URL_PLACEHOLDER"
         - name: GOOGLE_CLIENT_ID
           value: "GOOGLE_CLIENT_ID_PLACEHOLDER"
         - name: GOOGLE_CLIENT_SECRET
@@ -64,8 +54,6 @@ spec:
           value: "SMTP_PASS_PLACEHOLDER"
         - name: EMAIL_FROM
           value: "admin@japatek.space"
-        - name: ENV
-          value: production
         - name: NEXT_PUBLIC_CAP_SITE_KEY
           value: "NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER"
         - name: CAP_BACKEND_URL

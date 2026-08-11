@@ -97,7 +97,7 @@ jobs:
         kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
         # ==========================================
-        # 3. APPLY AND UPDATE
+        # 3. APPLY AND UPDATE CLUSTER
         # ==========================================
         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
         
