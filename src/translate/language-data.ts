@@ -60,7 +60,10 @@ export const translations = {
             { val: '80+', lbl: 'Component Created' },
             { val: '3D/FEA', lbl: 'Advanced Simulation' },
             { val: '100%', lbl: 'Client Satisfaction' }
-        ]
+        ],
+        notReady: 'Soory Currently This Feature Not Ready Yet.',
+        notReadyDesc: 'We Will Put Maximum Effort to Deliverd This Cnntent.',
+        yes: 'Confirm'
     },
     id: {
         // Navbar
@@ -126,7 +129,10 @@ export const translations = {
             { val: '50+', lbl: 'Proyek Selesai' },
             { val: '3D/FEA', lbl: 'Simulasi Lanjutan' },
             { val: '100%', lbl: 'Kepuasan Klien' }
-        ]
+        ],
+        notReady: 'Mohon Maaf Fitur Belum Tersedia',
+        notReadyDesc: 'Saat Ini Kami Sedang Berusaha Untuk Mengembangkan Fitur ini.',
+        yes: 'Mengerti'
     }
 };
 

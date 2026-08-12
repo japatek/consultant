@@ -9,9 +9,23 @@ const slideImages = [
   { type: 'image', src: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-3.jpg' }
 ]
 
+import { Button } from '@/components/ui/button';
+import { Construction } from 'lucide-react';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog';
+
 export const Hero: React.FC = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [lang, setLang] = useState<Language>('en');
+  const [open, setOpen] = useState(false);
 
   // Auto-play slideshow
   useEffect(() => {
@@ -96,16 +110,50 @@ export const Hero: React.FC = () => {
           {t.desc}
         </p>
 
-        {/* Tombol Aksi Utama untuk Mencoba AI */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
-          <a href="/unavailable" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
+      {/* Tombol Eksplorasi AI yang memicu Dialog */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer">
             {t.explore}
             <ArrowRight size={16} strokeWidth={2} />
-          </a>
-          <a href="/landing/projects" className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto">
-            {t.core}
-          </a>
-        </div>
+          </button>
+        </DialogTrigger>
+
+        <DialogContent className="sm:max-w-[400px] text-center border-border bg-card p-6">
+          <div className="flex flex-col items-center justify-center space-y-3 py-4">
+            <div className="p-3 rounded-full bg-primary/10 text-primary mb-1">
+              <Construction className="size-8 animate-bounce" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-foreground text-center">
+               {t.notReady}
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-center pt-2">
+                {t.notReadyDesc}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <DialogFooter className="sm:justify-center pt-2">
+            <Button 
+              className="w-full bg-primary text-white" 
+              onClick={() => setOpen(false)}
+            >
+              {t.yes}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tombol Core Features */}
+      <a 
+        href="/landing/projects" 
+        className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto"
+      >
+        {t.core}
+      </a>
+    </div>
 
         {/* INTERACTIVE SLIDESHOW DOTS */}
         <div className="flex items-center gap-2.5 mb-4">
