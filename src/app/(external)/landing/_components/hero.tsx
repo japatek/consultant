@@ -137,7 +137,7 @@ export const Hero: React.FC = () => {
 
           <DialogFooter className="sm:justify-center pt-2">
             <Button 
-              className="w-full bg-primary text-white" 
+              className="w-full bg-primary text-white cursor-pointer" 
               onClick={() => setOpen(false)}
             >
               {t.yes}

@@ -62,7 +62,7 @@ export const translations = {
             { val: '100%', lbl: 'Client Satisfaction' }
         ],
         notReady: 'Soory Currently This Feature Not Ready Yet.',
-        notReadyDesc: 'We Will Put Maximum Effort to Deliverd This Cnntent.',
+        notReadyDesc: 'We Will Put Maximum Effort to Delivered This Content.',
         yes: 'Confirm'
     },
     id: {
