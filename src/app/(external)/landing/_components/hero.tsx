@@ -98,11 +98,11 @@ export const Hero: React.FC = () => {
 
         {/* Tombol Aksi Utama untuk Mencoba AI */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
-          <a href="/marketplace" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
+          <a href="/unavailable" className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20">
             {t.explore}
             <ArrowRight size={16} strokeWidth={2} />
           </a>
-          <a href="#services" className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto">
+          <a href="/landing/projects" className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto">
             {t.core}
           </a>
         </div>

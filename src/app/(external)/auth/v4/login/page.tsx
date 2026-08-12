@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { LoginForm } from "../_components/login-form";
 import { SignInGoogle } from "../_components/child/google-auth";
 import { CheckEmailNotice } from "../_components/child/check-email-notif";
-import { StarsBackground } from "@/components/ui/star-background";
 import NotifLogin from '../_components/notif'
 import Footer from "@/components/Footer";
 

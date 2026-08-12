@@ -240,7 +240,7 @@ export const Navbar: React.FC = () => {
                         </Link>
                     </Button> */}
                      <LanguageSelector />
-                    {/* <UserMenu user={loggedInUser} /> */}
+                    <UserMenu user={loggedInUser} />
                 </div>
 
                 {/* 2. MOBILE HAMBURGER BUTTON */}
