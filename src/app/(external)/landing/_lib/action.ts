@@ -12,13 +12,17 @@ export async function verifyTurnstileGateway(token: string) {
       .filter(Boolean)
   );
 
-  if (
-    !secretKey ||
-    typeof token !== "string" ||
-    token.length === 0 ||
-    token.length > 2048 ||
-    expectedHostnames.size === 0
-  ) {
+  // 1. Cek konfigurasi server
+  if (!secretKey) {
+    console.error("[Turnstile] ERROR: TURNSTILE_SECRET_KEY is missing in .env");
+    return { success: false };
+  }
+  if (expectedHostnames.size === 0) {
+    console.error("[Turnstile] ERROR: TURNSTILE_HOSTNAMES is missing in .env");
+    return { success: false };
+  }
+  if (!token) {
+    console.error("[Turnstile] ERROR: Token is empty");
     return { success: false };
   }
 
@@ -37,26 +41,41 @@ export async function verifyTurnstileGateway(token: string) {
       }),
     });
     
-    if (!r.ok) throw new Error(`siteverify ${r.status}`);
+    if (!r.ok) throw new Error(`HTTP Error from Cloudflare: ${r.status}`);
     const result = await r.json();
     
-    if (
-      result.success &&
-      result.action === expectedAction &&
-      expectedHostnames.has(result.hostname)
-    ) {
-      const cookieStore = await cookies();
-      cookieStore.set("verified_human", "true", { 
-        maxAge: 60 * 60 * 24 * 30,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      });
-      return { success: true };
+    // Debug: Tampilkan respons dari Cloudflare di terminal Anda
+    console.log("[Turnstile] Cloudflare Response:", result);
+
+    if (!result.success) {
+      console.error("[Turnstile] Verification failed:", result["error-codes"]);
+      return { success: false };
     }
+
+    if (result.action !== expectedAction) {
+      console.error(`[Turnstile] Action mismatch. Expected: ${expectedAction}, Got: ${result.action}`);
+      return { success: false };
+    }
+
+    if (!expectedHostnames.has(result.hostname)) {
+      console.error(`[Turnstile] Hostname mismatch. Expected one of: ${Array.from(expectedHostnames)}, Got: ${result.hostname}`);
+      return { success: false };
+    }
+
+    // Jika semua lolos, set cookie
+    console.log("[Turnstile] Gateway Passed! Setting cookie.");
+    const cookieStore = await cookies();
+    cookieStore.set("verified_human", "true", { 
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Akan bernilai false di localhost
+      sameSite: "lax",
+      path: "/",
+    });
+    return { success: true };
+    
   } catch (error) {
-    console.error("Gateway verification error:", error);
+    console.error("[Turnstile] Fetch error:", error);
   }
   
   return { success: false };
