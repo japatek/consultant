@@ -22,7 +22,7 @@ import { submitContact, type ContactFormState } from "../_lib/contact-action";
 const INITIAL_STATE: ContactFormState = { error: null, success: false };
 const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
 
-export function ContactDialog() {
+export function ContactDialog({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(submitContact, INITIAL_STATE);
   
@@ -72,9 +72,12 @@ export function ContactDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-primary text-white font-medium shadow-md hover:shadow-lg transition-all">
-          Contact Myself
-        </Button>
+        {/* Jika ada children (tombol kustom), gunakan itu. Jika tidak, gunakan tombol default */}
+        {children || (
+          <Button className="bg-gradient-primary text-white font-medium shadow-md hover:shadow-lg transition-all">
+            Contact Us
+          </Button>
+        )}
       </DialogTrigger>
       
       <DialogContent className="sm:max-w-[500px] border-border bg-card">

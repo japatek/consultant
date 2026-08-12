@@ -3,10 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { translations, Language } from "@/translate/language-data";
 import Cookies from 'js-cookie';
 
+// 1. Import ContactDialog
+import { ContactDialog } from './contact-dialog';
 
 export const CTA: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
-   useEffect(() => {
+  
+  useEffect(() => {
     const currentLang = (Cookies.get("language") as Language) || 'en';
     setLang(currentLang);
     
@@ -18,7 +21,8 @@ export const CTA: React.FC = () => {
     return () => window.removeEventListener('languageChange', handleLangChange);
   }, []);
 
-    const t = translations[lang];
+  const t = translations[lang];
+  
   return (
     <section className="bg-background py-28 relative overflow-hidden" id="contact">
       <div className="absolute inset-0 bg-[linear-gradient(oklch(0.488_0.243_264.376_/_0.07)_1px,transparent_1px),linear-gradient(90deg,oklch(0.488_0.243_264.376_/_0.07)_1px,transparent_1px)] bg-[size:44px_44px] pointer-events-none"></div>
@@ -31,10 +35,13 @@ export const CTA: React.FC = () => {
         </p>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          <a href="mailto:contact@JaPaTek.com?cc=riefkyiqbalm@gmail.com&bcc=riefky.iqbal19@gmail.com&subject=Hello%20JaPa" className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-8 py-4 text-base font-semibold transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-glow">
-            {t.contact}
-            <svg viewBox="0 0 14 14" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M2 7h10M8 3l4 4-4 4" /></svg>
-          </a>
+          {/* 2. Bungkus tombol dengan ContactDialog dan ubah <a> menjadi <button> */}
+          <ContactDialog>
+            <button className="inline-flex items-center gap-2 bg-primary text-white rounded-lg px-8 py-4 text-base font-semibold transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-glow">
+              {t.contact}
+              <svg viewBox="0 0 14 14" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M2 7h10M8 3l4 4-4 4" /></svg>
+            </button>
+          </ContactDialog>
         </div>
       </div>
     </section>
