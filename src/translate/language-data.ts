@@ -61,7 +61,7 @@ export const translations = {
             { val: '3D/FEA', lbl: 'Advanced Simulation' },
             { val: '100%', lbl: 'Client Satisfaction' }
         ],
-        notReady: 'Soory Currently This Feature Not Ready Yet.',
+        notReady: 'Soory Currently This Feature Not Ready.',
         notReadyDesc: 'We Will Put Maximum Effort to Delivered This Content.',
         yes: 'Confirm'
     },
