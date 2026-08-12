@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decode } from "next-auth/jwt";
 
-const SIGN_IN_PATH = "/auth/v4/login" as const;
+const SIGN_IN_PATH = "/unavailable" as const;
 const LANDING_PATH = "/landing" as const;
 const DASHBOARD_PATH = "/dashboard" as const;
 const MARKETPLACE    = "/marketplace" as const;
