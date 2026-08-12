@@ -31,6 +31,7 @@ export function TurnstileGateway() {
           ) : (
             <Turnstile
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              options={{ action: "login" }}
               onSuccess={async (token) => {
                 setIsVerifying(true);
                 setError(false);
@@ -39,8 +40,6 @@ export function TurnstileGateway() {
                 const result = await verifyTurnstileGateway(token);
                 
                 if (result.success) {
-                  // Refresh the current route to re-run the Server Component
-                  // The server will now see the cookie and render the real page
                   router.refresh();
                 } else {
                   setError(true);

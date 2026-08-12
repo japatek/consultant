@@ -1,91 +1,101 @@
 "use server";
 
-import { signIn }   from "@/lib/auth/auth";
-import { prisma }   from "@/lib/database/prisma";
+import { signIn } from "@/lib/auth/auth";
+import { prisma } from "@/lib/database/prisma";
 import { redirect } from "next/navigation";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { headers } from "next/headers"; // <-- Tambahkan untuk remoteip
 
 export interface LoginActionState {
   error: string | null;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const VERIFY_URL = "/auth/v4/login?state=verify" as const;
-
 function isNextRedirect(error: unknown): boolean {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "digest" in error &&
-    typeof (error as { digest: string }).digest === "string" &&
-    (error as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+    typeof error === "object" && error !== null && "digest" in error &&
+    typeof (error as any).digest === "string" &&
+    (error as any).digest.startsWith("NEXT_REDIRECT")
   );
 }
-
-// ---------------------------------------------------------------------------
-// loginAction — magic-link sign-in / sign-up
-// ---------------------------------------------------------------------------
 
 export async function loginAction(
   prevState: LoginActionState,
   formData: FormData
 ): Promise<LoginActionState> {
-  // ── 1. Parse form fields ───────────────────────────────────────────────────
-  const email        = ((formData.get("email") as string | null) ?? "").trim().toLowerCase();
-  const rawCallback  = ((formData.get("callbackUrl") as string | null) ?? "");
+  const email = ((formData.get("email") as string | null) ?? "").trim().toLowerCase();
+  const turnstileToken = formData.get("turnstile-token") as string | null; 
+  const rawCallback = ((formData.get("callbackUrl") as string | null) ?? "");
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/marketplace";
 
-  const callbackUrl =
-    rawCallback.startsWith("/") && !rawCallback.startsWith("//")
-      ? rawCallback
-      : "/marketplace";
-
-  // ── 2. Email format validation ─────────────────────────────────────────────
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "Please enter a valid email address." };
   }
 
-  // ── 3. Invalidate any stale pending tokens for this email ──────────────────
+  // ── STANDAR SPIN: Validasi Token Ketat ───────────────────────────────────
+  const expectedAction = "login";
+  const expectedHostnames = new Set(
+    (process.env.TURNSTILE_HOSTNAMES ?? "")
+      .split(",")
+      .map((hostname) => hostname.trim())
+      .filter(Boolean)
+  );
+
+  if (
+    typeof turnstileToken !== "string" ||
+    turnstileToken.length === 0 ||
+    turnstileToken.length > 2048 ||
+    expectedHostnames.size === 0
+  ) {
+    return { error: "Security check forbidden or misconfigured." };
+  }
+
+  const secretKey = process.env.TURNSTILE_SECRET_KEY!;
+  const headersList = await headers();
+  const clientIp = headersList.get("x-forwarded-for") ?? "";
+
+  try {
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      signal: AbortSignal.timeout(10_000), // Standar timeout 10 detik
+      body: new URLSearchParams({
+        secret: secretKey,
+        response: turnstileToken,
+        remoteip: clientIp,
+      }),
+    });
+
+    if (!r.ok) throw new Error(`siteverify ${r.status}`);
+    const result = await r.json();
+
+    // Verifikasi aksi dan kecocokan domain
+    if (
+      !result.success ||
+      result.action !== expectedAction ||
+      !expectedHostnames.has(result.hostname)
+    ) {
+      return { error: "Security verification failed or expired. Please try again." };
+    }
+  } catch (error) {
+    console.error("[loginAction] Turnstile verification error:", error);
+    return { error: "Security service is temporarily unavailable." };
+  }
+
+  // ── Lanjutkan ke Auth.js ─────────────────────────────────────────────────
   try {
     await prisma.verificationToken.deleteMany({ where: { identifier: email } });
+  } catch (err) {}
+
+  try {
+    await signIn("nodemailer", { email, redirect: false, redirectTo: callbackUrl });
   } catch (err) {
-    console.error("[loginAction] Token cleanup failed:", err);
+    if (!isNextRedirect(err)) return { error: "Failed to send magic link." };
   }
 
-// ── 4. Trigger Auth.js magic-link email (Diubah ke SMTP/Email) ─────────────
- try {
-    // UBAH "email" MENJADI "nodemailer"
-    await signIn("nodemailer", { 
-      email,
-      redirect: false, // Kita matikan redirect otomatis bawaan NextAuth
-      redirectTo: callbackUrl, 
-    });
-  } catch (err) {
-    if (!isNextRedirect(err)) {
-      console.error("[loginAction] signIn error:", err);
-      return { error: "Failed to send magic link. Please try again." };
-    }
-  }
-
-  // ── 5. PAKSA REDIRECT KE HALAMAN NOTIFIKASI ────────────────────────────────
   redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
 
-// ---------------------------------------------------------------------------
-// googleAction — OAuth sign-in
-// ---------------------------------------------------------------------------
-
 export async function googleAction(formData: FormData): Promise<void> {
   const rawCallback = (formData.get("callbackUrl") as string | null) ?? "";
-  const callbackUrl =
-    rawCallback.startsWith("/") && !rawCallback.startsWith("//")
-      ? rawCallback
-      : "/marketplace";
-
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/marketplace";
   await signIn("google", { redirectTo: callbackUrl });
 }

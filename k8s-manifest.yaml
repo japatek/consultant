@@ -60,6 +60,8 @@ spec:
           value: "http://cap-service:8080"
         - name: TURNSTILE_SECRET_KEY
           value: "TURNSTILE_SECRET_KEY_PLACEHOLDER"
+        - name: TURNSTILE_HOSTNAMES
+          value: "japatek.space,www.japatek.space
 ---
 apiVersion: v1
 kind: Service
