@@ -148,7 +148,7 @@ export const Hero: React.FC = () => {
 
       {/* Tombol Core Features */}
       <a 
-        href="/landing/projects" 
+        href="/landing/project" 
         className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto"
       >
         {t.core}
