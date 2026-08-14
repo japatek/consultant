@@ -40,7 +40,19 @@ export default function ArticleAdminPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    let finalValue = value;
+
+    // Auto-format for URL Slug
+    if (name === "slug") {
+      finalValue = value
+        .toLowerCase() // Convert to lowercase
+        .replace(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
+        .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
+        .replace(/-+/g, "-"); // Replace multiple hyphens with a single hyphen
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
   };
 
   const handleEdit = (article: any) => {
@@ -67,9 +79,17 @@ export default function ArticleAdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Final cleanup for the slug before submitting (removes trailing hyphens)
+    const cleanedSlug = formData.slug.replace(/-+$/, "");
+    if (!cleanedSlug) {
+      alert("Slug cannot be empty");
+      return;
+    }
+
     setIsSaving(true);
     
-    const res = await saveArticle(formData);
+    const res = await saveArticle({ ...formData, slug: cleanedSlug });
     
     if (res.success) {
       setIsFormOpen(false);
