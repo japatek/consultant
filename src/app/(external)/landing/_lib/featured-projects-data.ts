@@ -27,7 +27,7 @@ export const featuredProjects: Project[] = [
     desc: "Development of a complex 3D exploded view and visual simulation for the M701F gas turbine, detailed to highlight internal components and maintenance inspection workflows for digital website content.",
     id_desc: "Pengembangan tampilan pecahan (exploded view) 3D yang kompleks dan simulasi visual untuk turbin gas M701F, dirinci untuk menyoroti komponen internal dan alur kerja inspeksi pemeliharaan untuk konten situs web digital.",
     slug: "pln-ip",
-    extend_desc: `  This project delivers a comprehensive inspection simulation for the M701F gas turbine, commissioned by PT. Indonesia Power to support both maintenance planning and external communications. The solution is centered on a highly detailed 3D exploded view of the turbine, with a focus on making complex mechanical relationships easy to understand for technical teams and non-technical stakeholders alike.
+    extend_desc: `  On This project we assist PT.Tensor Sinergi Indonesia to delivers a comprehensive inspection simulation for the M701F gas turbine, commissioned by PT. Indonesia Power to support both maintenance planning and external communications. The solution is centered on a highly detailed 3D exploded view of the turbine, with a focus on making complex mechanical relationships easy to understand for technical teams and non-technical stakeholders alike.
 
   The project is framed around a series of practical design pointers:
   • Component-level visualization – each major assembly is isolated and labelled to show compressor stages, combustor sections, turbine blades, shaft bearings, seals, and lubrication systems.
@@ -41,7 +41,7 @@ export const featuredProjects: Project[] = [
   From a content perspective, the deliverable is positioned as an accessible digital showcase. It augments the website narrative by demonstrating the firm’s ability to handle complex power plant systems and deliver technically accurate, visually compelling simulations. The simulation is structured to answer the questions most relevant to the client: where are the critical components, how do they connect, and what should be checked during an inspection.
 
   In summary, the M701F inspection simulation is both a functional engineering asset and a communication platform. It is built to reduce inspection risk, improve team alignment, and elevate the client’s portfolio through a polished digital story that is grounded in real maintenance requirements.`,
-    id_extend_desc: `  Proyek ini memberikan simulasi inspeksi komprehensif untuk turbin gas M701F, yang ditugaskan oleh PT. Indonesia Power untuk mendukung perencanaan pemeliharaan dan komunikasi eksternal. Solusi ini berpusat pada tampilan pecahan 3D turbin yang sangat mendetail, dengan fokus untuk membuat hubungan mekanis yang kompleks mudah dipahami baik oleh tim teknis maupun pemangku kepentingan non-teknis.
+    id_extend_desc: `  Pada Proyek ini Kami membantu PT. Tensor Sinergi Indonesia  untuk melakukan simulasi inspeksi yang komprehensif pada mesin turbin gas M701F, proyek ini ditugaskan oleh PT. Indonesia Power untuk mendukung perencanaan pemeliharaan dan komunikasi eksternal. Solusi ini berpusat pada tampilan pecahan 3D turbin yang sangat mendetail, dengan fokus untuk membuat hubungan mekanis yang kompleks mudah dipahami baik oleh tim teknis maupun pemangku kepentingan non-teknis.
 
   Proyek ini disusun berdasarkan serangkaian poin desain praktis:
   • Visualisasi tingkat komponen – setiap rakitan utama diisolasi dan diberi label untuk menunjukkan tahapan kompresor, bagian ruang bakar, bilah turbin, bantalan poros, segel, dan sistem pelumasan.
@@ -69,7 +69,7 @@ export const featuredProjects: Project[] = [
     desc: "Detailed piping and instrumentation with layout design and project management for a major water treatment plant with 7000 TCD capacity for sugar mill factory owned by PT. Perkebunan Nusantara based in indonesia.",
     id_desc: "Detail perpipaan dan instrumentasi dengan desain tata letak dan manajemen proyek untuk instalasi pengolahan air utama berkapasitas 7000 TCD untuk pabrik gula milik PT. Perkebunan Nusantara di Indonesia.",
     slug: "ipal",
-    extend_desc: `  This project defines a complete water waste treatment plant design for a 7000 TCD facility serving a sugar mill owned by PT. Perkebunan Nusantara. The engineering scope covers the full process from influent intake to final effluent discharge, with an emphasis on reliability, maintainability, and alignment with environmental discharge standards.
+    extend_desc: `  We help PT. LPP Agro Nusantara on create a complete water waste treatment plant design for a 7000 TCD facility serving a sugar mill owned by PT. Rajawali Nusindo. The engineering scope covers the full process from influent intake to final effluent discharge, with an emphasis on reliability, maintainability, and alignment with environmental discharge standards.
 
   The description is structured around a set of practical pointers:
   • Process sequencing – the design clearly maps how wastewater moves from reception and screening to equalization, biological treatment, clarification, tertiary polishing, and sludge handling.
@@ -83,7 +83,7 @@ export const featuredProjects: Project[] = [
   In addition to technical detail, the description emphasizes the benefits for stakeholders. For plant operators, the design provides a robust foundation for stable wastewater management and easier troubleshooting. For management and regulators, it demonstrates a commitment to sustainable industrial practice through efficient resource recovery, controlled discharge, and minimized environmental impact.
 
   Ultimately, this plant design is presented as a strategic investment in long-term operational performance. The narrative positions the project as both an engineering milestone and an environmental solution, showing how a well-organized wastewater treatment facility can protect the sugar mill, conserve water resources, and support responsible industrial growth.`,
-    id_extend_desc: `  Proyek ini mendefinisikan desain instalasi pengolahan air limbah lengkap untuk fasilitas 7000 TCD yang melayani pabrik gula milik PT. Perkebunan Nusantara. Ruang lingkup rekayasa mencakup proses penuh dari asupan influen hingga pembuangan efluen akhir, dengan penekanan pada keandalan, kemudahan perawatan, dan keselarasan dengan standar pembuangan lingkungan.
+    id_extend_desc: `  Kami membantu PT. LPP Agro Nusantar dalam perancangan instalasi pengolahan air limbah dengan kapasitas 7000 TCD (ton cane per day) yang melayani pabrik gula milik PT. Rajawali Nusindo. Ruang lingkup rekayasa mencakup proses penuh dari asupan influen hingga pembuangan efluen akhir, dengan penekanan pada keandalan, kemudahan perawatan, dan keselarasan dengan standar pembuangan lingkungan.
 
   Deskripsi ini disusun berdasarkan serangkaian poin praktis:
   • Pengurutan proses – desain dengan jelas memetakan bagaimana air limbah bergerak dari penerimaan dan penyaringan ke pemerataan, pengolahan biologis, klarifikasi, pemolesan tersier, dan penanganan lumpur.
