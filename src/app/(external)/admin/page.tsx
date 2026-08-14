@@ -43,13 +43,13 @@ export default function ArticleAdminPage() {
 
     let finalValue = value;
 
-    // Auto-format for URL Slug
+    // Auto-format for URL Slug saat user mengetik
     if (name === "slug") {
       finalValue = value
-        .toLowerCase() // Convert to lowercase
-        .replace(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
-        .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
-        .replace(/-+/g, "-"); // Replace multiple hyphens with a single hyphen
+        .toLowerCase() // Ubah ke huruf kecil
+        .replace(/[\s_]+/g, "-") // Ganti spasi dan underscore dengan dash/hyphen
+        .replace(/[^a-z0-9-]/g, "") // Hapus semua karakter kecuali huruf, angka, dan dash
+        .replace(/-+/g, "-"); // Cegah dash ganda (contoh: aa--aa menjadi aa-aa)
     }
 
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
@@ -80,16 +80,24 @@ export default function ArticleAdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Final cleanup for the slug before submitting (removes trailing hyphens)
-    const cleanedSlug = formData.slug.replace(/-+$/, "");
-    if (!cleanedSlug) {
+    // Pembersihan ekstra ketat sebelum masuk database
+    // Ini memastikan format SELALU 'aa-aa' meskipun ada data lama yang cacat
+    const finalSlug = formData.slug
+      .toLowerCase()
+      .replace(/[\s_]+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, ""); // Hapus dash di bagian paling awal dan paling akhir
+
+    if (!finalSlug) {
       alert("Slug cannot be empty");
       return;
     }
 
     setIsSaving(true);
     
-    const res = await saveArticle({ ...formData, slug: cleanedSlug });
+    // Kirim finalSlug yang sudah dipastikan aman dan berformat benar
+    const res = await saveArticle({ ...formData, slug: finalSlug });
     
     if (res.success) {
       setIsFormOpen(false);
@@ -132,7 +140,8 @@ export default function ArticleAdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium">URL Slug (Unique)</label>
-                <input required type="text" name="slug" value={formData.slug} onChange={handleInputChange} placeholder="e.g. future-heavy-machinery" className="w-full p-2 border rounded-md bg-background" />
+                <input required type="text" name="slug" value={formData.slug} onChange={handleInputChange} placeholder="e.g. future-heavy-machinery" className="w-full p-2 border rounded-md bg-background font-mono text-sm" />
+                <p className="text-xs text-muted-foreground">Will be auto-formatted to use dashes (e.g., your-article-title)</p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Image/Cover URL</label>
