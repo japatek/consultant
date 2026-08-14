@@ -93,6 +93,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.20",
     "@types/chrome": "^0.1.43",
     "@types/d3-geo": "^3.1.0",
     "@types/js-cookie": "^3.0.6",

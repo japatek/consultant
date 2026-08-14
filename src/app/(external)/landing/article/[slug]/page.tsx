@@ -1,98 +1,85 @@
-// app/docs/[slug]/page.tsx
+import React from "react";
+import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import ReactMarkdown from "react-markdown";
+import { prisma } from "@/lib/database/prisma"; // Sesuaikan dengan path instance Prisma Anda
 
-import { notFound } from "next/navigation"
-import { Metadata } from "next"
-
-// 1. Define the Types for the URL parameters
-type DocPageProps = {
-  params: Promise<{
-    slug: string
-  }>
+// Mendefinisikan tipe parameter dinamis
+interface ArticleDetailPageProps {
+  params: {
+    slug: string;
+  };
 }
 
-// 2. Create a mock "database" of your content
-// In a real app, this might fetch from a database, CMS, or .mdx files
-const docContent: Record<string, { title: string; description: string; body: React.ReactNode }> = {
-  quickstart: {
-    title: "Quickstart",
-    description: "Learn how to get started in under 5 minutes.",
-    body: (
-      <>
-        <h2 id="installation" className="text-2xl font-semibold tracking-tight mt-10 mb-4 pb-2 border-b">
-          Installation
-        </h2>
-        <p>Run <code>npm install @my-org/core-sdk</code> to begin.</p>
-      </>
-    ),
-  },
-  models: {
-    title: "Models",
-    description: "Configure and switch between AI models.",
-    body: (
-      <>
-        <h2 id="supported-models" className="text-2xl font-semibold tracking-tight mt-10 mb-4 pb-2 border-b">
-          Supported Models
-        </h2>
-        <p>We support OpenAI, Anthropic, and Llama 3.</p>
-      </>
-    ),
-  },
-  tools: {
-    title: "Tools",
-    description: "Give your AI agents access to external tools.",
-    body: (
-      <>
-        <h2 id="creating-tools" className="text-2xl font-semibold tracking-tight mt-10 mb-4 pb-2 border-b">
-          Creating Tools
-        </h2>
-        <p>Use the <code>createTool()</code> function to connect external APIs.</p>
-      </>
-    ),
-  },
-}
+// Fitur Next.js untuk memperbarui halaman setiap kali ada artikel baru (ISR)
+export const revalidate = 60; 
 
-// 3. Dynamically generate the <title> metadata for SEO based on the slug
-export async function generateMetadata({ params }: DocPageProps): Promise<Metadata> {
-  const resolvedParams = await params
-  const doc = docContent[resolvedParams.slug]
+export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
+  const { slug } = params;
 
-  if (!doc) {
-    return { title: "Page Not Found" }
+  // 1. Ambil data artikel dari database berdasarkan slug
+  const article = await prisma.article.findUnique({
+    where: { slug: slug },
+  });
+
+  // Jika artikel tidak ditemukan, otomatis arahkan ke halaman 404
+  if (!article) {
+    notFound();
   }
 
-  return {
-    title: `${doc.title} | My Documentation`,
-    description: doc.description,
-  }
-}
+  // 2. Baca bahasa dari cookies (default ke 'en')
+ const cookieStore = await cookies(); // <-- Tambahkan await di sini
+  const lang = cookieStore.get("language")?.value || "en";
 
-// 4. The Main Page Component
-export default async function DynamicDocPage({ params }: DocPageProps) {
-  // Await the params (Required in Next.js 15+)
-  const resolvedParams = await params
-  
-  // Look up the content using the URL slug
-  const doc = docContent[resolvedParams.slug]
-
-  // If the user types a URL that doesn't exist (e.g., /docs/fake-page), return a 404
-  if (!doc) {
-    notFound()
-  }
+  // 3. Tentukan konten mana yang ditampilkan berdasarkan bahasa
+  const displayTitle = lang === "id" && article.id_title ? article.id_title : article.title;
+  const displayContent = lang === "id" && article.id_content ? article.id_content : article.content;
+  const displayDesc = lang === "id" && article.id_desc ? article.id_desc : article.desc;
 
   return (
-    <article className="max-w-none prose prose-slate dark:prose-invert">
-      <div className="space-y-2 mb-8">
-        <h1 className="text-4xl font-bold tracking-tight scroll-m-20">
-          {doc.title}
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          {doc.description}
-        </p>
-      </div>
+    <main className="min-h-screen bg-background pt-24 pb-16">
+      <article className="max-w-4xl mx-auto px-6 sm:px-8">
+        
+        {/* Header Artikel */}
+        <header className="mb-10 text-center">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
+            {displayTitle}
+          </h1>
+          {displayDesc && (
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              {displayDesc}
+            </p>
+          )}
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground font-medium">
+            <span>{new Date(article.createdAt).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            <span>•</span>
+            <span>JaPaTek Engineering</span>
+          </div>
+        </header>
 
-      {/* Render the specific content for this page */}
-      {doc.body}
-      
-    </article>
-  )
+        {/* Gambar Cover */}
+        {article.imageUrl && (
+          <div className="relative w-full h-[300px] md:h-[500px] rounded-3xl overflow-hidden mb-12 shadow-xl">
+            <img 
+              src={article.imageUrl} 
+              alt={displayTitle} 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* 
+          Konten Utama (Markdown) 
+          Class 'prose' dari @tailwindcss/typography secara ajaib akan menata gaya
+          semua h1, h2, p, ul, li, dan blockquote hasil dari konversi Markdown.
+        */}
+        <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary/80 max-w-none">
+          <ReactMarkdown>
+            {displayContent}
+          </ReactMarkdown>
+        </div>
+
+      </article>
+    </main>
+  );
 }
