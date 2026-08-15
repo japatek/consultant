@@ -19,7 +19,8 @@ export async function getArticles() {
 export async function saveArticle(data: any) {
   try {
     // 1. Ambil ID secara eksplisit
-    const articleId = data.id;
+    const articleId = data.slug;
+
 
     // 2. Rangkai ulang payload khusus untuk data yang boleh diubah 
     // (JANGAN PERNAH memasukkan 'id' ke dalam payload ini)
