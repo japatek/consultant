@@ -7,7 +7,6 @@ import { CheckEmailNotice } from "../_components/child/check-email-notif";
 import NotifLogin from '../_components/notif'
 import Footer from "@/components/Footer";
 
-
 // ---------------------------------------------------------------------------
 // Metadata
 // ---------------------------------------------------------------------------
