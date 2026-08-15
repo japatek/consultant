@@ -63,7 +63,8 @@ export const translations = {
         ],
         notReady: 'Soory Currently This Feature Not Ready.',
         notReadyDesc: 'We Will Put Maximum Effort to Delivered This Content.',
-        yes: 'Confirm'
+        yes: 'Confirm',
+        bck: 'Back'
     },
     id: {
         // Navbar
@@ -132,7 +133,8 @@ export const translations = {
         ],
         notReady: 'Mohon Maaf Fitur Belum Tersedia',
         notReadyDesc: 'Saat Ini Kami Sedang Berusaha Untuk Mengembangkan Fitur ini.',
-        yes: 'Mengerti'
+        yes: 'Mengerti',
+        bck: 'Kembali'
     }
 };
 

@@ -1,6 +1,6 @@
 "use server";
 
-import {prisma} from "@/lib/database/prisma";
+import { prisma } from "@/lib/database/prisma";
 import { revalidatePath } from "next/cache";
 
 // 1. Ambil semua artikel (untuk tabel admin & navbar)
@@ -28,16 +28,21 @@ export async function saveArticle(data: {
   imageUrl: string;
 }) {
   try {
-    if (data.id) {
-      // Update
+    // PISAHKAN 'id' DARI DATA LAINNYA
+    // payload berisi semua isi 'data' KECUALI 'id'
+    const { id, ...payload } = data;
+
+    if (id) {
+      // Jika ID ada: Lakukan UPDATE menggunakan payload yang sudah dibersihkan
       await prisma.article.update({
-        where: { id: data.id },
-        data: { ...data },
+        where: { id: id },
+        data: payload,
       });
     } else {
-      // Create
+      // Jika ID kosong (""): Lakukan CREATE tanpa menyertakan field id
+      // (Biarkan database men-generate ID otomatis seperti UUID/CUID)
       await prisma.article.create({
-        data: { ...data },
+        data: payload,
       });
     }
 
