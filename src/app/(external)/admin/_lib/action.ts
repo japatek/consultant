@@ -16,31 +16,45 @@ export async function getArticles() {
 }
 
 // 2. Simpan artikel (Buat baru atau Update jika ID sudah ada)
-export async function saveArticle(data: {
-  id?: string;
-  slug: string;
-  title: string;
-  desc: string;
-  content: string;
-  id_title: string;
-  id_desc: string;
-  id_content: string;
-  imageUrl: string;
-}) {
+export async function saveArticle(data: any) {
   try {
-    const { id, ...payload } = data;
+    // 1. Ambil ID secara eksplisit
+    const articleId = data.id;
 
-    if (id) {
+    // 2. Rangkai ulang payload khusus untuk data yang boleh diubah 
+    // (JANGAN PERNAH memasukkan 'id' ke dalam payload ini)
+    const payload = {
+      slug: data.slug,
+      title: data.title,
+      desc: data.desc,
+      content: data.content,
+      id_title: data.id_title,
+      id_desc: data.id_desc,
+      id_content: data.id_content,
+      imageUrl: data.imageUrl,
+    };
+
+    // 3. Logika penentuan arah yang tegas
+    if (articleId && articleId !== "") {
+      
+      // JIKA ID ADA -> UPDATE
       await prisma.article.update({
-        where: { id: id },
+        // PENTING: Jika di schema Prisma id Anda menggunakan Int, ubah baris di bawah menjadi:
+        // where: { id: Number(articleId) },
+        where: { id: articleId }, 
         data: payload,
       });
+
     } else {
+      
+      // JIKA ID KOSONG -> CREATE
       await prisma.article.create({
         data: payload,
       });
+
     }
 
+    // Bersihkan cache agar website langsung terupdate
     revalidatePath("/");
     revalidatePath("/landing/article");
     revalidatePath("/(external)/(admin)/articles", "page");
@@ -49,8 +63,7 @@ export async function saveArticle(data: {
   } catch (error: any) {
     console.error("Gagal menyimpan artikel:", error);
     
-    // TAMBAHKAN PENGECEKAN ERROR PRISMA DI SINI
-    // P2002 adalah kode unik dari Prisma jika ada data duplikat (Unique constraint)
+    // Pesan error ramah jika slug duplikat
     if (error.code === 'P2002') {
       return { 
         success: false, 
@@ -58,22 +71,6 @@ export async function saveArticle(data: {
       };
     }
 
-    return { success: false, error: error.message };
-  }
-}
-
-// 3. Hapus artikel
-export async function deleteArticle(id: string) {
-  try {
-    await prisma.article.delete({
-      where: { id },
-    });
-    revalidatePath("/");
-    revalidatePath("/landing/article");
-    revalidatePath("/(external)/(admin)/articles", "page");
-    return { success: true };
-  } catch (error: any) {
-    console.error("Gagal menghapus artikel:", error);
     return { success: false, error: error.message };
   }
 }
