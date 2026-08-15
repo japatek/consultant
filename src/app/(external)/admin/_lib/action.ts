@@ -15,17 +15,15 @@ export async function getArticles() {
   }
 }
 
-// 2. Simpan artikel (Buat baru atau Update jika ID sudah ada)
+// 2. Simpan artikel (Sesuai logika yang Anda minta: Cek ID & Slug)
 export async function saveArticle(data: any) {
   try {
-    // 1. Ambil ID secara eksplisit
-    const articleId = data.slug;
+    const articleId = data.id;
+    const articleSlug = data.slug;
 
-
-    // 2. Rangkai ulang payload khusus untuk data yang boleh diubah 
-    // (JANGAN PERNAH memasukkan 'id' ke dalam payload ini)
+    // Rangkai payload tanpa menyertakan ID
     const payload = {
-      slug: data.slug,
+      slug: articleSlug,
       title: data.title,
       desc: data.desc,
       content: data.content,
@@ -35,20 +33,20 @@ export async function saveArticle(data: any) {
       imageUrl: data.imageUrl,
     };
 
-    // 3. Logika penentuan arah yang tegas
-    if (articleId && articleId !== "") {
+    // LOGIKA UTAMA: "Jika ID dan Slug ada -> UPDATE, jika tidak ada ID -> CREATE"
+    if (articleId && articleSlug) {
       
-      // JIKA ID ADA -> UPDATE
       await prisma.article.update({
-        // PENTING: Jika di schema Prisma id Anda menggunakan Int, ubah baris di bawah menjadi:
-        // where: { id: Number(articleId) },
-        where: { id: articleId }, 
+        where: { 
+          id: articleId 
+          // Catatan: Jika 'id' di database Anda berupa angka (Int), 
+          // ubah baris di atas menjadi -> id: Number(articleId)
+        },
         data: payload,
       });
 
     } else {
       
-      // JIKA ID KOSONG -> CREATE
       await prisma.article.create({
         data: payload,
       });
@@ -64,7 +62,7 @@ export async function saveArticle(data: any) {
   } catch (error: any) {
     console.error("Gagal menyimpan artikel:", error);
     
-    // Pesan error ramah jika slug duplikat
+    // Menangkap error jika Slug Duplikat (Unique Constraint Failed)
     if (error.code === 'P2002') {
       return { 
         success: false, 
