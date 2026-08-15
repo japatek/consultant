@@ -28,25 +28,19 @@ export async function saveArticle(data: {
   imageUrl: string;
 }) {
   try {
-    // PISAHKAN 'id' DARI DATA LAINNYA
-    // payload berisi semua isi 'data' KECUALI 'id'
     const { id, ...payload } = data;
 
     if (id) {
-      // Jika ID ada: Lakukan UPDATE menggunakan payload yang sudah dibersihkan
       await prisma.article.update({
         where: { id: id },
         data: payload,
       });
     } else {
-      // Jika ID kosong (""): Lakukan CREATE tanpa menyertakan field id
-      // (Biarkan database men-generate ID otomatis seperti UUID/CUID)
       await prisma.article.create({
         data: payload,
       });
     }
 
-    // Bersihkan cache agar website langsung terupdate
     revalidatePath("/");
     revalidatePath("/landing/article");
     revalidatePath("/(external)/(admin)/articles", "page");
@@ -54,6 +48,16 @@ export async function saveArticle(data: {
     return { success: true };
   } catch (error: any) {
     console.error("Gagal menyimpan artikel:", error);
+    
+    // TAMBAHKAN PENGECEKAN ERROR PRISMA DI SINI
+    // P2002 adalah kode unik dari Prisma jika ada data duplikat (Unique constraint)
+    if (error.code === 'P2002') {
+      return { 
+        success: false, 
+        error: "Gagal menyimpan: URL Slug tersebut sudah digunakan oleh artikel lain. Silakan ganti dengan URL Slug yang berbeda." 
+      };
+    }
+
     return { success: false, error: error.message };
   }
 }
