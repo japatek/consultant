@@ -2,8 +2,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "../_components/coba-sidebar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
-// Import Navbar Anda
 import { Navbar } from "../../../_components/nav-bar"
 
 export default function DocsLayout({
