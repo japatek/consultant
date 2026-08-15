@@ -74,3 +74,19 @@ export async function saveArticle(data: any) {
     return { success: false, error: error.message };
   }
 }
+
+// 3. Hapus artikel
+export async function deleteArticle(id: string) {
+  try {
+    await prisma.article.delete({
+      where: { id },
+    });
+    revalidatePath("/");
+    revalidatePath("/landing/article");
+    revalidatePath("/(external)/(admin)/articles", "page");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Gagal menghapus artikel:", error);
+    return { success: false, error: error.message };
+  }
+}
