@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, X, Save, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Save, Loader2, Image as ImageIcon, AlertCircle, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { getArticles, saveArticle, deleteArticle } from "./_lib/action";
 import { MarkdownEditor } from "./_components/markdown-editor";
 
@@ -41,11 +42,6 @@ export default function ArticleAdminPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Menampilkan error upload gambar lewat dialog modal, bukan browser alert
-  const handleUploadError = (message: string) => {
-    setDialog({ isOpen: true, type: "alert", title: "Upload Gagal", message });
-  };
-
   const handleEdit = (article: any) => {
     setFormData({ ...emptyForm, ...article });
     setIsFormOpen(true);
@@ -80,14 +76,27 @@ export default function ArticleAdminPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8 relative">
-      <div className="flex items-center justify-between">
+      
+      {/* HEADER SECTION */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Article Manager</h1>
           <p className="text-muted-foreground mt-1">Create and manage content</p>
         </div>
-        <button onClick={() => { setFormData(emptyForm); setIsFormOpen(true); }} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition">
-          <Plus className="w-4 h-4" /> New Article
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => { setFormData(emptyForm); setIsFormOpen(true); }} 
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition"
+          >
+            <Plus className="w-4 h-4" /> New Article
+          </button>
+          <button 
+            onClick={() => signOut({ callbackUrl: "/admin-auth" })} 
+            className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground border border-destructive px-4 py-2 rounded-md font-medium transition"
+          >
+            <LogOut className="w-4 h-4" /> Logout
+          </button>
+        </div>
       </div>
 
       {isFormOpen && (
@@ -119,7 +128,7 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Short Description</label><input required={activeTab === "en"} type="text" name="desc" value={formData.desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Main Content</label>
-                <MarkdownEditor name="content" value={formData.content} onChange={(val) => handleContentChange("content", val)} onError={handleUploadError} />
+                <MarkdownEditor name="content" value={formData.content} onChange={(val) => handleContentChange("content", val)} />
               </div>
             </div>
 
@@ -128,7 +137,7 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Deskripsi Singkat</label><input type="text" name="id_desc" value={formData.id_desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Konten Utama</label>
-                <MarkdownEditor name="id_content" value={formData.id_content} onChange={(val) => handleContentChange("id_content", val)} onError={handleUploadError} />
+                <MarkdownEditor name="id_content" value={formData.id_content} onChange={(val) => handleContentChange("id_content", val)} />
               </div>
             </div>
 
