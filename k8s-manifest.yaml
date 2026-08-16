@@ -25,6 +25,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         env:
         - name: PORT
           value: "3000"
@@ -124,6 +131,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
         env:
         - name: PORT
           value: "8080"
@@ -166,6 +180,13 @@ spec:
         command: ["valkey-server", "--save", "60", "1", "--loglevel", "warning", "--maxmemory-policy", "noeviction"]
         ports:
         - containerPort: 6379
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
@@ -202,6 +223,13 @@ spec:
         image: tiago2/cap:latest
         ports:
         - containerPort: 3000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: ADMIN_KEY
           value: "superadmin12"
@@ -219,7 +247,7 @@ spec:
     targetPort: 3000
   selector:
     app: cap
-
+---
 
 # ==========================================
 # 6. UNIFIED INGRESS CONTROLLER
