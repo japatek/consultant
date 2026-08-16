@@ -69,6 +69,7 @@ spec:
           value: "TURNSTILE_SECRET_KEY_PLACEHOLDER"
         - name: TURNSTILE_HOSTNAMES
           value: "japatek.space"
+        # +++ ADDED AWS S3 SECRETS BELOW +++
         - name: AWS_REGION
           valueFrom:
             secretKeyRef:
