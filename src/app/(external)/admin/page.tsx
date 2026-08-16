@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Save, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { getArticles, saveArticle, deleteArticle } from "./_lib/action";
-import { MarkdownEditor } from "./_components/markdown-editor"; // Sesuaikan path import
+import { MarkdownEditor } from "./_components/markdown-editor";
 
 const emptyForm = {
   id: "", slug: "", title: "", desc: "", content: "",
@@ -37,7 +37,6 @@ export default function ArticleAdminPage() {
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
   };
 
-  // Fungsi khusus untuk menangani perubahan dari MarkdownEditor
   const handleContentChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -49,8 +48,8 @@ export default function ArticleAdminPage() {
 
   const handleDeleteClick = (id: string) => {
     setDialog({
-      isOpen: true, type: "confirm", title: "Hapus Artikel",
-      message: "Apakah Anda yakin ingin menghapus artikel ini?",
+      isOpen: true, type: "confirm", title: "Delete Article",
+      message: "Are you sure you want to delete this article? This action cannot be undone.",
       onConfirm: async () => {
         setDialog((prev: any) => ({ ...prev, isOpen: false }));
         await deleteArticle(id);
@@ -62,14 +61,14 @@ export default function ArticleAdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalSlug = formData.slug.toLowerCase().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
-    if (!finalSlug) return setDialog({ isOpen: true, type: "alert", title: "Peringatan", message: "URL Slug tidak boleh kosong!" });
+    if (!finalSlug) return setDialog({ isOpen: true, type: "alert", title: "Warning", message: "URL Slug cannot be empty!" });
     
     setIsSaving(true);
     const res = await saveArticle({ ...formData, slug: finalSlug });
     if (res.success) {
       setIsFormOpen(false); setFormData(emptyForm); fetchData();
     } else {
-      setDialog({ isOpen: true, type: "alert", title: "Gagal Menyimpan", message: res.error });
+      setDialog({ isOpen: true, type: "alert", title: "Failed to Save", message: res.error });
     }
     setIsSaving(false);
   };
@@ -115,7 +114,6 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Short Description</label><input required={activeTab === "en"} type="text" name="desc" value={formData.desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Main Content</label>
-                {/* Menggunakan MarkdownEditor */}
                 <MarkdownEditor name="content" value={formData.content} onChange={(val) => handleContentChange("content", val)} />
               </div>
             </div>
@@ -125,7 +123,6 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Deskripsi Singkat</label><input type="text" name="id_desc" value={formData.id_desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Konten Utama</label>
-                {/* Menggunakan MarkdownEditor */}
                 <MarkdownEditor name="id_content" value={formData.id_content} onChange={(val) => handleContentChange("id_content", val)} />
               </div>
             </div>
@@ -140,8 +137,111 @@ export default function ArticleAdminPage() {
         </div>
       )}
 
-      {/* Tabel Data dan Dialog sama seperti sebelumnya... */}
-      {/* (Tetap gunakan kode Data Table dan Modal Anda yang sudah berjalan sempurna) */}
+      {/* DATA TABLE */}
+      <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="p-12 flex justify-center items-center text-muted-foreground">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">
+            <p>No articles found. Click "New Article" to create one.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 border-b">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Cover</th>
+                  <th className="px-6 py-4 font-medium">Article</th>
+                  <th className="px-6 py-4 font-medium">Slug</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {articles.map((article) => (
+                  <tr key={article.id} className="hover:bg-muted/50 transition-colors">
+                    <td className="px-6 py-3">
+                      {article.imageUrl ? (
+                        <img src={article.imageUrl} alt="" className="w-12 h-12 rounded object-cover border" />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center border">
+                          <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="font-semibold text-foreground line-clamp-1">{article.title}</div>
+                      <div className="text-muted-foreground text-xs line-clamp-1">{article.id_title || "No ID translation"}</div>
+                    </td>
+                    <td className="px-6 py-3 font-mono text-xs text-muted-foreground">
+                      /{article.slug}
+                    </td>
+                    <td className="px-6 py-3 text-right space-x-2">
+                      <button onClick={() => handleEdit(article)} className="p-2 text-blue-500 hover:bg-blue-500/10 rounded transition">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDeleteClick(article.id)} className="p-2 text-destructive hover:bg-destructive/10 rounded transition">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* CUSTOM DIALOG / MODAL */}
+      {dialog.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-card border rounded-xl shadow-xl w-full max-w-md p-6 mx-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              {dialog.type === "alert" ? (
+                <div className="p-2 bg-destructive/10 text-destructive rounded-full">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+              ) : (
+                <div className="p-2 bg-orange-500/10 text-orange-500 rounded-full">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+              )}
+              <h3 className="text-lg font-bold text-foreground">{dialog.title}</h3>
+            </div>
+            
+            <p className="text-muted-foreground mb-6 whitespace-pre-wrap break-words text-sm">
+              {dialog.message}
+            </p>
+
+            <div className="flex justify-end gap-3">
+              {dialog.type === "confirm" && (
+                <button
+                  onClick={() => setDialog({ ...dialog, isOpen: false })}
+                  className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-muted transition"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (dialog.type === "confirm" && dialog.onConfirm) {
+                    dialog.onConfirm();
+                  } else {
+                    setDialog({ ...dialog, isOpen: false });
+                  }
+                }}
+                className={`px-4 py-2 text-sm font-medium rounded-md text-white transition ${
+                  dialog.type === "alert" ? "bg-primary hover:bg-primary/90" : "bg-destructive hover:bg-destructive/90"
+                }`}
+              >
+                {dialog.type === "confirm" ? "Yes, Delete" : "Understood"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
