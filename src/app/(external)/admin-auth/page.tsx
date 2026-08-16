@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { LoginForm } from "./_components/login-form";
 import NotifLogin from './_components/notif'
 import Footer from "@/components/Footer";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
 // Metadata
@@ -44,7 +46,7 @@ export default async function LoginPage({
   return (
     <>
       <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 gap-2">
-        <NotifLogin/>
+        {/* <NotifLogin/> */}
         
         {/* ── Card ──────────────────────────────────────────────────────────── */}
         <div className="w-full max-w-[400px] space-y-6 rounded-2xl border border-border/40 bg-card/90 px-8 py-10 shadow-xl backdrop-blur-md">
@@ -70,6 +72,14 @@ export default async function LoginPage({
             }
           >
             <LoginForm urlError={urlError} callbackUrl={callbackUrl} />
+            <Link prefetch={false} replace href="/">
+            <Button
+              variant="outline"
+              className="cursor-pointer h-auto rounded-lg border border-primary bg-transparent px-6 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-primary hover:text-white"
+            >
+              Go back
+            </Button>   
+          </Link>
           </Suspense>
 
         </div>
