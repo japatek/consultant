@@ -41,6 +41,11 @@ export default function ArticleAdminPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Menampilkan error upload gambar lewat dialog modal, bukan browser alert
+  const handleUploadError = (message: string) => {
+    setDialog({ isOpen: true, type: "alert", title: "Upload Gagal", message });
+  };
+
   const handleEdit = (article: any) => {
     setFormData({ ...emptyForm, ...article });
     setIsFormOpen(true);
@@ -114,7 +119,7 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Short Description</label><input required={activeTab === "en"} type="text" name="desc" value={formData.desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Main Content</label>
-                <MarkdownEditor name="content" value={formData.content} onChange={(val) => handleContentChange("content", val)} />
+                <MarkdownEditor name="content" value={formData.content} onChange={(val) => handleContentChange("content", val)} onError={handleUploadError} />
               </div>
             </div>
 
@@ -123,7 +128,7 @@ export default function ArticleAdminPage() {
               <div className="space-y-2"><label className="text-sm font-medium">Deskripsi Singkat</label><input type="text" name="id_desc" value={formData.id_desc} onChange={handleInputChange} className="w-full p-2 border rounded-md bg-background" /></div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Konten Utama</label>
-                <MarkdownEditor name="id_content" value={formData.id_content} onChange={(val) => handleContentChange("id_content", val)} />
+                <MarkdownEditor name="id_content" value={formData.id_content} onChange={(val) => handleContentChange("id_content", val)} onError={handleUploadError} />
               </div>
             </div>
 

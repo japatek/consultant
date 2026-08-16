@@ -9,12 +9,18 @@ interface MarkdownEditorProps {
   onChange: (value: string) => void;
   name: string;
   placeholder?: string;
+  onError?: (message: string) => void;
 }
 
-export function MarkdownEditor({ value, onChange, name, placeholder }: MarkdownEditorProps) {
+export function MarkdownEditor({ value, onChange, name, placeholder, onError }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const notifyError = (message: string) => {
+    if (onError) onError(message);
+    else console.error(message);
+  };
 
   // Menyisipkan teks/sintaks di posisi kursor
   const applyFormat = (prefix: string, suffix: string = "") => {
@@ -42,7 +48,7 @@ export function MarkdownEditor({ value, onChange, name, placeholder }: MarkdownE
   // Logika Pemrosesan Upload Gambar ke AWS S3
   const processImageUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("Format file tidak didukung. Harap unggah gambar.");
+      notifyError("Format file tidak didukung. Harap unggah gambar.");
       return;
     }
 
@@ -64,12 +70,12 @@ export function MarkdownEditor({ value, onChange, name, placeholder }: MarkdownE
         const newText = currentText.replace(placeholderText, `\n![${file.name}](${res.url})\n`);
         onChange(newText);
       } else {
-        alert("Gagal mengunggah gambar.");
+        notifyError("Gagal mengunggah gambar.");
         // Hapus teks sementara jika gagal
         onChange(currentText.replace(placeholderText, ""));
       }
     } catch (error) {
-      alert("Terjadi kesalahan sistem saat mengunggah.");
+      notifyError("Terjadi kesalahan sistem saat mengunggah.");
     } finally {
       setIsUploading(false);
     }
