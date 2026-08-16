@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import ReactMarkdown from "react-markdown";
 import { prisma } from "@/lib/database/prisma"; // Sesuaikan dengan path instance Prisma Anda
+import Footer from "@/components/Footer";
 
 // 1. Ubah tipe params menjadi Promise (Standar Next.js 15)
 interface ArticleDetailPageProps {
@@ -80,6 +81,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         </div>
 
       </article>
+      <Footer/>
     </main>
   );
 }

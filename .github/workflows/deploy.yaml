@@ -80,6 +80,14 @@ jobs:
           --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
 
+        # +++ CREATE AWS S3 SECRET FOR NEXT.JS PODS +++
+        kubectl create secret generic aws-s3-secret \
+          --from-literal=AWS_REGION=${{ secrets.AWS_REGION }} \
+          --from-literal=AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          --from-literal=AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          --from-literal=AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }} \
+          --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
+
         # Replace Placeholders in Manifest
         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
         sed -i "s|AWS_REGION|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
@@ -94,10 +102,6 @@ jobs:
         sed -i "s|SMTP_PASS_PLACEHOLDER|${{ secrets.SMTP_PASS }}|g" k8s-manifest.yaml
         sed -i "s|NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}|g" k8s-manifest.yaml
         sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${{ secrets.TURNSTILE_SECRET_KEY }}|g" k8s-manifest.yaml
-
-        # Apply to Cluster
-        kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
-        kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
         
         # ==========================================
         # 3. APPLY AND UPDATE CLUSTER
