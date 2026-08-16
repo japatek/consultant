@@ -15,13 +15,13 @@ export async function getArticles() {
   }
 }
 
-// 2. Simpan artikel (Sesuai logika yang Anda minta: Cek ID & Slug)
+// 2. Simpan artikel dengan pembuatan Random ID
 export async function saveArticle(data: any) {
   try {
     const articleId = data.id;
     const articleSlug = data.slug;
 
-    // Rangkai payload tanpa menyertakan ID
+    // Rangkai payload utama tanpa menyertakan ID
     const payload = {
       slug: articleSlug,
       title: data.title,
@@ -33,22 +33,31 @@ export async function saveArticle(data: any) {
       imageUrl: data.imageUrl,
     };
 
-    // LOGIKA UTAMA: "Jika ID dan Slug ada -> UPDATE, jika tidak ada ID -> CREATE"
-    if (articleId && articleSlug) {
+    if (articleId && articleId !== "") {
       
+      // === JIKA ID ADA -> UPDATE ===
       await prisma.article.update({
         where: { 
-          id: articleId 
-          // Catatan: Jika 'id' di database Anda berupa angka (Int), 
-          // ubah baris di atas menjadi -> id: Number(articleId)
+          id: articleId // Ubah menjadi Number(articleId) jika kolom id Anda bertipe Int
         },
         data: payload,
       });
 
-    } else {
+    } else if (!articleId && articleSlug) {
+      
+      // === JIKA ID KOSONG TAPI SLUG ADA -> CREATE DENGAN RANDOM ID ===
+      
+      // Buat angka unik menggunakan kombinasi waktu saat ini (agar 100% unik)
+      const randomIdNumber = Date.now(); 
       
       await prisma.article.create({
-        data: payload,
+        data: {
+          // PENTING: 
+          // Jika di schema.prisma tipe id adalah String, gunakan .toString()
+          // Jika tipe id adalah Int, hapus .toString() dan gunakan angkanya langsung
+          id: randomIdNumber.toString(), 
+          ...payload,
+        },
       });
 
     }
@@ -62,7 +71,7 @@ export async function saveArticle(data: any) {
   } catch (error: any) {
     console.error("Gagal menyimpan artikel:", error);
     
-    // Menangkap error jika Slug Duplikat (Unique Constraint Failed)
+    // Tangkap error jika Slug Duplikat
     if (error.code === 'P2002') {
       return { 
         success: false, 
