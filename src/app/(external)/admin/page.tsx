@@ -92,7 +92,7 @@ export default function ArticleAdminPage() {
           </button>
           <button 
             onClick={() => signOut({ callbackUrl: "/admin-auth" })} 
-            className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground border border-destructive px-4 py-2 rounded-md font-medium transition"
+            className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive-foreground border border-destructive px-4 py-2 rounded-md font-medium transition cursor-pointer"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
