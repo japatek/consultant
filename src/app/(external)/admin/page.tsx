@@ -5,6 +5,8 @@ import { Plus, Edit2, Trash2, X, Save, Loader2, Image as ImageIcon, AlertCircle,
 import { signOut } from "next-auth/react";
 import { getArticles, saveArticle, deleteArticle } from "./_lib/action";
 import { MarkdownEditor } from "./_components/markdown-editor";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const emptyForm = {
   id: "", slug: "", title: "", desc: "", content: "",
@@ -96,6 +98,14 @@ export default function ArticleAdminPage() {
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
+          <Link prefetch={false} replace href="/">
+            <Button
+              variant="outline"
+              className="cursor-pointer h-auto rounded-lg border border-primary bg-transparent px-6 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-primary hover:text-white"
+            >
+              Go back
+            </Button>   
+          </Link>
         </div>
       </div>
 
