@@ -18,7 +18,7 @@ export async function uploadImageToS3(formData: FormData) {
     if (!file) throw new Error("File tidak ditemukan.");
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    
+
     // Standar Industri Naming: Ekstensi asli + Timestamp + Random UUID
     const ext = file.name.split('.').pop() || "png";
     const fileName = `articles/${Date.now()}-${crypto.randomUUID()}.${ext}`;
@@ -28,17 +28,17 @@ export async function uploadImageToS3(formData: FormData) {
       Key: fileName,
       Body: buffer,
       ContentType: file.type,
-      // Hapus komentar di bawah jika bucket Anda memerlukan konfigurasi ACL
-      // ACL: "public-read", 
+      // ACL intentionally omitted: buckets with "Bucket owner enforced"
+      // Object Ownership (the modern default) reject per-object ACLs outright.
+      // Make the bucket path public via a bucket policy instead — see note below.
     });
 
     await s3Client.send(command);
 
-    // Path URL publik dari file yang baru saja diunggah
-    // const url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
-    
-    const url = `${process.env.MEDIA_URL}/article/${fileName}`;
-    
+    // FIX: fileName already includes the "articles/" prefix — don't add
+    // a second "/article" segment, or the URL won't match the S3 key.
+    const url = `${process.env.MEDIA_URL}/${fileName}`;
+
     return { success: true, url };
   } catch (error: any) {
     console.error("Gagal upload S3:", error);
