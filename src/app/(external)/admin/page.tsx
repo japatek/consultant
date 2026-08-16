@@ -55,7 +55,11 @@ export default function ArticleAdminPage() {
       message: "Are you sure you want to delete this article? This action cannot be undone.",
       onConfirm: async () => {
         setDialog((prev: any) => ({ ...prev, isOpen: false }));
-        await deleteArticle(id);
+        const res = await deleteArticle(id);
+        if (!res.success) {
+          setDialog({ isOpen: true, type: "alert", title: "Failed to Delete", message: res.error });
+          return;
+        }
         fetchData();
       },
     });

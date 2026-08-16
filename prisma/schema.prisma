@@ -33,6 +33,7 @@ model User {
   emailChangeLogs EmailChangeLog[]
 
   licenses        License[]
+  articles        Article[]
   @@map("users")
 }
 
@@ -146,7 +147,11 @@ model License {
 model Article {
   id          String   @id @default(cuid())
   slug        String   @unique
-  
+
+  // Pemilik artikel — setiap admin hanya bisa melihat/mengubah artikelnya sendiri
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
   // Bahasa Inggris (Default)
   title       String
   desc        String
@@ -160,7 +165,6 @@ model Article {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
 }
-
-
-
