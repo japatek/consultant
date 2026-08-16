@@ -41,7 +41,7 @@ export default async function LoginPage({
   const callbackUrl =
     rawCallback.startsWith("/") && !rawCallback.startsWith("//")
       ? rawCallback
-      : '/marketplace';
+      : '/admin';
 
   return (
     <>

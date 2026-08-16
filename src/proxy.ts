@@ -13,7 +13,7 @@ const MARKETPLACE    = "/marketplace" as const;
 const ADMIN_AUTH     = "/admin-auth" as const; // Auth khusus admin
 
 // 1. Definisikan rute mana saja yang merupakan halaman Admin
-const ADMIN_PREFIXES = ["/admin", "/articles"] as const;
+const ADMIN_PREFIXES = ["/admin", "/article"] as const;
 
 // 2. Tambahkan /admin-auth ke PUBLIC_PREFIXES agar halamannya tidak terblokir
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/test", "/admin-auth"] as const;
@@ -98,7 +98,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
     // Jika ADMIN mencoba masuk dashboard, kembalikan ke /articles
     if (isAdmin) {
-      return NextResponse.redirect(new URL("/articles", request.url));
+      return NextResponse.redirect(new URL("/article", request.url));
     }
     return NextResponse.next();
   }
@@ -109,7 +109,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
     // FIX: Cegah Admin nyasar ke Marketplace karena auto-redirect default
     if (isAdmin) {
-      return NextResponse.redirect(new URL("/articles", request.url));
+      return NextResponse.redirect(new URL("/article", request.url));
     }
     return NextResponse.next();
   }
@@ -121,11 +121,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     
     if (isLoggedIn) {
       if (pathname.startsWith("/admin-auth") && isAdmin) {
-        return NextResponse.redirect(new URL("/articles", request.url)); 
+        return NextResponse.redirect(new URL("/article", request.url)); 
       } 
       else if (pathname.startsWith("/auth")) {
         // Arahkan sesuai Role jika masuk halaman auth biasa
-        return NextResponse.redirect(new URL(isAdmin ? "/articles" : DASHBOARD_PATH, request.url));
+        return NextResponse.redirect(new URL(isAdmin ? "/article" : DASHBOARD_PATH, request.url));
       }
     }
     

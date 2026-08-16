@@ -55,11 +55,7 @@ export default function ArticleAdminPage() {
       message: "Are you sure you want to delete this article? This action cannot be undone.",
       onConfirm: async () => {
         setDialog((prev: any) => ({ ...prev, isOpen: false }));
-        const res = await deleteArticle(id);
-        if (!res.success) {
-          setDialog({ isOpen: true, type: "alert", title: "Failed to Delete", message: res.error });
-          return;
-        }
+        await deleteArticle(id);
         fetchData();
       },
     });
@@ -96,7 +92,13 @@ export default function ArticleAdminPage() {
           >
             <Plus className="w-4 h-4" /> New Article
           </button>
-           <Link prefetch={false} replace href="/">
+          <button 
+            onClick={() => signOut({ callbackUrl: "/admin-auth" })} 
+            className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive-foreground border border-destructive px-4 py-2 rounded-md font-medium transition cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" /> Logout
+          </button>
+          <Link prefetch={false} replace href="/">
             <Button
               variant="outline"
               className="cursor-pointer h-auto rounded-lg border border-primary bg-transparent px-6 py-2.5 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-primary hover:text-white"
@@ -104,13 +106,6 @@ export default function ArticleAdminPage() {
               Go back
             </Button>   
           </Link>
-          <button 
-            onClick={() => signOut({ callbackUrl: "/admin-auth" })} 
-            className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive-foreground border border-destructive px-4 py-2 rounded-md font-medium transition cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" /> Logout
-          </button>
-         
         </div>
       </div>
 
