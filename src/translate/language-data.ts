@@ -14,7 +14,7 @@ export const translations = {
         title: 'AI-Driven Engineering.',
         subtitle: 'Instant Solutions.',
         desc: 'Unlock next-generation capabilities. Experience JaPaTek’s advanced AI Tools and Agent to analyze, simulate, and optimize complex engineering challenges across industrial sectors in seconds.',
-        explore: 'Explore Our AI Tools',
+        explore: 'Learn Drawing Read',
         core: 'View Core Services',
         ourProjects: 'Our Projects',
         ourServices: 'Our Services',
