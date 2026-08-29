@@ -175,7 +175,7 @@ export const Hero: React.FC = () => {
           {[
             { title: t.ourProjects, desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
             // { title: t.ourServices, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
-            { title: t.ourTools, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/marketplace' },
+            { title: t.ourMaterial, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/marketplace' },
             { title: t.ourServices, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/services' },
             {
               title: t.aboutUs,
