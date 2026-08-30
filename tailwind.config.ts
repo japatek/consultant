@@ -10,7 +10,8 @@ const config: Config = {
     extend: {},
   },
   plugins: [
-    require('@tailwindcss/typography'), // <-- ADD THIS LINE
+    require('@tailwindcss/typography'), 
+    require('tailwindcss-animate'),
   ],
 };
 export default config;
