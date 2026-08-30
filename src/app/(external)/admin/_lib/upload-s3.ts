@@ -41,7 +41,8 @@ export async function uploadImageToS3(formData: FormData) {
 
     return { success: true, url };
   } catch (error: any) {
-    console.error("Gagal upload S3:", error);
+    console.error("=== FULL S3 UPLOAD ERROR ===");
+    console.error(error); // This will tell you if it's AccessDenied, InvalidToken, etc.
     return { success: false, error: error.message };
   }
 }

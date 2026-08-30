@@ -74,15 +74,28 @@ const config: NextAuthConfig = {
 
         if (!username || !password) return null;
 
-        // Verify against the hardcoded dictionary
+        // 1. Verifikasi kecocokan password dengan hardcoded dictionary
         if (ADMIN_DATA[username] === password) {
-          // Return a constructed user object for the JWT session
-          return {
-            id: `admin-${username}`,
-            name: username,
-            email: `${username}@japatek.space`,
-            role: "ADMIN" // Assign admin privileges automatically
-          };
+          
+          // 2. Ambil data asli dari Database berdasarkan ID (admin-writer)
+          const expectedId = `admin-${username}`;
+          const dbUser = await prisma.user.findUnique({
+            where: { id: expectedId }
+          });
+
+          // 3. Jika user ADA di database, kembalikan datanya ke sesi NextAuth
+          if (dbUser) {
+            return {
+              id: dbUser.id,
+              name: dbUser.name,
+              email: dbUser.email,
+              role: dbUser.role 
+            };
+          } else {
+            // Opsional: Jika user belum dimasukkan ke database via SQL, tolak login
+            console.error(`User dengan ID ${expectedId} tidak ditemukan di database Prisma.`);
+            return null;
+          }
         }
         
         // Return null if validation fails
