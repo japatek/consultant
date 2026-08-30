@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import ReactMarkdown from "react-markdown";
 import { prisma } from "@/lib/database/prisma"; // Sesuaikan dengan path instance Prisma Anda
 import Footer from "@/components/Footer";
+import remarkGfm from "remark-gfm";
 
 // 1. Ubah tipe params menjadi Promise (Standar Next.js 15)
 interface ArticleDetailPageProps {
@@ -75,13 +76,13 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
 
         {/* Konten Utama (Markdown) */}
         <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary/80 max-w-none">
-          <ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {displayContent}
           </ReactMarkdown>
         </div>
 
       </article>
-      <Footer/>
+      <Footer />
     </main>
   );
 }
