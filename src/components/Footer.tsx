@@ -67,7 +67,7 @@ export default function Footer() {
             <a href="https://www.instagram.com/japateksolusi?igsh=cTY4YmVycHU5NTlw" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
               <IconBrandInstagram className="cursor-pointer" />
             </a>
-            <a href="#" className="hover:text-primary transition-colors">
+            <a href="https://x.com/Japateksolusi" className="hover:text-primary transition-colors">
               <XTwitterLogoIcon className="cursor-pointer pt-1" size={20}/>
             </a>
           </div>
