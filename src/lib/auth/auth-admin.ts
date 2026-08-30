@@ -35,7 +35,7 @@ const hostPrefix   = useSecureCookies ? "__Host-"   : "";
 
 // ── HARDCODED ADMIN DICTIONARY ───────────────────────────────────────────
 const ADMIN_DATA: Record<string, string> = {
-  "writer": "writeradmin"
+  "writer": "iqbalm"
 };
 
 // ---------------------------------------------------------------------------
