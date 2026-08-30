@@ -10,7 +10,7 @@ export interface LoginActionState {
 
 // ── HARDCODED ADMIN DICTIONARY ───────────────────────────────────────────
 const ADMIN_DATA: Record<string, string> = {
-  "devwriter": "devadmin"
+  "writer": "iqbalM"
 };
 
 function isNextRedirect(error: unknown): boolean {
