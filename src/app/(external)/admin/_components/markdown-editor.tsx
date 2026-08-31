@@ -5,9 +5,12 @@ import {
   Bold, Italic, Heading1, List, Image as ImageIcon, 
   Loader2, Eye, PenLine 
 } from "lucide-react";
-import { uploadImageToS3 } from "../_lib/upload-s3"; // Sesuaikan path ini dengan struktur folder Anda
+import { uploadImageToS3 } from "../_lib/upload-s3";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex"; 
+import 'katex/dist/katex.min.css'; 
+import remarkMath from "remark-math";
 
 interface MarkdownEditorProps {
   value: string;
@@ -193,7 +196,8 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
         <div className="w-full p-6 min-h-[400px] bg-background prose prose-sm sm:prose-base dark:prose-invert max-w-none">
           {value ? (
             <ReactMarkdown 
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
               components={{
                 // Custom renderer untuk gambar agar rapi dan responsif
                 img: ({ node, ...props }) => (
