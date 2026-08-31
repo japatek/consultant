@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import 'katex/dist/katex.min.css';
+import rehypeRaw from "rehype-raw";
 
 // 1. Ubah tipe params menjadi Promise (Standar Next.js 15)
 interface ArticleDetailPageProps {
@@ -81,7 +82,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary/80 max-w-none">
           <ReactMarkdown 
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex]}
+          rehypePlugins={[rehypeKatex, rehypeRaw]}
           >
             {displayContent}
           </ReactMarkdown>

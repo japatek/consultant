@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex"; 
 import 'katex/dist/katex.min.css'; 
 import remarkMath from "remark-math";
+import rehypeRaw from "rehype-raw";
 
 interface MarkdownEditorProps {
   value: string;
@@ -197,7 +198,7 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
           {value ? (
             <ReactMarkdown 
               remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
+              rehypePlugins={[rehypeKatex, rehypeRaw]}
               components={{
                 // Custom renderer untuk gambar agar rapi dan responsif
                 img: ({ node, ...props }) => (
