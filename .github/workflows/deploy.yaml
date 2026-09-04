@@ -52,6 +52,7 @@ jobs:
           --build-arg NEXT_PUBLIC_CAP_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }} \
           --build-arg CAP_BACKEND_URL="http://cap-service:8080" \
           --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} \
+          --build-arg NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }} \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
           
@@ -82,10 +83,11 @@ jobs:
 
         # +++ CREATE AWS S3 SECRET FOR NEXT.JS PODS +++
         kubectl create secret generic aws-s3-secret \
-          --from-literal=AWS_REGION=${{ secrets.AWS_REGION }} \
+         --from-literal=AWS_REGION=${{ secrets.AWS_REGION }} \
           --from-literal=AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           --from-literal=AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
           --from-literal=AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }} \
+          --from-literal=NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }} \
           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
 
         # Replace Placeholders in Manifest
