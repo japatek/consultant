@@ -36,11 +36,12 @@ import {
   setPricingPlanActive,
   upsertDiscount,
   setDiscountActive,
-  type PricingPlanFormValues,
+} from "../_lib/actions";
+import {type PricingPlanFormValues,
   type DiscountFormValues,
   type AdminPlanRow,
   type AdminDiscountRow,
-} from "../_lib/actions";
+} from "../_lib/schema"
 
 const IDR = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
