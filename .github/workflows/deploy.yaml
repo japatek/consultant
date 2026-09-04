@@ -104,6 +104,7 @@ jobs:
         sed -i "s|SMTP_PASS_PLACEHOLDER|${{ secrets.SMTP_PASS }}|g" k8s-manifest.yaml
         sed -i "s|NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}|g" k8s-manifest.yaml
         sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${{ secrets.TURNSTILE_SECRET_KEY }}|g" k8s-manifest.yaml
+        sed -i "s|NEXT_PUBLIC_CLOUDFRONT_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL}}|g" k8s-manifest.yaml"
         
         # ==========================================
         # 3. APPLY AND UPDATE CLUSTER
