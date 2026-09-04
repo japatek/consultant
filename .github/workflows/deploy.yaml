@@ -83,7 +83,7 @@ jobs:
 
         # +++ CREATE AWS S3 SECRET FOR NEXT.JS PODS +++
         kubectl create secret generic aws-s3-secret \
-         --from-literal=AWS_REGION=${{ secrets.AWS_REGION }} \
+          --from-literal=AWS_REGION=${{ secrets.AWS_REGION }} \
           --from-literal=AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           --from-literal=AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
           --from-literal=AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }} \
