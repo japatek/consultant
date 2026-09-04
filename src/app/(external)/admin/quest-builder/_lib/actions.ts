@@ -1,4 +1,4 @@
-
+"use server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth-admin";
 import { prisma } from "@/lib/database/prisma";
