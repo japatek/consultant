@@ -45,14 +45,14 @@ jobs:
     - name: Build, tag, and push Next.js Web image
       run: |
         docker build \
-          --build-arg AUTH_SECRET=${{ secrets.AUTH_SECRET }} \
-          --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-          --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-          --build-arg NEXT_PUBLIC_CAP_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }} \
+          --build-arg AUTH_SECRET="${{ secrets.AUTH_SECRET }}" \
+          --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+          --build-arg GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+          --build-arg GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+          --build-arg NEXT_PUBLIC_CAP_SITE_KEY="${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}" \
           --build-arg CAP_BACKEND_URL="http://cap-service:8080" \
-          --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} \
-          --build-arg NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }} \
+          --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY="${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}" \
+          --build-arg NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
           
