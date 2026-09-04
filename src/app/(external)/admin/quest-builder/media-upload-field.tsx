@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { FileImage, FileVideo, FileText, X, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { uploadMediaFile } from "@/actions/quest-actions";
+import { uploadMediaFile } from "./_lib/actions";
 import type { MediaType, QuestFormValues, QuestMediaInput } from "@/types/quest";
 import { translations, type Language } from "@/translate/language-data";
 
@@ -35,22 +35,27 @@ export function MediaUploadField({ lang }: { lang: Language }) {
     if (!files || files.length === 0) return;
     setError(null);
 
-    startTransition(async () => {
-      for (const file of Array.from(files)) {
-        try {
-          const formData = new FormData();
-          formData.set("file", file);
-          const uploaded = await uploadMediaFile(formData, "quest-media");
-          const next: QuestMediaInput = {
-            type: mediaTypeFor(file),
-            url: uploaded.url,
-            fileName: uploaded.fileName,
-          };
-          setValue("media", [...watch("media"), next], { shouldValidate: true });
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Upload failed");
+    // startTransition's callback must return void, not a Promise (this is
+    // enforced by React's types on React 18) — the async work runs in an
+    // IIFE inside it instead of being returned directly.
+    startTransition(() => {
+      void (async () => {
+        for (const file of Array.from(files)) {
+          try {
+            const formData = new FormData();
+            formData.set("file", file);
+            const uploaded = await uploadMediaFile(formData, "quest-media");
+            const next: QuestMediaInput = {
+              type: mediaTypeFor(file),
+              url: uploaded.url,
+              fileName: uploaded.fileName,
+            };
+            setValue("media", [...watch("media"), next], { shouldValidate: true });
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "Upload failed");
+          }
         }
-      }
+      })();
     });
   }
 

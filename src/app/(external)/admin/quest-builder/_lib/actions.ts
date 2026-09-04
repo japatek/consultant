@@ -160,3 +160,8 @@ export async function submitQuestAnswer(questId: string, rawSubmission: unknown)
 
   return { ...result, completionId: completion.id, newlyUnlockedCertificationIds: newlyUnlocked };
 }
+
+
+
+
+

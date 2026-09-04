@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, type Resolver } from "react-hook-form"; 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -44,6 +44,7 @@ const DEFAULT_VALUES: QuestFormValues = {
   isPublished: false,
 };
 
+
 export function QuestBuilderForm({
   questId,
   initialValues,
@@ -57,8 +58,8 @@ export function QuestBuilderForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const form = useForm<QuestFormValues>({
-    resolver: zodResolver(questFormSchema),
+const form = useForm<QuestFormValues>({
+    resolver: zodResolver(questFormSchema) as any,
     defaultValues: initialValues ?? DEFAULT_VALUES,
     mode: "onBlur",
   });
