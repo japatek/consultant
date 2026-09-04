@@ -1,9 +1,19 @@
+'use server'
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { auth } from "@/lib/auth/auth-admin";
 import { prisma } from "@/lib/database/prisma";
 import { asStringArray } from "./json";
+import { 
+  pricingPlanFormSchema, 
+  discountFormSchema, 
+  type PricingPlanFormValues, 
+  type DiscountFormValues,
+  type PlanRecord,
+  type AdminPlanRow,
+  type DiscountRecord,
+  type AdminDiscountRow
+} from "./schema"; 
 
 async function requireAdmin() {
   const session = await auth();
@@ -11,76 +21,6 @@ async function requireAdmin() {
   if (session.user.role !== "ADMIN") throw new Error("Admin access required");
   return session.user;
 }
-
-export const pricingPlanFormSchema = z.object({
-  id: z.string().optional(), // present when editing, absent when creating
-  slug: z.string().trim().min(2),
-  name: z.string().trim().min(2),
-  interval: z.enum(["WEEKLY", "MONTHLY", "QUARTERLY"]),
-  durationDays: z.number().int().positive(),
-  priceIDR: z.number().int().nonnegative(),
-  priceUSD: z.number().int().nonnegative(),
-  features: z.array(z.string().trim().min(1)).default([]),
-  isActive: z.boolean().default(true),
-  sortOrder: z.number().int().default(0),
-});
-export type PricingPlanFormValues = z.infer<typeof pricingPlanFormSchema>;
-
-export const discountFormSchema = z.object({
-  id: z.string().optional(),
-  code: z
-    .string()
-    .trim()
-    .min(3)
-    .transform((s) => s.toUpperCase()),
-  percentOff: z.number().int().min(1).max(100).optional(),
-  amountOffIDR: z.number().int().positive().optional(),
-  planId: z.string().nullable().optional(), // null = every plan
-  validUntil: z.string().datetime().nullable().optional(),
-  maxRedemptions: z.number().int().positive().nullable().optional(),
-  isActive: z.boolean().default(true),
-});
-export type DiscountFormValues = z.infer<typeof discountFormSchema>;
-
-/* -------------------------------------------------------------------------
- * Read types — what actually comes BACK from Prisma, which is not the same
- * shape as the Zod form schemas above:
- *   - `features` is a Prisma `Json` column (typed `JsonValue`), never a bare
- *     `string[]`, so it has to be narrowed at this boundary.
- *   - Nullable Prisma columns come back as `T | null`, while the form
- *     schemas use `.optional()` (`T | undefined`) since that's the right
- *     shape for "the admin left this field blank". Conflating the two was
- *     the actual bug — these types keep them separate on purpose.
- * ---------------------------------------------------------------------- */
-
-export type PlanRecord = {
-  id: string;
-  slug: string;
-  name: string;
-  interval: "WEEKLY" | "MONTHLY" | "QUARTERLY";
-  durationDays: number;
-  priceIDR: number;
-  priceUSD: number;
-  features: string[];
-  isActive: boolean;
-  sortOrder: number;
-};
-export type AdminPlanRow = PlanRecord & { _count: { subscriptions: number } };
-
-export type DiscountRecord = {
-  id: string;
-  code: string;
-  percentOff: number | null;
-  amountOffIDR: number | null;
-  planId: string | null;
-  validFrom: Date;
-  validUntil: Date | null;
-  maxRedemptions: number | null;
-  timesRedeemed: number;
-  isActive: boolean;
-  createdAt: Date;
-};
-export type AdminDiscountRow = DiscountRecord & { plan: { name: string } | null };
 
 function toPlanRecord(plan: {
   id: string;
@@ -97,7 +37,6 @@ function toPlanRecord(plan: {
   return { ...plan, features: asStringArray(plan.features) };
 }
 
-/** Every plan, including inactive ones — this is the admin view, unlike getActivePricingPlans. */
 export async function listPricingPlansForAdmin(): Promise<AdminPlanRow[]> {
   await requireAdmin();
   const plans = await prisma.pricingPlan.findMany({
@@ -121,7 +60,6 @@ export async function upsertPricingPlan(values: PricingPlanFormValues): Promise<
   return toPlanRecord(plan);
 }
 
-/** Plans are never deleted (subscriptions reference them) — retire with isActive: false instead. */
 export async function setPricingPlanActive(id: string, isActive: boolean) {
   await requireAdmin();
   await prisma.pricingPlan.update({ where: { id }, data: { isActive } });
@@ -161,4 +99,3 @@ export async function setDiscountActive(id: string, isActive: boolean) {
   await prisma.discount.update({ where: { id }, data: { isActive } });
   revalidatePath("/admin/marketing/pricing");
 }
-
