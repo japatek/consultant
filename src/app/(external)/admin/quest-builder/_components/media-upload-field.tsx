@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { FileImage, FileVideo, FileText, X, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { uploadMediaFile } from "./_lib/actions";
+import { uploadMediaFile } from "../_lib/actions";
 import type { MediaType, QuestFormValues, QuestMediaInput } from "@/types/quest";
 import { translations, type Language } from "@/translate/language-data";
 

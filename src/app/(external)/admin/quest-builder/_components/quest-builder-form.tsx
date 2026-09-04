@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useLanguage } from "@/hooks/use-language";
-import { createQuest, updateQuest } from "./_lib/actions";
+import { createQuest, updateQuest } from "../_lib/actions";
 import {
   questFormSchema,
   DIFFICULTIES,
