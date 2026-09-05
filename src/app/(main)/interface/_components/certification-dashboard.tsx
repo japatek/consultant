@@ -82,7 +82,7 @@ export function CertificationDashboard({ data }: { data: DashboardData }) {
                       </p>
                     </div>
                     
-                    <Link href={`/quests/${cert.id}`} className="inline-block">
+                    <Link href={`/quests/${cert.slug || cert.id}`} className="inline-block">
                       {/* Tombol Start menggunakan bg-secondary (abu-abu terang di light, abu gelap di dark) */}
                       <button className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors text-amber-600 dark:text-amber-500 text-sm font-medium">
                         <Hand className="w-4 h-4" />
