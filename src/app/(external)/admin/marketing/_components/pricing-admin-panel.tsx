@@ -37,18 +37,16 @@ import {
   upsertDiscount,
   setDiscountActive,
 } from "../_lib/actions";
-import {type PricingPlanFormValues,
+import {
+  pricingPlanFormSchema, // <-- Ditambahkan
+  discountFormSchema,    // <-- Ditambahkan
+  type PricingPlanFormValues,
   type DiscountFormValues,
   type AdminPlanRow,
   type AdminDiscountRow,
 } from "../_lib/schema"
 
 const IDR = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
-
-// AdminPlanRow / AdminDiscountRow now live in admin-pricing-actions.ts,
-// shaped to match what Prisma actually returns (Json features narrowed to
-// string[], nullable columns as `T | null`) rather than reusing the Zod
-// form types — see the comment there for why that distinction matters.
 
 export function PricingAdminPanel({
   initialPlans,
@@ -185,20 +183,30 @@ function PlanForm({
 
   function save() {
     setError(null);
-    // startTransition's callback must return void, not a Promise — the
-    // async work runs in an IIFE inside it instead of being returned directly.
+    
+    const payload = {
+      ...values,
+      id: initialValues?.id,
+      features: featuresText.split("\n").map((f) => f.trim()).filter(Boolean),
+    };
+
+    // +++ Client-side validation +++
+    const parsed = pricingPlanFormSchema.safeParse(payload);
+    if (!parsed.success) {
+      // Tampilkan error pertama dari Zod langsung ke UI
+      const firstError = parsed.error.issues[0];
+      setError(`Error di kolom ${firstError.path.join(".")}: ${firstError.message}`);
+      return;
+    }
+
     startTransition(() => {
       void (async () => {
         try {
-          const payload = {
-            ...values,
-            id: initialValues?.id,
-            features: featuresText.split("\n").map((f) => f.trim()).filter(Boolean),
-          };
           const saved = await upsertPricingPlan(payload);
           onSaved({ ...saved, _count: initialValues?._count ?? { subscriptions: 0 } });
         } catch (err) {
-          setError(err instanceof Error ? err.message : t.questSaveError);
+          // Jika masih masuk sini, kemungkinan besar masalah Duplicate Slug di database
+          setError("Gagal menyimpan. Pastikan Slug belum digunakan oleh paket lain.");
         }
       })();
     });
@@ -287,7 +295,7 @@ function PlanForm({
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
       </div>
 
       <DialogFooter>
@@ -399,12 +407,6 @@ function DiscountsSection({
   );
 }
 
-/**
- * `AdminDiscountRow` (Prisma-shaped: `null`, `Date`) and `DiscountFormValues`
- * (Zod-shaped: `undefined`, ISO string) are deliberately different types —
- * this is the one place that converts between them, when seeding the form's
- * local state from an existing row.
- */
 function toFormValues(row?: AdminDiscountRow): DiscountFormValues {
   if (!row) {
     return {
@@ -446,15 +448,24 @@ function DiscountForm({
 
   function save() {
     setError(null);
-    // startTransition's callback must return void, not a Promise — the
-    // async work runs in an IIFE inside it instead of being returned directly.
+    
+    const payload = { ...values, id: initialValues?.id };
+
+    // +++ Client-side validation +++
+    const parsed = discountFormSchema.safeParse(payload);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0];
+      setError(`Error di kolom ${firstError.path.join(".")}: ${firstError.message}`);
+      return;
+    }
+
     startTransition(() => {
       void (async () => {
         try {
-          const saved = await upsertDiscount({ ...values, id: initialValues?.id });
+          const saved = await upsertDiscount(payload);
           onSaved({ ...saved, plan: plans.find((p) => p.id === saved.planId) ?? null });
         } catch (err) {
-          setError(err instanceof Error ? err.message : t.questSaveError);
+          setError("Gagal menyimpan. Pastikan Kode Diskon tidak duplikat.");
         }
       })();
     });
@@ -541,7 +552,7 @@ function DiscountForm({
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
       </div>
 
       <DialogFooter>
