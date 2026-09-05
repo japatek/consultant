@@ -16,10 +16,10 @@ import { getPreference } from "@/server/server-actions";
 
 // Updated import to reflect the single-user menu component
 // Note: Change the filename/path if you didn't rename the switcher file to 'user-menu'
-import { UserMenu } from "./_components/sidebar/user-menu";
-import { LayoutControls } from "./_components/sidebar/layout-controls";
-import { SearchDialog } from "./_components/sidebar/search-dialog";
-import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
+import { UserMenu } from "./_components/user-menu";
+import { LayoutControls } from "./_components/layout-controls";
+import { SearchDialog } from "./_components/search-dialog";
+import { ThemeSwitcher } from "./_components/theme-switcher";
 
 
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
