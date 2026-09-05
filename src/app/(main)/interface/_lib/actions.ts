@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth/auth-admin";
-import { prisma } from "@/lib/database/prisma";
+import  {prisma} from "../../../../lib/database/prisma"
 import {
   computeAllCertificationProgress,
   type CertificationRequirement,
