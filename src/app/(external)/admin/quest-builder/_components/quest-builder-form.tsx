@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, FormProvider, type Resolver } from "react-hook-form"; 
+import { useForm, FormProvider } from "react-hook-form"; 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useLanguage } from "@/hooks/use-language";
 import { createQuest, updateQuest } from "../_lib/actions";
@@ -44,7 +43,6 @@ const DEFAULT_VALUES: QuestFormValues = {
   isPublished: false,
 };
 
-
 export function QuestBuilderForm({
   questId,
   initialValues,
@@ -58,7 +56,7 @@ export function QuestBuilderForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-const form = useForm<QuestFormValues>({
+  const form = useForm<QuestFormValues>({
     resolver: zodResolver(questFormSchema) as any,
     defaultValues: initialValues ?? DEFAULT_VALUES,
     mode: "onBlur",
@@ -87,107 +85,106 @@ const form = useForm<QuestFormValues>({
 
       <CardContent>
         <FormProvider {...form}>
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-            <Tabs defaultValue="metadata">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="metadata">{t.questFieldTitle}</TabsTrigger>
-                <TabsTrigger value="content">{t.questFieldDescription}</TabsTrigger>
-                <TabsTrigger value="media">{t.questFieldMedia}</TabsTrigger>
-                <TabsTrigger value="answer">{t.questFieldAnswerType}</TabsTrigger>
-              </TabsList>
+          {/* Using divide-y to naturally separate sections without tabs */}
+          <form className="space-y-8 divide-y" onSubmit={(e) => e.preventDefault()}>
+            
+            {/* --- Metadata Section --- */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">{t.questFieldTitle} & Metadata</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="title">{t.questFieldTitle}</Label>
+                <Input id="title" {...form.register("title")} />
+                {form.formState.errors.title && (
+                  <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+                )}
+              </div>
 
-              {/* --- Metadata --- */}
-              <TabsContent value="metadata" className="space-y-4 pt-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">{t.questFieldTitle}</Label>
-                  <Input id="title" {...form.register("title")} />
-                  {form.formState.errors.title && (
-                    <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>{t.questFieldDifficulty}</Label>
-                    <Select
-                      value={form.watch("difficulty")}
-                      onValueChange={(v) => form.setValue("difficulty", v as (typeof DIFFICULTIES)[number])}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {DIFFICULTIES.map((d) => (
-                          <SelectItem key={d} value={d}>
-                            {d}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>{t.questFieldCategory}</Label>
-                    <Select
-                      value={form.watch("category")}
-                      onValueChange={(v) => form.setValue("category", v as (typeof CATEGORIES)[number])}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Label>{t.questFieldDifficulty}</Label>
+                  <Select
+                    value={form.watch("difficulty")}
+                    onValueChange={(v) => form.setValue("difficulty", v as (typeof DIFFICULTIES)[number])}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DIFFICULTIES.map((d) => (
+                        <SelectItem key={d} value={d}>
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="points">{t.questFieldPoints}</Label>
-                  <Input
-                    id="points"
-                    type="number"
-                    min={1}
-                    {...form.register("points", { valueAsNumber: true })}
-                  />
+                  <Label>{t.questFieldCategory}</Label>
+                  <Select
+                    value={form.watch("category")}
+                    onValueChange={(v) => form.setValue("category", v as (typeof CATEGORIES)[number])}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </TabsContent>
+              </div>
 
-              {/* --- Content --- */}
-              <TabsContent value="content" className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="description">{t.questFieldDescription}</Label>
-                  {/* TODO: swap for a rich text editor (Tiptap/Lexical) — kept
-                      as a plain textarea placeholder per the brief. */}
-                  <Textarea id="description" rows={5} {...form.register("description")} />
-                  {form.formState.errors.description && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.description.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="instructions">{t.questFieldInstructions}</Label>
-                  <Textarea id="instructions" rows={5} {...form.register("instructions")} />
-                </div>
-              </TabsContent>
+              <div className="space-y-2">
+                <Label htmlFor="points">{t.questFieldPoints}</Label>
+                <Input
+                  id="points"
+                  type="number"
+                  min={1}
+                  {...form.register("points", { valueAsNumber: true })}
+                />
+              </div>
+            </div>
 
-              {/* --- Media --- */}
-              <TabsContent value="media" className="pt-4">
-                <MediaUploadField lang={lang} />
-              </TabsContent>
+            {/* --- Content Section --- */}
+            <div className="space-y-4 pt-8">
+              <h3 className="text-lg font-medium">{t.questFieldDescription} & Content</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">{t.questFieldDescription}</Label>
+                <Textarea id="description" rows={5} {...form.register("description")} />
+                {form.formState.errors.description && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.description.message}
+                  </p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="instructions">{t.questFieldInstructions}</Label>
+                <Textarea id="instructions" rows={5} {...form.register("instructions")} />
+              </div>
+            </div>
 
-              {/* --- Answer configuration --- */}
-              <TabsContent value="answer" className="pt-4">
-                <AnswerConfigFields lang={lang} />
-              </TabsContent>
-            </Tabs>
+            {/* --- Media Section --- */}
+            <div className="space-y-4 pt-8">
+              <h3 className="text-lg font-medium">{t.questFieldMedia}</h3>
+              <MediaUploadField lang={lang} />
+            </div>
 
-            <div className="flex items-center justify-between border-t pt-4">
+            {/* --- Answer Configuration Section --- */}
+            <div className="space-y-4 pt-8">
+              <h3 className="text-lg font-medium">{t.questFieldAnswerType}</h3>
+              <AnswerConfigFields lang={lang} />
+            </div>
+
+            {/* --- Submit Actions --- */}
+            <div className="flex items-center justify-between pt-8">
               <div className="flex items-center gap-2">
                 <Switch
                   id="publish-toggle"
@@ -220,7 +217,11 @@ const form = useForm<QuestFormValues>({
               </div>
             </div>
 
-            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            {formError && (
+              <div className="pt-4">
+                <p className="text-sm text-destructive">{formError}</p>
+              </div>
+            )}
           </form>
         </FormProvider>
       </CardContent>
