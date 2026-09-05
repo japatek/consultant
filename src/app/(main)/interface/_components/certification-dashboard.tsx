@@ -9,22 +9,31 @@ import {
   PenTool, 
   Hexagon, 
   Code2, 
-  Hand 
+  Hand,
+  Star
 } from "lucide-react";
-import { type CertificationCardData } from "./certificate-card"; // Sesuai dengan import Anda
+import { type CertificationCardData } from "./certificate-card";
+
+// 1. Tambahkan tipe data Quest agar TypeScript tidak error
+export type QuestData = {
+  id: string;
+  title: string;
+  difficulty: string;
+  category: string;
+  points: number;
+};
 
 export type DashboardData = {
   totalPoints: number;
   questsCompleted: number;
   currentStreakDays: number;
   certifications: CertificationCardData[];
+  quests: QuestData[]; // <-- Tambahkan ini
 };
 
 export function CertificationDashboard({ data }: { data: DashboardData }) {
   const { t } = useLanguage();
 
-  // Warna ikon diubah menggunakan warna bawaan Tailwind (blue-500, emerald-500, dll)
-  // agar terlihat bagus baik di layar terang (Light Mode) maupun gelap (Dark Mode).
   const visualPresets = [
     { icon: Network, color: "text-blue-500" },
     { icon: Database, color: "text-emerald-500" },
@@ -55,50 +64,60 @@ export function CertificationDashboard({ data }: { data: DashboardData }) {
           </p>
         </div>
 
-        {/* CARDS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.certifications.length === 0 ? (
-            <div className="col-span-full text-center text-muted-foreground py-10 border border-dashed rounded-2xl">
-              {t.dashNoCertifications || "Belum ada quest yang tersedia."}
-            </div>
-          ) : (
-            data.certifications.map((cert, index) => {
-              const visual = visualPresets[index % visualPresets.length];
-              const IconComponent = visual.icon;
+        {/* QUESTS GRID (Menampilkan quest dari database) */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Available Quests</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {data.quests.length === 0 ? (
+              <div className="col-span-full text-center text-muted-foreground py-10 border border-dashed rounded-2xl">
+                Belum ada quest yang dipublikasikan.
+              </div>
+            ) : (
+              // 2. Lakukan looping pada data.quests
+              data.quests.map((quest, index) => {
+                const visual = visualPresets[index % visualPresets.length];
+                const IconComponent = visual.icon;
 
-              return (
-                <div 
-                  key={cert.id}
-                  className="group relative flex items-center justify-between p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200"
-                >
-                  {/* Bagian Kiri (Teks & Tombol) */}
-                  <div className="space-y-5">
-                    <div>
-                      <h3 className="font-semibold text-[17px] text-foreground line-clamp-1">
-                        {cert.title}
-                      </h3>
-                      <p className="text-muted-foreground text-sm mt-1">
-                        {cert.requiredCount || 0} Levels
-                      </p>
+                return (
+                  <div 
+                    key={quest.id}
+                    className="group relative flex items-center justify-between p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200"
+                  >
+                    {/* Bagian Kiri (Teks & Tombol) */}
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold text-[17px] text-foreground line-clamp-1">
+                          {quest.title}
+                        </h3>
+                        {/* Menampilkan Difficulty & Category */}
+                        <p className="text-muted-foreground text-sm mt-1">
+                          {quest.difficulty} • {quest.category}
+                        </p>
+                        {/* Menampilkan Points */}
+                        <div className="flex items-center text-amber-500 text-xs font-medium mt-2">
+                          <Star className="w-3.5 h-3.5 mr-1 fill-amber-500" />
+                          {quest.points} Points
+                        </div>
+                      </div>
+                      
+                      <Link href={`/quests/${quest.id}`} className="inline-block">
+                        <button className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors text-amber-600 dark:text-amber-500 text-sm font-medium mt-2">
+                          <Hand className="w-4 h-4" />
+                          Start Quest
+                        </button>
+                      </Link>
                     </div>
-                    
-                    <Link href={`/quests/${cert.slug || cert.id}`} className="inline-block">
-                      {/* Tombol Start menggunakan bg-secondary (abu-abu terang di light, abu gelap di dark) */}
-                      <button className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors text-amber-600 dark:text-amber-500 text-sm font-medium">
-                        <Hand className="w-4 h-4" />
-                        Start
-                      </button>
-                    </Link>
-                  </div>
 
-                  {/* Bagian Kanan (Ikon Besar) */}
-                  <div className="pr-2 opacity-90 transition-transform duration-300 group-hover:scale-110 group-hover:opacity-100">
-                    <IconComponent className={cn("w-[72px] h-[72px]", visual.color)} strokeWidth={1.5} />
+                    {/* Bagian Kanan (Ikon Besar) */}
+                    <div className="pr-2 opacity-90 transition-transform duration-300 group-hover:scale-110 group-hover:opacity-100">
+                      <IconComponent className={cn("w-[72px] h-[72px]", visual.color)} strokeWidth={1.5} />
+                    </div>
                   </div>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
 
       </div>

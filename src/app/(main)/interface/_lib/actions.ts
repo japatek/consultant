@@ -103,3 +103,17 @@ export async function unlockEligibleCertifications(userId: string) {
 
   return newlyEligibleCertificationIds;
 }
+
+export async function getPublishedQuests() {
+  // Pastikan import prisma sudah ada di file ini
+  // import { prisma } from "@/lib/database/prisma";
+  
+  return await prisma.quest.findMany({
+    where: { 
+      isPublished: true // Hanya ambil quest yang sudah dipublish oleh Admin
+    },
+    orderBy: { 
+      createdAt: "desc" // Urutkan dari yang terbaru
+    },
+  });
+}
