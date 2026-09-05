@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth-admin";
 import { prisma } from "@/lib/database/prisma";
-import { asStringArray } from "./json";
+import { asStringArray } from "../../../../../lib/json";
 import { 
   pricingPlanFormSchema, 
   discountFormSchema, 

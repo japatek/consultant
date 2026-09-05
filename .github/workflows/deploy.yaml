@@ -53,6 +53,7 @@ jobs:
           --build-arg CAP_BACKEND_URL="http://cap-service:8080" \
           --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY="${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}" \
           --build-arg NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
+          --build-arg NEXT_PUBLIC_IPAYMU_LINK="${{ secrets.NEXT_PUBLIC_IPAYMU_LINK }}" \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
           
