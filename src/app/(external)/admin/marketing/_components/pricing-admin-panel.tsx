@@ -38,8 +38,8 @@ import {
   setDiscountActive,
 } from "../_lib/actions";
 import {
-  pricingPlanFormSchema, // <-- Ditambahkan
-  discountFormSchema,    // <-- Ditambahkan
+  pricingPlanFormSchema,
+  discountFormSchema,
   type PricingPlanFormValues,
   type DiscountFormValues,
   type AdminPlanRow,
@@ -60,7 +60,8 @@ export function PricingAdminPanel({
   const [discounts, setDiscounts] = useState(initialDiscounts);
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10">
+    // Menambahkan padding yang responsif (p-4 untuk mobile, sm:p-6, md:p-8 untuk layar besar)
+    <div className="mx-auto w-full max-w-4xl space-y-10 p-4 sm:p-6 md:p-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{t.adminPricingTitle}</h1>
         <p className="text-muted-foreground">{t.adminPricingSubtitle}</p>
@@ -107,50 +108,54 @@ function PlansSection({
   }
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
+    <section className="space-y-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-medium">{t.pricingTitle}</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" onClick={openCreate}>
+            <Button size="sm" onClick={openCreate} className="w-full sm:w-auto">
               <Plus className="mr-1.5 h-4 w-4" />
               {t.adminAddPlan}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          {/* Membatasi tinggi dialog dan mengizinkan scroll untuk layar kecil */}
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
             <PlanForm t={t} initialValues={editing ?? undefined} onSaved={handleSaved} />
           </DialogContent>
         </Dialog>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t.questFieldTitle}</TableHead>
-            <TableHead>IDR</TableHead>
-            <TableHead>USD</TableHead>
-            <TableHead>{t.adminActive}</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {plans.map((plan) => (
-            <TableRow key={plan.id}>
-              <TableCell className="font-medium">{plan.name}</TableCell>
-              <TableCell>{IDR.format(plan.priceIDR)}</TableCell>
-              <TableCell>${plan.priceUSD}</TableCell>
-              <TableCell>
-                <Switch checked={plan.isActive} onCheckedChange={() => toggleActive(plan)} />
-              </TableCell>
-              <TableCell>
-                <Button variant="ghost" size="icon" onClick={() => openEdit(plan)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </TableCell>
+      {/* Wrapper overflow-x-auto agar tabel bisa di-scroll ke samping di HP */}
+      <div className="overflow-x-auto rounded-md border">
+        <Table className="min-w-[600px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t.questFieldTitle}</TableHead>
+              <TableHead>IDR</TableHead>
+              <TableHead>USD</TableHead>
+              <TableHead>{t.adminActive}</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {plans.map((plan) => (
+              <TableRow key={plan.id}>
+                <TableCell className="font-medium">{plan.name}</TableCell>
+                <TableCell>{IDR.format(plan.priceIDR)}</TableCell>
+                <TableCell>${plan.priceUSD}</TableCell>
+                <TableCell>
+                  <Switch checked={plan.isActive} onCheckedChange={() => toggleActive(plan)} />
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(plan)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </section>
   );
 }
@@ -190,10 +195,8 @@ function PlanForm({
       features: featuresText.split("\n").map((f) => f.trim()).filter(Boolean),
     };
 
-    // +++ Client-side validation +++
     const parsed = pricingPlanFormSchema.safeParse(payload);
     if (!parsed.success) {
-      // Tampilkan error pertama dari Zod langsung ke UI
       const firstError = parsed.error.issues[0];
       setError(`Error di kolom ${firstError.path.join(".")}: ${firstError.message}`);
       return;
@@ -205,7 +208,6 @@ function PlanForm({
           const saved = await upsertPricingPlan(payload);
           onSaved({ ...saved, _count: initialValues?._count ?? { subscriptions: 0 } });
         } catch (err) {
-          // Jika masih masuk sini, kemungkinan besar masalah Duplicate Slug di database
           setError("Gagal menyimpan. Pastikan Slug belum digunakan oleh paket lain.");
         }
       })();
@@ -219,7 +221,8 @@ function PlanForm({
       </DialogHeader>
 
       <div className="space-y-4 py-2">
-        <div className="grid grid-cols-2 gap-4">
+        {/* Mengubah grid agar 1 kolom di HP, 2 kolom di tablet/desktop */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>{t.questFieldTitle}</Label>
             <Input value={values.name} onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))} />
@@ -230,7 +233,8 @@ function PlanForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Mengubah grid agar 1 kolom di HP, 3 kolom di tablet/desktop */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <Label>Interval</Label>
             <Select
@@ -267,7 +271,7 @@ function PlanForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Price (IDR)</Label>
             <Input
@@ -289,7 +293,7 @@ function PlanForm({
         <div className="space-y-2">
           <Label>Features (one per line)</Label>
           <textarea
-            className="min-h-24 w-full rounded-md border bg-transparent p-2 text-sm"
+            className="min-h-24 w-full rounded-md border bg-transparent p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             value={featuresText}
             onChange={(e) => setFeaturesText(e.target.value)}
           />
@@ -298,8 +302,8 @@ function PlanForm({
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
       </div>
 
-      <DialogFooter>
-        <Button onClick={save} disabled={isPending}>
+      <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
+        <Button onClick={save} disabled={isPending} className="w-full sm:w-auto">
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {t.adminSave}
         </Button>
@@ -339,13 +343,14 @@ function DiscountsSection({
   }
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
+    <section className="space-y-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-medium">{t.pricingHaveCode}</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button
               size="sm"
+              className="w-full sm:w-auto"
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
@@ -355,54 +360,56 @@ function DiscountsSection({
               {t.adminAddDiscount}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DiscountForm t={t} plans={plans} initialValues={editing ?? undefined} onSaved={handleSaved} />
           </DialogContent>
         </Dialog>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Off</TableHead>
-            <TableHead>Plan</TableHead>
-            <TableHead>{t.adminRedemptions}</TableHead>
-            <TableHead>{t.adminActive}</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {discounts.map((discount) => (
-            <TableRow key={discount.id}>
-              <TableCell className="font-mono font-medium">{discount.code}</TableCell>
-              <TableCell>
-                {discount.percentOff ? `${discount.percentOff}%` : IDR.format(discount.amountOffIDR ?? 0)}
-              </TableCell>
-              <TableCell>{discount.plan?.name ?? <Badge variant="secondary">All plans</Badge>}</TableCell>
-              <TableCell>
-                {discount.timesRedeemed}
-                {discount.maxRedemptions ? ` / ${discount.maxRedemptions}` : ""}
-              </TableCell>
-              <TableCell>
-                <Switch checked={discount.isActive} onCheckedChange={() => toggleActive(discount)} />
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setEditing(discount);
-                    setDialogOpen(true);
-                  }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </TableCell>
+      <div className="overflow-x-auto rounded-md border">
+        <Table className="min-w-[600px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Code</TableHead>
+              <TableHead>Off</TableHead>
+              <TableHead>Plan</TableHead>
+              <TableHead>{t.adminRedemptions}</TableHead>
+              <TableHead>{t.adminActive}</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {discounts.map((discount) => (
+              <TableRow key={discount.id}>
+                <TableCell className="font-mono font-medium">{discount.code}</TableCell>
+                <TableCell>
+                  {discount.percentOff ? `${discount.percentOff}%` : IDR.format(discount.amountOffIDR ?? 0)}
+                </TableCell>
+                <TableCell>{discount.plan?.name ?? <Badge variant="secondary">All plans</Badge>}</TableCell>
+                <TableCell>
+                  {discount.timesRedeemed}
+                  {discount.maxRedemptions ? ` / ${discount.maxRedemptions}` : ""}
+                </TableCell>
+                <TableCell>
+                  <Switch checked={discount.isActive} onCheckedChange={() => toggleActive(discount)} />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setEditing(discount);
+                      setDialogOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </section>
   );
 }
@@ -451,7 +458,6 @@ function DiscountForm({
     
     const payload = { ...values, id: initialValues?.id };
 
-    // +++ Client-side validation +++
     const parsed = discountFormSchema.safeParse(payload);
     if (!parsed.success) {
       const firstError = parsed.error.issues[0];
@@ -487,7 +493,7 @@ function DiscountForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Percent off</Label>
             <Input
@@ -555,8 +561,8 @@ function DiscountForm({
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
       </div>
 
-      <DialogFooter>
-        <Button onClick={save} disabled={isPending}>
+      <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
+        <Button onClick={save} disabled={isPending} className="w-full sm:w-auto">
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {t.adminSave}
         </Button>

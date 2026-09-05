@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { createSubscriptionCheckout } from "../_lib/billing-actions";
+import { Label } from "@/components/ui/label";
 
 export type PricingPlanData = {
   id: string;
@@ -51,11 +52,9 @@ export function PricingPlans({
     startTransition(() => {
       void (async () => {
         try {
-          // Destructure redirectUrl directly from your iPaymu action
           const { redirectUrl } = await createSubscriptionCheckout(planId, discountCode || undefined);
           
           if (redirectUrl) {
-            // Redirect the user to the iPaymu payment gateway
             window.location.href = redirectUrl;
           } else {
             throw new Error("Missing redirect URL");
@@ -69,13 +68,20 @@ export function PricingPlans({
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">{t.pricingTitle}</h1>
-        <p className="text-muted-foreground">{t.pricingSubtitle}</p>
+    <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8">
+      
+      {/* HEADER SECTION */}
+      <div className="mx-auto max-w-3xl text-center space-y-4">
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+          {t.pricingTitle}
+        </h1>
+        <p className="text-lg text-muted-foreground leading-relaxed">
+          {t.pricingSubtitle}
+        </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
+      {/* PRICING CARDS */}
+      <div className="grid gap-8 lg:grid-cols-3 lg:gap-6 items-center">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlanId;
           const isHighlighted = plan.slug === highlightSlug;
@@ -85,47 +91,61 @@ export function PricingPlans({
             <div
               key={plan.id}
               className={cn(
-                "relative flex flex-col rounded-xl border p-6",
-                isHighlighted ? "border-primary shadow-sm" : "border-border"
+                "relative flex flex-col rounded-3xl border bg-card p-8 transition-all duration-300",
+                isHighlighted 
+                  ? "border-transparent bg-background shadow-2xl ring-2 ring-[var(--royal-blue)] lg:scale-105 z-10" 
+                  : "border-border shadow-sm hover:border-primary/30 hover:shadow-md"
               )}
             >
               {isHighlighted && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-primary border-none px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg">
                   {t.pricingMostPopular}
                 </Badge>
               )}
 
-              <h3 className="font-semibold">{plan.name}</h3>
+              <h3 className="text-xl font-bold">{plan.name}</h3>
 
-              <div className="mt-2">
+              <div className="mt-4 flex flex-col gap-1">
                 {hasDiscount && (
-                  <span className="mr-2 text-sm text-muted-foreground line-through">
+                  <span className="text-sm font-medium text-muted-foreground line-through decoration-destructive/50">
                     {IDR.format(plan.priceIDR)}
                   </span>
                 )}
-                <span className="text-2xl font-semibold tabular-nums">
+                <div className="flex items-baseline text-4xl font-extrabold tracking-tight text-foreground">
                   {IDR.format(plan.finalPriceIDR)}
-                </span>
-                <span className="text-sm text-muted-foreground"> {intervalLabel[plan.interval]}</span>
+                  <span className="ml-1.5 text-base font-medium text-muted-foreground">
+                    / {intervalLabel[plan.interval]}
+                  </span>
+                </div>
               </div>
 
-              <ul className="mt-4 flex-1 space-y-2">
+              {/* DIVIDER */}
+              <div className="my-6 h-px w-full bg-border" />
+
+              <ul className="flex-1 space-y-4">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{feature}</span>
+                  <li key={feature} className="flex items-start gap-3">
+                    <div className="mt-1 rounded-full bg-[var(--teal)]/10 p-1">
+                      <Check className="h-4 w-4 shrink-0 text-[var(--teal)]" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm text-muted-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <Button
-                className="mt-6"
+                className={cn(
+                  "mt-8 w-full rounded-xl py-6 font-bold transition-all",
+                  isHighlighted 
+                    ? "bg-gradient-primary text-white border-0 hover:opacity-90 shadow-md hover:shadow-lg" 
+                    : "variant-outline"
+                )}
                 variant={isHighlighted ? "default" : "outline"}
                 disabled={isCurrent || (isPending && checkingOutPlanId === plan.id)}
                 onClick={() => handleSubscribe(plan.id)}
               >
                 {isPending && checkingOutPlanId === plan.id && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 )}
                 {isCurrent
                   ? t.pricingCurrentPlan
@@ -138,16 +158,20 @@ export function PricingPlans({
         })}
       </div>
 
-      <div className="mx-auto flex max-w-sm items-center gap-2">
-        <Tag className="h-4 w-4 shrink-0 text-muted-foreground" />
+      {/* DISCOUNT CODE SECTION */}
+      <div className="mx-auto mt-12 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-muted/30 p-6">
+        <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <Tag className="h-4 w-4" />
+          {t.pricingHaveCode}
+        </Label>
         <Input
-          placeholder={t.pricingHaveCode}
+          className="rounded-xl text-center font-mono text-lg uppercase tracking-wider"
+          placeholder="ENTER CODE"
           value={discountCode}
           onChange={(e) => setDiscountCode(e.target.value)}
         />
+        {error && <p className="text-center text-sm font-medium text-destructive">{error}</p>}
       </div>
-
-      {error && <p className="text-center text-sm text-destructive">{error}</p>}
     </div>
   );
 }
