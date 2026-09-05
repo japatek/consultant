@@ -1,7 +1,7 @@
 import { Award, Lock, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { translations } from "@/translate/language-data";
+import { Button } from "../../../../components/ui/button";
+import { cn } from "../../../../lib/utils";
+import { translations } from "../../../../translate/language-data";
 
 type T = (typeof translations)["en"];
 
