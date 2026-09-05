@@ -11,34 +11,35 @@ import {
   Code2, 
   Hand 
 } from "lucide-react";
+import { type CertificationCardData } from "./certificate-card"; // Sesuai dengan import Anda
 
 export type DashboardData = {
   totalPoints: number;
   questsCompleted: number;
   currentStreakDays: number;
-  certifications: any[]; // Sesuaikan dengan tipe data riil Anda
+  certifications: CertificationCardData[];
 };
 
 export function CertificationDashboard({ data }: { data: DashboardData }) {
   const { t } = useLanguage();
 
-  // Opsi warna dan ikon untuk memberi variasi pada setiap kartu
+  // Warna ikon diubah menggunakan warna bawaan Tailwind (blue-500, emerald-500, dll)
+  // agar terlihat bagus baik di layar terang (Light Mode) maupun gelap (Dark Mode).
   const visualPresets = [
-    { icon: Network, color: "text-[#3b82f6]" },   // Biru
-    { icon: Database, color: "text-[#10b981]" },  // Hijau
-    { icon: PenTool, color: "text-[#f472b6]" },   // Pink
-    { icon: Hexagon, color: "text-[#a855f7]" },   // Ungu
-    { icon: Code2, color: "text-[#f59e0b]" },     // Kuning
+    { icon: Network, color: "text-blue-500" },
+    { icon: Database, color: "text-emerald-500" },
+    { icon: PenTool, color: "text-pink-500" },
+    { icon: Hexagon, color: "text-purple-500" },
+    { icon: Code2, color: "text-amber-500" },
   ];
 
   return (
-    <div className="w-full bg-[#111111] text-gray-100 p-6 md:p-12 font-sans">
+    <div className="w-full py-8 sm:py-12 px-4 md:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-12">
         
         {/* HERO SECTION */}
-        <div className="flex flex-col items-center justify-center text-center space-y-3 mt-8">
+        <div className="flex flex-col items-center justify-center text-center space-y-3 mt-4">
           <div className="relative mb-4">
-            {/* Ilustrasi Gunung/Bendera sederhana menggunakan Emoji (Bisa diganti image SVG nanti) */}
             <div className="w-32 h-32 flex items-center justify-center select-none">
               <div className="relative text-7xl">
                 ⛰️
@@ -46,41 +47,44 @@ export function CertificationDashboard({ data }: { data: DashboardData }) {
               </div>
             </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">Japatek Quest</h1>
-          <p className="text-gray-400 text-sm">Turn practice into progress</p>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            {t.dashTitle || "Japatek Quest"}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {t.dashSubtitle || "Turn practice into progress"}
+          </p>
         </div>
 
         {/* CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.certifications.length === 0 ? (
-            <div className="col-span-full text-center text-gray-500 py-10">
-              Belum ada quest yang tersedia.
+            <div className="col-span-full text-center text-muted-foreground py-10 border border-dashed rounded-2xl">
+              {t.dashNoCertifications || "Belum ada quest yang tersedia."}
             </div>
           ) : (
             data.certifications.map((cert, index) => {
-              // Ambil ikon secara bergantian berdasarkan index
               const visual = visualPresets[index % visualPresets.length];
               const IconComponent = visual.icon;
 
               return (
                 <div 
                   key={cert.id}
-                  className="group relative flex items-center justify-between p-6 rounded-2xl bg-[#262626] hover:bg-[#2f2f2f] transition-all duration-200 border border-transparent hover:border-gray-700"
+                  className="group relative flex items-center justify-between p-6 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200"
                 >
                   {/* Bagian Kiri (Teks & Tombol) */}
                   <div className="space-y-5">
                     <div>
-                      <h3 className="font-semibold text-[17px] text-white line-clamp-1">
+                      <h3 className="font-semibold text-[17px] text-foreground line-clamp-1">
                         {cert.title}
                       </h3>
-                      {/* Menggunakan requiredCount sebagai 'Levels' */}
-                      <p className="text-gray-400 text-sm mt-1">
+                      <p className="text-muted-foreground text-sm mt-1">
                         {cert.requiredCount || 0} Levels
                       </p>
                     </div>
                     
-                    <Link href={`/quests/${cert.slug || cert.id}`} className="inline-block">
-                      <button className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#363636] hover:bg-[#454545] transition-colors text-[#f59e0b] text-sm font-medium">
+                    <Link href={`/quests/${cert.id}`} className="inline-block">
+                      {/* Tombol Start menggunakan bg-secondary (abu-abu terang di light, abu gelap di dark) */}
+                      <button className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors text-amber-600 dark:text-amber-500 text-sm font-medium">
                         <Hand className="w-4 h-4" />
                         Start
                       </button>
