@@ -13,15 +13,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "../../../../components/ui/sidebar";
-import { APP_CONFIG } from "../../../../config/app-config";
-import { sidebarItems } from "../../../../navigation/sidebar/sidebar-items";
-import { usePreferencesStore } from "../../../../stores/preferences/preferences-provider";
+} from "@/components/ui/sidebar";
+import { APP_CONFIG } from "@/config/app-config";
+import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
 import { useSession } from "next-auth/react";
-import { useLanguage } from "../../../../hooks/use-language"; 
+import { useLanguage } from "@/hooks/use-language"; 
 
 const _data = {
   navSecondary: [
