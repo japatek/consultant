@@ -4,8 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { Badge } from "../../../../../components/ui/badge";
-import { Button } from "../../../../../components/ui/button";
+import { Badge } from "../../../../src/components/ui/badge";
+import { Button } from "../../../../src/components/ui/button";
 import {
   Command,
   CommandDialog,
@@ -15,12 +15,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "../../../../../components/ui/command";
-import type { NavMainItem } from "../../../../../navigation/sidebar/sidebar-items";
-import { sidebarItems } from "../../../../navigation/sidebar/sidebar-items";
+} from "../../../../src/components/ui/command";
+import type { NavMainItem } from "../../../../src/navigation/sidebar/sidebar-items";
+import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 
 // 1. Import the useLanguage hook
-import { useLanguage } from "../../../../hooks/use-language";
+import { useLanguage } from "@/hooks/use-language";
 
 type SearchItem = {
   group: string;
