@@ -4,8 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "../../../../components/ui/badge";
+import { Button } from "../../../../components/ui/button";
 import {
   Command,
   CommandDialog,
@@ -15,9 +15,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
-import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
-import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+} from "../../../../components/ui/command";
+import type { NavMainItem } from "../../../../navigation/sidebar/sidebar-items";
+import { sidebarItems } from "../../../../navigation/sidebar/sidebar-items";
+
+// 1. Import the useLanguage hook
+import { useLanguage } from "../../../../hooks/use-language";
 
 type SearchItem = {
   group: string;
@@ -43,18 +46,20 @@ function groupBy(items: SearchItem[]) {
 export function SearchDialog() {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
-  // const [id, setId] = React.useState<string | null>(null); // State untuk menyimpan ID
   
   const router = useRouter();
 
-  const { data:session } = useSession();
-  const id = session?.user.id; // Ambil ID langsung dari state auth
+  const { data: session } = useSession();
+  const id = session?.user?.id; 
 
-  // 3. Eksekusi fungsi sidebar hanya jika ID tersedia
+  // 2. Extract 't' from useLanguage
+  const { t } = useLanguage();
+
+  // 3. Pass 't' to sidebarItems and add it to the dependency array
   const sidebarData = React.useMemo(() => {
     if (!id) return []; 
-    return sidebarItems(id);
-  }, [id]);
+    return sidebarItems(id, t);
+  }, [id, t]);
 
   // 4. Proses data jika sidebarData terisi
   const { searchItems, recommendations } = React.useMemo(() => {
