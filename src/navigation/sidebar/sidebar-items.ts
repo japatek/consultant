@@ -33,8 +33,11 @@ import {
   Users,
   Wrench,
   Zap,
+  Pencil,
+  Trophy,
   Book,
 } from "lucide-react";
+import type { TranslationType } from "@/translate/language-data"; // Import the type
 
 export interface NavSubItem {
   title: string;
@@ -62,28 +65,27 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
-// Ubah menjadi fungsi yang menerima parameter 'id'
-export const sidebarItems = (id: string): NavGroup[] => [
+// Ubah menjadi fungsi yang menerima parameter 'id' dan 't' (objek terjemahan)
+export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
   {
     id: 1,
-    label: "Platform",
+    label: t.navPlatform,
     items: [
-              {
-        title: "Learning",
-        url: "/dashboard/platlearn",
+      {
+        title: t.navArticle,
+        url: `/landing/article`,
         icon: Book,
       },
       {
-        title: "Chat",
-        url: `/dashboard/platchat/${id}`, 
-        icon: MessageSquare,
+        title: t.navCertificate,
+        url: `/interface`, 
+        icon: Trophy,
       },
       {
-        title: "Overview",
+        title: t.navTraining,
         url: "/dashboard/platoverview",
-        icon: LayoutDashboard,
+        icon: Pencil,
       },
-
       // {
       //   title: "Research",
       //   url: "/dashboard/platresearch",
@@ -91,6 +93,7 @@ export const sidebarItems = (id: string): NavGroup[] => [
       // },
     ],
   },
+
   // {
   //   id: 2,
   //   label: "Consumption",
@@ -115,37 +118,37 @@ export const sidebarItems = (id: string): NavGroup[] => [
   //     },
   //   ],
   // },
-  {
-    id: 2,
-    label: "Crafting",
-    items: [
-      {
-        title: "Build",
-        url: "/dashboard/build",
-        icon: Wrench,
-        isActive: true,
-        subItems: [
-          { title: "Skills",    url: "/dashboard/build/skills",    newTab: false },
-          { title: "Files",     url: "/dashboard/build/files",     newTab: false },
-          { title: "Batches",   url: "/dashboard/build/batches",   newTab: false },
-          { title: "Tools",     url: "/dashboard/build/tools",     newTab: false }
-        ],
-      },
-      {
-        title: "Manage Agent",
-        url: "/dashboard/agents",
-        icon: BotIcon,
-        isActive: true,
-        subItems: [
-          { title: "Quickstart",        url: "/dashboard/agents/quickstart",   newTab: false },
-          { title: "Agents",            url: "/dashboard/agents/agent",        newTab: false },
-          { title: "Sessions",          url: "/dashboard/agents/sessions",     newTab: false },
-          { title: "Environment",       url: "/dashboard/agents/environment",  newTab: false },
-          { title: "Credential Vaults", url: "/dashboard/agents/vaults",       newTab: false },
-          { title: "Memory Stores",     url: "/dashboard/agents/memory",       newTab: false },
-          { title: "Deployment",        url: "/dashboard/agents/deploy",       newTab: false },
-        ],
-      },
+  // {
+  //   id: 2,
+  //   label: "Crafting",
+  //   items: [
+  //     {
+  //       title: "Build",
+  //       url: "/dashboard/build",
+  //       icon: Wrench,
+  //       isActive: true,
+  //       subItems: [
+  //         { title: "Skills",    url: "/dashboard/build/skills",    newTab: false },
+  //         { title: "Files",     url: "/dashboard/build/files",     newTab: false },
+  //         { title: "Batches",   url: "/dashboard/build/batches",   newTab: false },
+  //         { title: "Tools",     url: "/dashboard/build/tools",     newTab: false }
+  //       ],
+  //     },
+      // {
+      //   title: "Manage Agent",
+      //   url: "/dashboard/agents",
+      //   icon: BotIcon,
+      //   isActive: true,
+      //   subItems: [
+      //     { title: "Quickstart",        url: "/dashboard/agents/quickstart",   newTab: false },
+      //     { title: "Agents",            url: "/dashboard/agents/agent",        newTab: false },
+      //     { title: "Sessions",          url: "/dashboard/agents/sessions",     newTab: false },
+      //     { title: "Environment",       url: "/dashboard/agents/environment",  newTab: false },
+      //     { title: "Credential Vaults", url: "/dashboard/agents/vaults",       newTab: false },
+      //     { title: "Memory Stores",     url: "/dashboard/agents/memory",       newTab: false },
+      //     { title: "Deployment",        url: "/dashboard/agents/deploy",       newTab: false },
+      //   ],
+      // },
       // {
       //   title: "Control",
       //   url: "/dashboard/control",
@@ -160,8 +163,8 @@ export const sidebarItems = (id: string): NavGroup[] => [
       //     { title: "Logs",     url: "/dashboard/control/logs",     newTab: false },
       //   ],
       // },
-    ],
-  },
+  //   ],
+  // },
   // {
   //   id: 4,
   //   label: "Research",
@@ -188,23 +191,23 @@ export const sidebarItems = (id: string): NavGroup[] => [
   //     },
   //   ],
   // },
-  {
-    id: 3,
-    label: "Viewport",
-    items: [
+  // {
+  //   id: 3,
+  //   label: "Viewport",
+  //   items: [
 
-      {
-        title: "Viewport",
-        url: "/dashboard/viewports",
-        icon: Radio,
-      },
-      {
-        title: "Account",
-        url: "/dashboard/accounts",
-        icon: Users,
-      },
-    ],
-  },
+  //     {
+  //       title: "Viewport",
+  //       url: "/dashboard/viewports",
+  //       icon: Radio,
+  //     },
+  //     {
+  //       title: "Account",
+  //       url: "/dashboard/accounts",
+  //       icon: Users,
+  //     },
+  //   ],
+  // },
   // --- NEW SECTIONS FROM THE IMAGE ---
   // {
   //   id: 6,

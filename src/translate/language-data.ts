@@ -67,6 +67,12 @@ export const translations = {
         yes: 'Confirm',
         bck: 'Back',
 
+        // --- Navigation Menu ---
+        navPlatform: 'Platform',
+        navArticle: 'Article',
+        navCertificate: 'Certification',
+        navTraining: 'Task',
+
 
         // ------------------------------------------------------------------
         // Quest Builder (admin) — Engineering Drawing quests & certification
@@ -215,6 +221,12 @@ export const translations = {
         notReadyDesc: 'Saat Ini Kami Sedang Berusaha Untuk Mengembangkan Fitur ini.',
         yes: 'Mengerti',
         bck: 'Kembali',
+
+        navPlatform: 'Platform',
+        navArticle: 'Artikel',
+        navCertificate: 'Sertifikat',
+        navTraining: 'Latihan',
+
          // ------------------------------------------------------------------
         // Quest Builder (admin) — Kuis/Sertifikasi Gambar Teknik
         // ------------------------------------------------------------------
@@ -295,3 +307,5 @@ export const translations = {
 };
 
 export type Language = keyof typeof translations;
+// Extract the type of the translation object for type safety
+export type TranslationType = typeof translations['en'];
