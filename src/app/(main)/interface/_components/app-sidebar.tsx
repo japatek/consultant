@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-
 import { CircleHelp, ClipboardList, Database, File, Search, Settings } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-import Cookies from "js-cookie";
 import React from "react";
 import {
   Sidebar,
@@ -17,14 +15,15 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
-import { rootUser } from "@/data/users";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
-
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
 import { useSession } from "next-auth/react";
+
+// 1. Import useLanguage hook
+import { useLanguage } from "@/hooks/use-language"; 
 
 const _data = {
   navSecondary: [
@@ -64,12 +63,12 @@ const _data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
- 
   const { data: session } = useSession();
-  
   const id = session?.user?.id;
   
- 
+  // 2. Initialize the translation object
+  const { t } = useLanguage();
+  
   const currentUser = React.useMemo(() => {
     return {
       name: session?.user?.name || "User",
@@ -80,8 +79,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const sidebarData = React.useMemo(() => {
     if (!id) return [];
-    return sidebarItems(id);
-  }, [id]);
+    
+    // 3. Pass 't' as the second argument
+    return sidebarItems(id, t); 
+    
+    // 4. Add 't' to the dependency array
+  }, [id, t]);
 
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
