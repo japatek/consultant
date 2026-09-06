@@ -21,8 +21,6 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
 import { useSession } from "next-auth/react";
-
-// 1. Import useLanguage hook
 import { useLanguage } from "../../../../hooks/use-language"; 
 
 const _data = {
@@ -82,8 +80,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     
     // 3. Pass 't' as the second argument
     return sidebarItems(id, t); 
-    
-    // 4. Add 't' to the dependency array
   }, [id, t]);
 
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
