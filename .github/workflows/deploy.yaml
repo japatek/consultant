@@ -12,7 +12,6 @@ on:
       - 'src/app/(main)/_dashboard'
       - 'src/app/(main)/_mail'
       - 'src/app/(main)/_unauthorized'
-      - 'src/app/(external)/_auth'
       - 'src/test/**'
       - 'src/app/(external)/(admin)/**'
   workflow_dispatch:
