@@ -73,6 +73,11 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
     label: t.navPlatform,
     items: [
       {
+        title: t.navHome,
+        url: `/`,
+        icon: House,
+      },
+      {
         title: t.navArticle,
         url: `/landing/article`,
         icon: Book,
@@ -87,11 +92,6 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
         url: "/training",
         icon: Pencil,
       },
-      {
-        title: t.navHome,
-        url: `/`,
-        icon: House,
-      }
       // {
       //   title: "Research",
       //   url: "/dashboard/platresearch",
