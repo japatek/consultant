@@ -83,7 +83,7 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
       },
       {
         title: t.navTraining,
-        url: "/dashboard/platoverview",
+        url: "/training",
         icon: Pencil,
       },
       // {
