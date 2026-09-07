@@ -36,6 +36,7 @@ import {
   Pencil,
   Trophy,
   Book,
+  House,
 } from "lucide-react";
 import type { TranslationType } from "@/translate/language-data"; // Import the type
 
@@ -86,6 +87,11 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
         url: "/training",
         icon: Pencil,
       },
+      {
+        title: t.navHome,
+        url: `/`,
+        icon: House,
+      }
       // {
       //   title: "Research",
       //   url: "/dashboard/platresearch",

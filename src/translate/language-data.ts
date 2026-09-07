@@ -72,6 +72,7 @@ export const translations = {
         navArticle: 'Article',
         navCertificate: 'Certification',
         navTraining: 'Task',
+        navHome: 'Home',
 
 
         // ------------------------------------------------------------------
@@ -226,6 +227,7 @@ export const translations = {
         navArticle: 'Artikel',
         navCertificate: 'Sertifikat',
         navTraining: 'Latihan',
+        navHome: 'Beranda',
 
          // ------------------------------------------------------------------
         // Quest Builder (admin) — Kuis/Sertifikasi Gambar Teknik
