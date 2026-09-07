@@ -1,28 +1,53 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 
-// Komponen Sidebar & Layout UI
+// Autentikasi
+import { auth } from "@/lib/auth/auth"; 
+
+// --- Komponen untuk User yang BELUM Login ---
+import { Navbar } from "./_components/nav-bar";
+
+// --- Komponen untuk User yang SUDAH Login ---
 import { AppSidebar } from "./_components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/preferences/layout";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
-// Komponen Header
 import { UserMenu } from "./_components/user-menu";
 import { LayoutControls } from "./_components/layout-controls";
 import { SearchDialog } from "./_components/search-dialog";
 import { ThemeSwitcher } from "./_components/theme-switcher";
-
-// Autentikasi (Menggunakan session asli Next-Auth, bukan data dummy)
-import { auth } from "@/lib/auth/auth"; 
 
 export default async function DocsLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
-  // 1. Ambil preferensi layout dari Cookies
+  // 1. Cek status login user
+  const session = await auth();
+
+  // =========================================================================
+  // KONDISI 1: JIKA USER BELUM LOGIN (Gunakan Layout Navbar Lama)
+  // =========================================================================
+  if (!session?.user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Navbar />
+        <main className="flex flex-1 items-start pt-20 md:pt-24">
+          <div className="mx-auto w-full min-w-0 px-6 py-8 md:px-8">
+            {children}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // KONDISI 2: JIKA USER SUDAH LOGIN (Gunakan Layout Sidebar Dashboard)
+  // =========================================================================
+  
+  // Ambil preferensi layout dari Cookies HANYA jika user sudah login
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible] = await Promise.all([
@@ -30,14 +55,11 @@ export default async function DocsLayout({
     getPreference("sidebar_collapsible", SIDEBAR_COLLAPSIBLE_VALUES, "icon"),
   ]);
 
-// 2. Ambil data user yang sedang login menggunakan auth()
-  const session = await auth();
-  
-  // Petakan ulang agar tipenya secara ketat menjadi { name: string; email: string; image: string | undefined }
+  // Petakan ulang tipe data agar sesuai dengan UserProps di UserMenu
   const loggedInUser = {
-    name: session?.user?.name || "User",
-    email: session?.user?.email || "No email",
-    image: session?.user?.image || undefined,
+    name: session.user.name || "User",
+    email: session.user.email || "No email",
+    image: session.user.image || undefined,
   };
 
   return (
