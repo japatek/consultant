@@ -82,6 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return sidebarItems(id, t); 
   }, [id, t]);
   
+
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.sidebarVariant,
@@ -99,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between gap-2">
             <SidebarMenuButton asChild className="group-data-[collapsible=icon]:hidden">
-              <Link prefetch={false} href="/dashboard/platoverview">
+              <Link prefetch={false} href="/interface">
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>

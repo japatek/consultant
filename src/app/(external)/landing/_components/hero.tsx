@@ -111,7 +111,7 @@ export const Hero: React.FC = () => {
         </p>
 
         <div className="flex flex-wrap items-center gap-4 mb-14">
-      {/* Tombol Eksplorasi AI yang memicu Dialog */}
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <button className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer">
@@ -174,7 +174,6 @@ export const Hero: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-8 overflow-hidden rounded-xl shadow-lg border border-white/10">
           {[
             { title: t.ourProjects, desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
-            // { title: t.ourServices, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/services' },
             { title: t.ourMaterial, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/landing/marketplace' },
             { title: t.ourServices, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/services' },
             {

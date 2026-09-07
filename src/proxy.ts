@@ -1,20 +1,17 @@
 /**
- * src/proxy.ts (atau middleware.ts) — Hardened Security Version
+ * src/proxy.ts (atau middleware.ts)
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decode } from "next-auth/jwt";
 
-const SIGN_IN_PATH   = "/auth/v4/login" as const; // Auth user
-const LANDING_PATH   = "/landing" as const;
-const INTERFACE_PATH = "/interface" as const;     // Pengganti dashboard & marketplace
-const ADMIN_AUTH     = "/admin-auth" as const;    // Auth khusus admin
+const SIGN_IN_PATH   = "/auth/v4/login" as const; 
+const ARTICLE_PATH   = "/landing/article" as const;
+const INTERFACE_PATH = "/interface" as const;     
+const ADMIN_AUTH     = "/admin-auth" as const;    
 
-// 1. Definisikan rute mana saja yang merupakan halaman Admin
-const ADMIN_PREFIXES = ["/admin", "/article"] as const;
-
-// 2. Tambahkan /admin-auth ke PUBLIC_PREFIXES agar halamannya tidak terblokir
+const ADMIN_PREFIXES = ["/admin", "/landing/article"] as const;
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/test", "/admin-auth"] as const;
 const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
 
@@ -24,29 +21,44 @@ function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
   );
 }
 
-// Menerjemahkan cookie session JWT
+// =====================================================================
+// FUNGSI PENGECEKAN COOKIE KHUSUS AUTH.JS V5
+// =====================================================================
 async function getSessionFromCookie(
   request: NextRequest,
 ): Promise<{ sub?: string; id?: string; role?: string } | null> {
   const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   if (!secret) return null;
 
-  const isProd = process.env.NODE_ENV === "production";
-  const cookieName = isProd
-    ? "__Secure-authjs.session-token"
-    : "authjs.session-token";
+  // Nama standar cookie Auth.js v5
+  const secureCookieName = "__Secure-authjs.session-token";
+  const devCookieName = "authjs.session-token";
 
-  const cookieValue = request.cookies.get(cookieName)?.value;
+  // Cek keberadaan cookie sesi (baik versi HTTP localhost maupun HTTPS production)
+  const hasSecureCookie = request.cookies.has(secureCookieName);
+  const hasDevCookie = request.cookies.has(devCookieName);
+
+  // Jika cookie sesi belum ada (seperti pada gambar Anda), tolak akses
+  if (!hasSecureCookie && !hasDevCookie) {
+    return null; 
+  }
+
+  // Tentukan cookie mana yang akan dibaca
+  const actualCookieName = hasSecureCookie ? secureCookieName : devCookieName;
+  const cookieValue = request.cookies.get(actualCookieName)?.value;
+
   if (!cookieValue) return null;
 
   try {
+    // Decode JWT token menggunakan secret dan nama cookie sebagai salt
     const token = await decode({
       token: cookieValue,
       secret,
-      salt: cookieName,
+      salt: actualCookieName,
     });
     return token as { sub?: string; id?: string; role?: string } | null;
-  } catch {
+  } catch (error) {
+    console.error("Gagal mendecode session cookie:", error);
     return null;
   }
 }
@@ -54,7 +66,7 @@ async function getSessionFromCookie(
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
-  // 1. Always-open internal paths
+  // 1. Lewati rute internal dan API Auth
   if (startsWithAny(pathname, OPEN_PREFIXES)) {
     return NextResponse.next();
   }
@@ -62,8 +74,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 2. Decode session cookie
   const token = await getSessionFromCookie(request);
   const isLoggedIn = !!(token && (token.sub || token.id));
-  
-  // Deteksi apakah yang login adalah seorang Admin
   const isAdmin = token?.role === "ADMIN";
 
   // =====================================================================
@@ -77,7 +87,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       );
     }
     
-    // Blokir jika user biasa mencoba masuk rute admin
     if (!isAdmin) {
        return NextResponse.redirect(new URL("/unauthorized", request.url));
     }
@@ -86,20 +95,18 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   // =====================================================================
-  // 4. PROTECTED USER PATHS (Intersepsi Admin Nyasar di Sini)
+  // 4. PROTECTED USER PATHS
   // =====================================================================
   if (pathname === "/interface" || pathname.startsWith("/interface/")) {
     if (!isLoggedIn) {
-      // Jika belum login, simpan URL tujuan dan lempar ke SIGN_IN_PATH
       const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
       return NextResponse.redirect(
         new URL(`${SIGN_IN_PATH}?callbackUrl=${callbackUrl}`, request.url),
       );
     }
     
-    // Jika ADMIN mencoba masuk interface user, kembalikan ke /article
     if (isAdmin) {
-      return NextResponse.redirect(new URL("/article", request.url));
+      return NextResponse.redirect(new URL("/landing/article", request.url));
     }
     
     return NextResponse.next();
@@ -109,22 +116,20 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 5. ROOT "/" AND PUBLIC PAGES
   // =====================================================================
   if (pathname === "/" || startsWithAny(pathname, PUBLIC_PREFIXES)) {
-    
     if (isLoggedIn) {
+      // Jika user sudah login tapi mencoba akses halaman login, lempar ke dashboardnya
       if (pathname.startsWith("/admin-auth") && isAdmin) {
-        return NextResponse.redirect(new URL("/article", request.url)); 
+        return NextResponse.redirect(new URL("/landing/article", request.url)); 
       } 
       else if (pathname.startsWith("/auth")) {
-        // Arahkan sesuai Role jika masuk halaman auth biasa (user biasa ke /interface)
-        return NextResponse.redirect(new URL(isAdmin ? "/article" : INTERFACE_PATH, request.url));
+        return NextResponse.redirect(new URL(isAdmin ? "/landing/article" : INTERFACE_PATH, request.url));
       }
     }
-    
     return NextResponse.next();
   }
 
   // =====================================================================
-  // 6. FALLBACK CATCH-ALL
+  // 6. FALLBACK CATCH-ALL (Wajib Login)
   // =====================================================================
   if (!isLoggedIn) {
     const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
@@ -136,7 +141,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   return NextResponse.next();
 }
 
-// Konfigurasi Matcher
 export const config = {
   matcher: [
     "/landing/:path*",
