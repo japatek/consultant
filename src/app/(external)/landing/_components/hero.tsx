@@ -41,7 +41,6 @@ export const Hero: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-
   const t = translations[lang];
 
   return (
@@ -51,11 +50,10 @@ export const Hero: React.FC = () => {
       <div className="absolute inset-0 z-0">
         {slideImages.map((item, index) => (
           <div
-            key={item.src} // PERBAIKAN: Menggunakan item.src (string) sebagai key unik
+            key={item.src} 
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImage ? 'opacity-100' : 'opacity-0'
               }`}
           >
-            {/* PERBAIKAN: Deteksi kondisional untuk membedakan Image dan Video */}
             {item.type === 'video' ? (
               <video
                 src={item.src}
@@ -67,13 +65,12 @@ export const Hero: React.FC = () => {
               />
             ) : (
               <img
-                src={item.src} // PERBAIKAN: Mengarahkan langsung ke string URL target
+                src={item.src} 
                 alt={`Project Slide ${index + 1}`}
                 className="object-cover w-full h-full select-none pointer-events-none"
               />
             )}
 
-            {/* MODERN OVERLAY: Menjaga warna asli slideshow tetap hidup & teks kontras tinggi */}
             <div className="absolute inset-0 bg-gradient-to-r from-rose-950/80 via-slate-950/40 to-transparent mix-blend-multiply" />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-slate-950/20" />
           </div>
@@ -112,48 +109,66 @@ export const Hero: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-4 mb-14">
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <button className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer">
+          {/* ========================================================================= */}
+          {/* OPTION A: FEATURE NOT READY (MODAL) */}
+          {/* Comment out this block entirely when the feature is ready */}
+          {/* ========================================================================= */}
+          {/* <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer">
+                {t.explore}
+                <ArrowRight size={16} strokeWidth={2} />
+              </button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-[400px] text-center border-border bg-card p-6">
+              <div className="flex flex-col items-center justify-center space-y-3 py-4">
+                <div className="p-3 rounded-full bg-primary/10 text-primary mb-1">
+                  <Construction className="size-8 animate-bounce" />
+                </div>
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-foreground text-center">
+                  {t.notReady}
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground text-center pt-2">
+                    {t.notReadyDesc}
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+
+              <DialogFooter className="sm:justify-center pt-2">
+                <Button 
+                  className="w-full bg-primary text-white cursor-pointer" 
+                  onClick={() => setOpen(false)}
+                >
+                  {t.yes}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog> */}
+
+          {/* ========================================================================= */}
+          {/* OPTION B: FEATURE IS READY (REDIRECT) */}
+          {/* Uncomment this block when the feature is ready to redirect to /interface */}
+          {/* ========================================================================= */}
+          
+          <a 
+            href="/interface" 
+            className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer"
+          >
             {t.explore}
             <ArrowRight size={16} strokeWidth={2} />
-          </button>
-        </DialogTrigger>
+          </a>
+         
 
-        <DialogContent className="sm:max-w-[400px] text-center border-border bg-card p-6">
-          <div className="flex flex-col items-center justify-center space-y-3 py-4">
-            <div className="p-3 rounded-full bg-primary/10 text-primary mb-1">
-              <Construction className="size-8 animate-bounce" />
-            </div>
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-foreground text-center">
-               {t.notReady}
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-center pt-2">
-                {t.notReadyDesc}
-              </DialogDescription>
-            </DialogHeader>
-          </div>
-
-          <DialogFooter className="sm:justify-center pt-2">
-            <Button 
-              className="w-full bg-primary text-white cursor-pointer" 
-              onClick={() => setOpen(false)}
-            >
-              {t.yes}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Tombol Core Features */}
-      <a 
-        href="/landing/project" 
-        className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto"
-      >
-        {t.core}
-      </a>
-    </div>
+          {/* Tombol Core Features */}
+          <a 
+            href="/landing/project" 
+            className="inline-flex items-center justify-center gap-2 bg-white/5 backdrop-blur-sm text-white border border-white/25 rounded-lg px-7 py-3.5 text-sm font-medium transition-all hover:border-white/60 hover:bg-white/10 w-full sm:w-auto"
+          >
+            {t.core}
+          </a>
+        </div>
 
         {/* INTERACTIVE SLIDESHOW DOTS */}
         <div className="flex items-center gap-2.5 mb-4">
