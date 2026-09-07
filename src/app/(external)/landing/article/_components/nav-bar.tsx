@@ -4,14 +4,14 @@ import Link from 'next/link';
 import Cookies from "js-cookie";
 import { ChevronDown, ArrowRight, Menu, X } from 'lucide-react';
 
-import { featuredProjects } from '../../../(external)/landing/_lib/featured-projects-data';
-import { servicesData, Services } from '../../../(external)/landing/_lib/services-data';
-import { getArticles } from '../../../(external)/landing/_lib/article-data'; // Import dari file action yang baru
+import { featuredProjects } from '../../../../(external)/landing/_lib/featured-projects-data';
+import { servicesData, Services } from '../../../../(external)/landing/_lib/services-data';
+import { getArticles } from '../../../../(external)/landing/_lib/article-data'; // Import dari file action yang baru
 
 import { ThemeSwitcher } from "./theme-switcher";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { translations, Language } from "@/translate/language-data"; 
-import { ContactDialog } from '../../../(external)/landing/_components/contact-dialog';
+import { ContactDialog } from '../../../../(external)/landing/_components/contact-dialog';
 
 const defaultMedia = { 
     leftImg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600', 
