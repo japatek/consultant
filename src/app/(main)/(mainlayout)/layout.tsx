@@ -6,13 +6,13 @@ import Link from "next/link";
 import { siGithub } from "simple-icons";
 
 import { AppSidebar } from "./_components/app-sidebar";
-import { SimpleIcon } from "../../../components/simple-icon";
-import { Button } from "../../../components/ui/button";
-import { SidebarInset, SidebarProvider } from "../../../components/ui/sidebar";
-import { users } from "../../../data/users";
-import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "../../../lib/preferences/layout";
-import { cn } from "../../../lib/utils";
-import { getPreference } from "../../../server/server-actions";
+import { SimpleIcon } from "../../../../components/simple-icon";
+import { Button } from "../../../../components/ui/button";
+import { SidebarInset, SidebarProvider } from "../../../../components/ui/sidebar";
+import { users } from "../../../../data/users";
+import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "../../../../lib/preferences/layout";
+import { cn } from "../../../../lib/utils";
+import { getPreference } from "../../../../server/server-actions";
 
 // Updated import to reflect the single-user menu component
 // Note: Change the filename/path if you didn't rename the switcher file to 'user-menu'

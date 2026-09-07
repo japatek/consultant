@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../../lib/auth/auth";
+import { auth } from "../../../../lib/auth/auth";
 import { CertificationDashboard } from "./_components/certification-dashboard";
 import { getMyCertificationDashboard, getPublishedQuests } from "./_lib/actions"; // <-- Import fungsi baru
 

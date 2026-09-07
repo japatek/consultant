@@ -1,8 +1,8 @@
 "use client";
 
-import { useLanguage } from "../../../../hooks/use-language";
+import { useLanguage } from "../../../../../hooks/use-language";
 import Link from "next/link";
-import { cn } from "../../../../lib/utils";
+import { cn } from "../../../../../lib/utils";
 import { 
   Network, 
   Database, 
