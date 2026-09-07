@@ -4,7 +4,7 @@ import * as React from "react";
 import { CircleUser, CreditCard, EllipsisVertical, LogOut, MessageSquareDot } from "lucide-react";
 import { signOut } from "next-auth/react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../../../components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,12 +24,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { getInitials } from "@/lib/utils";
+} from "../../../../components/ui/alert-dialog";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../../../../components/ui/sidebar";
+import { getInitials } from "../../../../lib/utils";
 import Cookies from "js-cookie";
-import { AccountDialog } from "@/components/ui/account-dialog";
-import { useProfileCache, clearCachedProfile } from "@/lib/auth/use-profile-cache";
+import { AccountDialog } from "../../../../components/ui/account-dialog";
+import { useProfileCache, clearCachedProfile } from "../../../../lib/auth/use-profile-cache";
 
 export function NavUser({
   user,
@@ -145,8 +145,12 @@ export function NavUser({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+              <AlertDialogCancel variant="outline" size="default" className="cursor-pointer">
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
+                variant="default"
+                size="default"
                 onClick={handleSignOut}
                 className="bg-red hover:bg-red/40 cursor-pointer"
               >

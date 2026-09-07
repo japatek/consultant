@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 
 import { ChevronRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "../../../../components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../../../components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../../../components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -24,8 +24,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import type { NavGroup, NavMainItem } from "@/navigation/sidebar/sidebar-items";
+} from "../../../../components/ui/sidebar";
+import type { NavGroup, NavMainItem } from "../../../../navigation/sidebar/sidebar-items";
 
 interface NavMainProps {
   readonly items: readonly NavGroup[];

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { getInitials } from "@/lib/utils";
+} from "../../../../components/ui/dropdown-menu";
+import { getInitials } from "../../../../lib/utils";
 
 import { 
   AlertDialog, 
@@ -22,7 +22,7 @@ import {
   AlertDialogFooter, 
   AlertDialogHeader, 
   AlertDialogTitle 
-} from "@/components/ui/alert-dialog";
+} from "../../../../components/ui/alert-dialog";
 
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
@@ -124,8 +124,12 @@ export function UserMenu({ user }: { readonly user: UserProps }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+            <AlertDialogCancel variant="outline" size="default" className="cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
+              variant="default"
+              size="default"
               onClick={handleSignOut}
               className="bg-red hover:bg-red/40 cursor-pointer"
             >

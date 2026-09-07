@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CircleUser, CreditCard, LogOut, MessageSquareDot } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { getInitials } from "@/lib/utils";
+} from "../../../../components/ui/dropdown-menu";
+import { getInitials } from "../../../../lib/utils";
 
 import { 
   AlertDialog, 
@@ -23,12 +23,12 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle,
   AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+} from "../../../../components/ui/alert-dialog";
 
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
-import { AccountDialog } from "@/components/ui/account-dialog";
-import { useProfileCache, clearCachedProfile } from "@/lib/auth/use-profile-cache";
+import { AccountDialog } from "../../../../components/ui/account-dialog";
+import { useProfileCache, clearCachedProfile } from "../../../../lib/auth/use-profile-cache";
 
 interface UserProps {
   readonly name: string;
@@ -133,8 +133,19 @@ export function UserMenu({ user }: { readonly user: UserProps }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+            {/* DITAMBAHKAN variant dan size di sini */}
+            <AlertDialogCancel 
+              variant="outline" 
+              size="default" 
+              className="cursor-pointer"
+            >
+              Cancel
+            </AlertDialogCancel>
+            
+            {/* DITAMBAHKAN variant dan size di sini */}
             <AlertDialogAction
+              variant="default"
+              size="default"
               onClick={handleSignOut}
               className="bg-red hover:bg-red/40 cursor-pointer"
             >
