@@ -7,13 +7,15 @@ import type { NextRequest } from "next/server";
 import { decode } from "next-auth/jwt";
 
 const SIGN_IN_PATH   = "/auth/v4/login" as const; 
-const ARTICLE_PATH   = "/landing/article" as const;
+const LANDING_PATH   = "/landing" as const;
 const INTERFACE_PATH = "/interface" as const;     
 const ADMIN_AUTH     = "/admin-auth" as const;    
 
-const ADMIN_PREFIXES = ["/admin", "/landing/article"] as const;
+const ADMIN_PREFIXES = ["/admin", "/article"] as const;
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/test", "/admin-auth"] as const;
-const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized"] as const;
+
+// Menambahkan "/unavailable" agar rute ini terbuka dan tidak menyebabkan loop
+const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized", "/unavailable"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some(
@@ -30,27 +32,22 @@ async function getSessionFromCookie(
   const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   if (!secret) return null;
 
-  // Nama standar cookie Auth.js v5
   const secureCookieName = "__Secure-authjs.session-token";
   const devCookieName = "authjs.session-token";
 
-  // Cek keberadaan cookie sesi (baik versi HTTP localhost maupun HTTPS production)
   const hasSecureCookie = request.cookies.has(secureCookieName);
   const hasDevCookie = request.cookies.has(devCookieName);
 
-  // Jika cookie sesi belum ada (seperti pada gambar Anda), tolak akses
   if (!hasSecureCookie && !hasDevCookie) {
     return null; 
   }
 
-  // Tentukan cookie mana yang akan dibaca
   const actualCookieName = hasSecureCookie ? secureCookieName : devCookieName;
   const cookieValue = request.cookies.get(actualCookieName)?.value;
 
   if (!cookieValue) return null;
 
   try {
-    // Decode JWT token menggunakan secret dan nama cookie sebagai salt
     const token = await decode({
       token: cookieValue,
       secret,
@@ -105,8 +102,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       );
     }
     
+    // UBAH DI SINI: Jika ADMIN mencoba masuk user interface, lempar ke /unavailable
     if (isAdmin) {
-      return NextResponse.redirect(new URL("/landing/article", request.url));
+      return NextResponse.redirect(new URL("/unavailable", request.url));
     }
     
     return NextResponse.next();
@@ -117,12 +115,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // =====================================================================
   if (pathname === "/" || startsWithAny(pathname, PUBLIC_PREFIXES)) {
     if (isLoggedIn) {
-      // Jika user sudah login tapi mencoba akses halaman login, lempar ke dashboardnya
       if (pathname.startsWith("/admin-auth") && isAdmin) {
-        return NextResponse.redirect(new URL("/landing/article", request.url)); 
+        return NextResponse.redirect(new URL("/article", request.url)); 
       } 
       else if (pathname.startsWith("/auth")) {
-        return NextResponse.redirect(new URL(isAdmin ? "/landing/article" : INTERFACE_PATH, request.url));
+        return NextResponse.redirect(new URL(isAdmin ? "/article" : INTERFACE_PATH, request.url));
       }
     }
     return NextResponse.next();
