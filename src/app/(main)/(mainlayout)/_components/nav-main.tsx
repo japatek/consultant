@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu, X } from "lucide-react";
 
 import { Button } from "../../../../components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../../../components/ui/collapsible";
@@ -143,7 +143,7 @@ const NavItemCollapsed = ({
 
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
@@ -158,6 +158,22 @@ export function NavMain({ items }: NavMainProps) {
 
   return (
     <>
+      {isMobile && (
+        <div className="mb-3 flex items-center justify-between border-b px-2 py-2 md:hidden">
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Menu</span>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={openMobile ? "Close sidebar" : "Open sidebar"}
+            onClick={toggleSidebar}
+          >
+            {openMobile ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
+        </div>
+      )}
+
       {items.map((group) => (
         <SidebarGroup key={group.id}>
           {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
