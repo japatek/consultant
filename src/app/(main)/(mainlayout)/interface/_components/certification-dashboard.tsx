@@ -20,7 +20,7 @@ export type QuestData = {
   title: string;
   difficulty: string;
   category: string;
-  points: number;
+  points?: number;
 };
 
 export type DashboardData = {
