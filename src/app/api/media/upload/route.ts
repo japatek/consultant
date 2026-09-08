@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { uploadMediaFile } from "@/lib/quest/quest-actions";
+import { uploadMediaFile } from "../../../(external)/admin/quest-builder/_lib//actions";
 import { toErrorResponse } from "@/lib/api-error";
 
 export async function POST(request: Request) {

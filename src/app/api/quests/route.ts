@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createQuest } from "@/lib/quest/quest-actions";
+import { createQuest } from "../../(external)/admin/quest-builder/_lib/actions";
 import { toErrorResponse } from "@/lib/api-error";
 
 export async function POST(request: Request) {

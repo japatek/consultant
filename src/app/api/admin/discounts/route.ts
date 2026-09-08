@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { upsertDiscount } from "@/lib/billing/admin-pricing-actions";
+import { upsertDiscount } from "@/lib/admin-pricing-actions";
 import { toErrorResponse } from "@/lib/api-error";
 
 export async function POST(request: Request) {
