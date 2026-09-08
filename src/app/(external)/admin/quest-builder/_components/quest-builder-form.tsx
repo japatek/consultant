@@ -60,7 +60,7 @@ export function QuestBuilderForm({
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<QuestFormValues>({
-    resolver: zodResolver(questFormSchema),
+    resolver: zodResolver(questFormSchema) as any,
     defaultValues: initialValues ?? DEFAULT_VALUES,
     mode: "onBlur",
   });

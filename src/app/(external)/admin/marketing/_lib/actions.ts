@@ -33,6 +33,7 @@ function toPlanRecord(plan: {
   features: unknown;
   isActive: boolean;
   sortOrder: number;
+  paymentLinkUrl: string | null;
 }): PlanRecord {
   return { ...plan, features: asStringArray(plan.features) };
 }

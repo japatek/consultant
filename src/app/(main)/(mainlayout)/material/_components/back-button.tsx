@@ -1,6 +1,6 @@
 "use client";
 
-import { translations, Language } from '@/translate/language-data';
+import { translations, Language } from '../../../../../translate/language-data';
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
