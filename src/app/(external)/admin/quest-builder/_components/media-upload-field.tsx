@@ -5,7 +5,8 @@ import { useFormContext } from "react-hook-form";
 import { FileImage, FileVideo, FileText, X, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { uploadMediaFile } from "../_lib/actions";
+import { apiRequest } from "@/lib/api-client";
+import type { UploadedFile } from "@/lib/storage";
 import type { MediaType, QuestFormValues, QuestMediaInput } from "@/types/quest";
 import { translations, type Language } from "@/translate/language-data";
 
@@ -44,7 +45,8 @@ export function MediaUploadField({ lang }: { lang: Language }) {
           try {
             const formData = new FormData();
             formData.set("file", file);
-            const uploaded = await uploadMediaFile(formData, "quest-media");
+            formData.set("folder", "quest-media");
+            const uploaded = await apiRequest<UploadedFile>("/api/media/upload", { formData });
             const next: QuestMediaInput = {
               type: mediaTypeFor(file),
               url: uploaded.url,

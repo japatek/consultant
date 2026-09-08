@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form"; 
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -19,37 +20,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useLanguage } from "@/hooks/use-language";
-import { createQuest, updateQuest } from "../_lib/actions";
-import {
-  questFormSchema,
-  DIFFICULTIES,
-  CATEGORIES,
-  type QuestFormValues,
-} from "@/types/quest";
-import { AnswerConfigFields } from "./answer-config-fields";
+import { apiRequest } from "@/lib/api-client";
+import { questFormSchema, DIFFICULTIES, CATEGORIES, type QuestFormValues } from "@/types/quest";
+import { QuestionFields } from "./question-fields";
 import { MediaUploadField } from "./media-upload-field";
 
 const DEFAULT_VALUES: QuestFormValues = {
   title: "",
   difficulty: "Beginner",
-  category: "2D Drafting",
+  category: "General Drawing Reading (ISO/ASME)",
   description: "",
   instructions: "",
-  points: 10,
   media: [],
-  answerConfig: { type: "MULTIPLE_CHOICE", options: ["", ""], correctIndex: 0 },
+  questions: [{ prompt: "", points: 10, answerConfig: { type: "MULTIPLE_CHOICE", options: ["", ""], correctIndex: 0 } }],
+  certificationIds: [],
   isPublished: false,
 };
+
+export type CertificationOption = { id: string; title: string };
 
 export function QuestBuilderForm({
   questId,
   initialValues,
+  certifications,
 }: {
   /** Pass both when editing an existing quest; omit both to create a new one. */
   questId?: string;
   initialValues?: QuestFormValues;
+  /** Available certifications this quest can be linked to — fetched by the
+   *  parent Server Component page via listCertifications(). */
+  certifications: CertificationOption[];
 }) {
   const { lang, t } = useLanguage();
   const router = useRouter();
@@ -57,17 +60,28 @@ export function QuestBuilderForm({
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<QuestFormValues>({
-    resolver: zodResolver(questFormSchema) as any,
+    resolver: zodResolver(questFormSchema),
     defaultValues: initialValues ?? DEFAULT_VALUES,
     mode: "onBlur",
   });
+
+  const { fields, append, remove } = useFieldArray({ control: form.control, name: "questions" });
+  const selectedCertificationIds = form.watch("certificationIds");
+
+  function toggleCertification(id: string) {
+    const current = form.getValues("certificationIds");
+    const next = current.includes(id) ? current.filter((c) => c !== id) : [...current, id];
+    form.setValue("certificationIds", next, { shouldValidate: true });
+  }
 
   async function onSubmit(values: QuestFormValues, publish: boolean) {
     setFormError(null);
     setIsSubmitting(true);
     try {
       const payload = { ...values, isPublished: publish };
-      const saved = questId ? await updateQuest(questId, payload) : await createQuest(payload);
+      const saved = questId
+        ? await apiRequest<{ id: string }>(`/api/quests/${questId}`, { method: "PATCH", body: payload })
+        : await apiRequest<{ id: string }>("/api/quests", { method: "POST", body: payload });
       router.push(`/admin/quests/${saved.id}`);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : t.questSaveError);
@@ -85,106 +99,148 @@ export function QuestBuilderForm({
 
       <CardContent>
         <FormProvider {...form}>
-          {/* Using divide-y to naturally separate sections without tabs */}
-          <form className="space-y-8 divide-y" onSubmit={(e) => e.preventDefault()}>
-            
-            {/* --- Metadata Section --- */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{t.questFieldTitle} & Metadata</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="title">{t.questFieldTitle}</Label>
-                <Input id="title" {...form.register("title")} />
-                {form.formState.errors.title && (
-                  <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
-                )}
-              </div>
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <Tabs defaultValue="metadata">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="metadata">{t.questFieldTitle}</TabsTrigger>
+                <TabsTrigger value="content">{t.questFieldDescription}</TabsTrigger>
+                <TabsTrigger value="media">{t.questFieldMedia}</TabsTrigger>
+                <TabsTrigger value="questions">{t.questionsLabel}</TabsTrigger>
+              </TabsList>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* --- Metadata --- */}
+              <TabsContent value="metadata" className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>{t.questFieldDifficulty}</Label>
-                  <Select
-                    value={form.watch("difficulty")}
-                    onValueChange={(v) => form.setValue("difficulty", v as (typeof DIFFICULTIES)[number])}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DIFFICULTIES.map((d) => (
-                        <SelectItem key={d} value={d}>
-                          {d}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="title">{t.questFieldTitle}</Label>
+                  <Input id="title" {...form.register("title")} />
+                  {form.formState.errors.title && (
+                    <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t.questFieldDifficulty}</Label>
+                    <Select
+                      value={form.watch("difficulty")}
+                      onValueChange={(v) => form.setValue("difficulty", v as (typeof DIFFICULTIES)[number])}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DIFFICULTIES.map((d) => (
+                          <SelectItem key={d} value={d}>
+                            {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t.questFieldCategory}</Label>
+                    <Select
+                      value={form.watch("category")}
+                      onValueChange={(v) => form.setValue("category", v as (typeof CATEGORIES)[number])}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{t.questFieldCategory}</Label>
-                  <Select
-                    value={form.watch("category")}
-                    onValueChange={(v) => form.setValue("category", v as (typeof CATEGORIES)[number])}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
+                  <Label>{t.questFieldCertifications}</Label>
+                  {certifications.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t.questNoCertifications}</p>
+                  ) : (
+                    <div className="space-y-2 rounded-lg border p-3">
+                      {certifications.map((cert) => (
+                        <div key={cert.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`cert-${cert.id}`}
+                            checked={selectedCertificationIds.includes(cert.id)}
+                            onCheckedChange={() => toggleCertification(cert.id)}
+                          />
+                          <Label htmlFor={`cert-${cert.id}`} className="cursor-pointer font-normal">
+                            {cert.title}
+                          </Label>
+                        </div>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </TabsContent>
 
-              <div className="space-y-2">
-                <Label htmlFor="points">{t.questFieldPoints}</Label>
-                <Input
-                  id="points"
-                  type="number"
-                  min={1}
-                  {...form.register("points", { valueAsNumber: true })}
-                />
-              </div>
-            </div>
+              {/* --- Content --- */}
+              <TabsContent value="content" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="description">{t.questFieldDescription}</Label>
+                  {/* TODO: swap for a rich text editor (Tiptap/Lexical) — kept
+                      as a plain textarea placeholder per the brief. */}
+                  <Textarea id="description" rows={5} {...form.register("description")} />
+                  {form.formState.errors.description && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.description.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instructions">{t.questFieldInstructions}</Label>
+                  <Textarea id="instructions" rows={5} {...form.register("instructions")} />
+                </div>
+              </TabsContent>
 
-            {/* --- Content Section --- */}
-            <div className="space-y-4 pt-8">
-              <h3 className="text-lg font-medium">{t.questFieldDescription} & Content</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">{t.questFieldDescription}</Label>
-                <Textarea id="description" rows={5} {...form.register("description")} />
-                {form.formState.errors.description && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.description.message}
-                  </p>
+              {/* --- Media --- */}
+              <TabsContent value="media" className="pt-4">
+                <MediaUploadField lang={lang} />
+              </TabsContent>
+
+              {/* --- Questions: a quest is a list of questions, each with
+                  its own dynamic answer configuration --- */}
+              <TabsContent value="questions" className="space-y-4 pt-4">
+                {form.formState.errors.questions?.message && (
+                  <p className="text-sm text-destructive">{form.formState.errors.questions.message}</p>
                 )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="instructions">{t.questFieldInstructions}</Label>
-                <Textarea id="instructions" rows={5} {...form.register("instructions")} />
-              </div>
-            </div>
+                <div className="space-y-4">
+                  {fields.map((field, index) => (
+                    <QuestionFields
+                      key={field.id}
+                      lang={lang}
+                      index={index}
+                      canRemove={fields.length > 1}
+                      onRemove={() => remove(index)}
+                    />
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    append({
+                      prompt: "",
+                      points: 10,
+                      answerConfig: { type: "MULTIPLE_CHOICE", options: ["", ""], correctIndex: 0 },
+                    })
+                  }
+                >
+                  <Plus className="mr-1 h-4 w-4" />
+                  {t.questionAddQuestion}
+                </Button>
+              </TabsContent>
+            </Tabs>
 
-            {/* --- Media Section --- */}
-            <div className="space-y-4 pt-8">
-              <h3 className="text-lg font-medium">{t.questFieldMedia}</h3>
-              <MediaUploadField lang={lang} />
-            </div>
-
-            {/* --- Answer Configuration Section --- */}
-            <div className="space-y-4 pt-8">
-              <h3 className="text-lg font-medium">{t.questFieldAnswerType}</h3>
-              <AnswerConfigFields lang={lang} />
-            </div>
-
-            {/* --- Submit Actions --- */}
-            <div className="flex items-center justify-between pt-8">
+            <div className="flex items-center justify-between border-t pt-4">
               <div className="flex items-center gap-2">
                 <Switch
                   id="publish-toggle"
@@ -217,11 +273,7 @@ export function QuestBuilderForm({
               </div>
             </div>
 
-            {formError && (
-              <div className="pt-4">
-                <p className="text-sm text-destructive">{formError}</p>
-              </div>
-            )}
+            {formError && <p className="text-sm text-destructive">{formError}</p>}
           </form>
         </FormProvider>
       </CardContent>

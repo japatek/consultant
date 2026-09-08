@@ -33,7 +33,7 @@ model User {
   // ==========================================================
   // --- Relasi Quest (Misi) / Sertifikasi ---
   // ==========================================================
-  authoredQuests   Quest[]             @relation("QuestAuthor")
+  authoredQuests   Quest[]              @relation("QuestAuthor")
   questCompletions QuestCompletion[]
   certifications   UserCertification[]
   progress         UserProgress?
@@ -42,11 +42,10 @@ model User {
   // --- Langganan (Subscription) / Penagihan (Billing) ---
   // ==========================================================
   // Tier yang didenormalisasi — disimpan di User untuk pembacaan cepat 
-  // tanpa join. Diperbarui oleh handler callback iPaymu ketika
-  // Subscription menjadi ACTIVE/EXPIRED.
-  currentTier   String    @default("FREE") // "FREE" | slug dari PricingPlan
-  tierExpiresAt DateTime?
-  subscriptions Subscription[]
+  // tanpa join. Diperbarui oleh webhook Midtrans.
+  currentTier    String    @default("FREE") // "FREE" | slug dari PricingPlan
+  tierExpiresAt  DateTime?
+  subscriptions  Subscription[]
 
   @@map("users")
 }
@@ -185,13 +184,7 @@ model Article {
 
 
 // ============================================================
-// QUEST BUILDER & LEARNING PLATFORM
-// ------------------------------------------------------------
-// A Quest is a titled SET of Questions (e.g. "Welding Symbols Basics" ->
-// 8 questions) at one difficulty level. Completing a quest means answering
-// every one of its Questions correctly in the same attempt. A Quest can
-// count toward zero or more Certifications (zero = pure training) via the
-// CertificationQuest join table, picked by the admin in the Quest Builder.
+// PEMBUAT QUEST & PLATFORM PEMBELAJARAN
 // ============================================================
 
 enum AnswerType {
@@ -201,61 +194,41 @@ enum AnswerType {
 }
 
 model Quest {
-  id           String @id @default(cuid())
-  slug         String @unique
+  id           String   @id @default(cuid())
+  slug         String   @unique
   title        String
-  difficulty   String // "Beginner" | "Intermediate" | "Advanced" — see src/types/quest.ts
-  category     String // subject tag, e.g. "Welding Annotation", "P&ID" — see src/types/quest.ts
+  difficulty   String   // "Beginner" | "Intermediate" | "Advanced" — lihat src/types/quest.ts
+  category     String   // "2D Drafting" | "3D Modeling" | "Assembly" | ... — lihat src/types/quest.ts
 
-  // Swap for a JSON/AST column if you later wire up a structured rich-text
-  // editor (Tiptap, Lexical, ...). For now this holds plain/markdown text.
-  description  String @db.Text
-  instructions String @db.Text
+  // Ganti dengan kolom JSON/AST jika Anda nantinya menghubungkan editor teks kaya yang terstruktur
+  // (Tiptap, Lexical, ...). Untuk saat ini menggunakan teks biasa/markdown.
+  description  String   @db.Text
+  instructions String   @db.Text
 
-  isPublished  Boolean @default(false)
+  answerType   AnswerType
+  // Bentuknya bergantung pada answerType — dipaksakan (enforced) oleh Zod saat penulisan (src/types/quest.ts),
+  // bukan oleh Postgres:
+  //   MULTIPLE_CHOICE -> { type, options: string[], correctIndex: number }
+  //   TEXT_INPUT        -> { type, expectedValue: string, caseSensitive?, tolerance? }
+  //   FILE_UPLOAD      -> { type, allowedExtensions: string[], maxSizeMB: number }
+  answerConfig Json
 
-  authorId String
-  author   User   @relation("QuestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  points       Int      @default(10)
+  isPublished  Boolean  @default(false)
+
+  authorId     String
+  author       User     @relation("QuestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
 
   media          QuestMedia[]
-  questions      Question[]
   completions    QuestCompletion[]
   certifications CertificationQuest[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([category])
   @@index([authorId])
   @@map("quests")
-}
-
-/** One question within a Quest. Order matters for display; everything about
- *  grading a single answer lives here, same as it used to live on Quest. */
-model Question {
-  id      String @id @default(cuid())
-  questId String
-  quest   Quest  @relation(fields: [questId], references: [id], onDelete: Cascade)
-  order   Int    @default(0)
-
-  prompt String @db.Text
-  points Int    @default(10)
-
-  answerType AnswerType
-  // Shape depends on answerType — enforced by Zod on write (src/types/quest.ts),
-  // not by Postgres:
-  //   MULTIPLE_CHOICE -> { type, options: string[], correctIndex: number }
-  //   TEXT_INPUT      -> { type, expectedValue: string, caseSensitive?, tolerance? }
-  //   FILE_UPLOAD     -> { type, allowedExtensions: string[], maxSizeMB: number }
-  answerConfig Json
-
-  answers QuestionAnswer[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([questId])
-  @@map("questions")
 }
 
 model QuestMedia {
@@ -272,10 +245,6 @@ model QuestMedia {
   @@map("quest_media")
 }
 
-/** One attempt at an entire Quest — rolls up the per-question QuestionAnswer
- *  rows below it. `isCorrect` is only true once every question in THIS
- *  attempt was answered correctly; that's what certification eligibility
- *  checks against (see lib/certification/check-eligibility.ts). */
 model QuestCompletion {
   id      String @id @default(cuid())
   userId  String
@@ -283,45 +252,23 @@ model QuestCompletion {
   questId String
   quest   Quest  @relation(fields: [questId], references: [id], onDelete: Cascade)
 
-  attempt      Int      @default(1)
-  isCorrect    Boolean  @default(false)
-  pointsEarned Int      @default(0)
-  completedAt  DateTime @default(now())
+  submittedAnswer Json    // bentuknya (shape) menyesuaikan answerConfig dari Quest untuk answerType yang sama
+  isCorrect       Boolean
+  pointsEarned    Int     @default(0)
+  attempt         Int     @default(1)
 
-  answers QuestionAnswer[]
+  createdAt DateTime @default(now())
 
   @@index([userId, questId])
   @@map("quest_completions")
 }
 
-/** One answer to one Question, within one QuestCompletion attempt. */
-model QuestionAnswer {
-  id                String          @id @default(cuid())
-  questCompletionId String
-  questCompletion   QuestCompletion @relation(fields: [questCompletionId], references: [id], onDelete: Cascade)
-  questionId        String
-  question          Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  submittedAnswer Json // shape mirrors the Question's answerConfig for the same answerType
-  isCorrect       Boolean
-  pointsEarned    Int     @default(0)
-
-  createdAt DateTime @default(now())
-
-  @@unique([questCompletionId, questionId])
-  @@map("question_answers")
-}
-
 model Certification {
   id          String  @id @default(cuid())
   slug        String  @unique
-  title       String  // e.g. "Associate Drawing Inspector", "Drawing Inspector — Welding Annotation"
+  title       String  // contoh: "Persiapan Certified SolidWorks Associate"
   description String  @db.Text
   badgeUrl    String?
-  // Retire a certification without deleting it (UserCertification /
-  // CertificationQuest rows reference it) — hidden from the Quest
-  // Builder's checklist once false, same pattern as PricingPlan.isActive.
-  isActive    Boolean @default(true)
 
   requiredQuests CertificationQuest[]
   unlockedBy     UserCertification[]
@@ -332,8 +279,8 @@ model Certification {
   @@map("certifications")
 }
 
-// Explicit join table (not an implicit m-n) so a future "required order"
-// or "weight per quest" column has somewhere to live.
+// Tabel join eksplisit (bukan m-n implisit) agar jika nanti ada kolom "required order" (urutan yang diwajibkan)
+// atau "weight per quest" (bobot per quest) memiliki tempat untuk ditambahkan.
 model CertificationQuest {
   certificationId String
   certification   Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
@@ -351,17 +298,17 @@ model UserCertification {
   certificationId String
   certification   Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
 
-  // Public code printed on the certificate for anyone to verify authenticity
+  // Kode publik yang dicetak pada sertifikat agar siapa pun dapat memverifikasi keasliannya
   verificationCode String   @unique @default(cuid())
-  certificateUrl   String?  // filled in once the PDF/image is generated + uploaded
+  certificateUrl   String?  // diisi setelah PDF/gambar dibuat + diunggah
   unlockedAt       DateTime @default(now())
 
   @@unique([userId, certificationId])
   @@map("user_certifications")
 }
 
-// Denormalized gamification profile — one row per user, cheap to read on
-// every dashboard load instead of aggregating QuestCompletion each time.
+// Profil gamifikasi yang didenormalisasi — satu baris per pengguna, lebih ringan/cepat dibaca saat
+// setiap pemuatan dashboard dibandingkan harus mengagregasi QuestCompletion setiap saat.
 model UserProgress {
   userId String @id
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -377,7 +324,7 @@ model UserProgress {
 }
 
 // ============================================================
-// PRICING, SUBSCRIPTIONS & IPAYMU PAYMENTS
+// HARGA, LANGGANAN & PEMBAYARAN MIDTRANS
 // ============================================================
 
 enum PlanInterval {
@@ -396,22 +343,14 @@ enum SubscriptionStatus {
 model PricingPlan {
   id           String       @id @default(cuid())
   slug         String       @unique
-  name         String       // "Weekly", "Monthly", "3 Months"
+  name         String       // "Mingguan", "Bulanan", "3 Bulan"
   interval     PlanInterval
   durationDays Int
   priceIDR     Int
   priceUSD     Int
-  features     Json         // string[] — bullet list shown on the pricing card
+  features     Json         // string[] — daftar poin (bullet list) yang ditampilkan pada kartu harga
   isActive     Boolean      @default(true)
   sortOrder    Int          @default(0)
-
-  // Static iPaymu Payment Link for this plan, created by hand in the
-  // iPaymu dashboard (Service > Payment Link) and pasted in here — e.g.
-  // https://ipaymu.link/pay/belajar-gambar-teknik-E62BSJ. The "Subscribe"
-  // button just opens this URL; keep its price in sync with priceIDR above,
-  // since the callback matches payments back to a plan by amount paid
-  // (see lib/payment/handle-ipaymu-callback.ts).
-  paymentLinkUrl String?
 
   discounts     Discount[]
   subscriptions Subscription[]
@@ -425,9 +364,9 @@ model PricingPlan {
 model Discount {
   id             String       @id @default(cuid())
   code           String       @unique
-  percentOff     Int?         // 0-100, mutually exclusive with amountOffIDR in practice
+  percentOff     Int?         // 0-100, pada praktiknya saling eksklusif (tidak bisa digunakan bersamaan) dengan amountOffIDR
   amountOffIDR   Int?
-  planId         String?      // null = applies to every plan
+  planId         String?      // null = berlaku untuk setiap paket (plan)
   plan           PricingPlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
   validFrom      DateTime     @default(now())
   validUntil     DateTime?
@@ -442,31 +381,27 @@ model Discount {
 }
 
 model Subscription {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId String
-  // No onDelete: Cascade here on purpose — deleting a plan should not wipe
-  // out historical payment records. Retire a plan via `isActive`, not delete.
-  plan   PricingPlan @relation(fields: [planId], references: [id])
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId  String
+  // Sengaja tidak menggunakan onDelete: Cascade di sini — menghapus paket (plan) tidak boleh
+  // menghapus riwayat catatan pembayaran. Nonaktifkan paket menggunakan `isActive`, jangan dihapus.
+  plan    PricingPlan @relation(fields: [planId], references: [id])
 
-  status    SubscriptionStatus @default(ACTIVE)
+  status  SubscriptionStatus @default(PENDING)
   startDate DateTime?
   endDate   DateTime?
 
-  // iPaymu Payment Link has no dynamic order id we control, so there's no
-  // pre-created PENDING row here (unlike a dynamic-checkout flow) — this
-  // row is created directly by the callback once a payment is matched to a
-  // user + plan. See lib/payment/handle-ipaymu-callback.ts.
-  ipaymuTrxId       String  @unique // iPaymu's trx_id — also our idempotency key
-  ipaymuReferenceId String? // iPaymu's reference_id, if it sent one
-  amountPaidIDR     Int
-  discountCodeUsed  String?
+  midtransOrderId       String  @unique
+  midtransTransactionId String?
+  amountPaidIDR         Int
+  discountCodeUsed      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
-  @@index([ipaymuTrxId])
+  @@index([midtransOrderId])
   @@map("subscriptions")
 }

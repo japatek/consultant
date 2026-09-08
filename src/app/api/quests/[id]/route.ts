@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateQuest } from "@/actions/quest-actions";
+import { updateQuest } from "@/lib/quest/quest-actions";
 import { toErrorResponse } from "@/lib/api-error";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {

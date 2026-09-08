@@ -1,17 +1,4 @@
 services:
-  cap:
-    image: tiago2/cap:latest
-    container_name: cap
-    ports:
-      - "8080:3000"
-    environment:
-      ADMIN_KEY: "superadmin1"
-      REDIS_URL: redis://valkey:6379
-    depends_on:
-      valkey:
-        condition: service_healthy
-    restart: unless-stopped
-
   valkey:
     image: valkey/valkey:9-alpine
     container_name: cap-valkey

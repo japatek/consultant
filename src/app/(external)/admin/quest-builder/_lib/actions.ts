@@ -1,10 +1,19 @@
-'use server';
+// No "use server" here — these are plain functions, called from the thin
+// route handlers under app/api/quests and app/api/media, not directly from
+// client components. See the README for why.
+
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth/auth-admin";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/database/prisma";
-import { questFormSchema, submittedAnswerSchema, type QuestFormValues } from "@/types/quest";
+import {
+  questFormSchema,
+  submitQuestAnswersSchema,
+  answerConfigSchema,
+  type QuestFormValues,
+  type AnswerConfig,
+} from "@/types/quest";
 import { gradeAnswer } from "./grade-answer";
-import { uploadFile, assertAllowedExtension } from "./storage";
+import { uploadFile, assertAllowedExtension } from "@/lib/storage";
 import { unlockEligibleCertifications } from "@/lib/certificate/certification-actions";
 
 async function requireAdmin() {
@@ -22,7 +31,7 @@ function slugify(title: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-/** Create a quest from the Quest Builder form. */
+/** Create a quest (with its questions and certification links) from the Quest Builder form. */
 export async function createQuest(values: QuestFormValues) {
   const admin = await requireAdmin();
   const data = questFormSchema.parse(values); // re-validate server-side, never trust the client
@@ -35,12 +44,21 @@ export async function createQuest(values: QuestFormValues) {
       category: data.category,
       description: data.description,
       instructions: data.instructions,
-      points: data.points,
       isPublished: data.isPublished,
-      answerType: data.answerConfig.type,
-      answerConfig: data.answerConfig,
       authorId: admin.id,
       media: { create: data.media },
+      questions: {
+        create: data.questions.map((q, index) => ({
+          order: index,
+          prompt: q.prompt,
+          points: q.points,
+          answerType: q.answerConfig.type,
+          answerConfig: q.answerConfig,
+        })),
+      },
+      certifications: {
+        create: data.certificationIds.map((certificationId) => ({ certificationId })),
+      },
     },
   });
 
@@ -48,7 +66,9 @@ export async function createQuest(values: QuestFormValues) {
   return quest;
 }
 
-/** Edit an existing quest. Same validation path as create. */
+/** Edit an existing quest. Same validation path as create; questions and
+ *  certification links are fully replaced rather than diffed — simplest
+ *  correct approach for a builder form that always submits the full set. */
 export async function updateQuest(questId: string, values: QuestFormValues) {
   await requireAdmin();
   const data = questFormSchema.parse(values);
@@ -61,20 +81,62 @@ export async function updateQuest(questId: string, values: QuestFormValues) {
       category: data.category,
       description: data.description,
       instructions: data.instructions,
-      points: data.points,
       isPublished: data.isPublished,
-      answerType: data.answerConfig.type,
-      answerConfig: data.answerConfig,
-      media: {
-        deleteMany: {}, // simplest correct approach: replace the set on every save
-        create: data.media,
+      media: { deleteMany: {}, create: data.media },
+      questions: {
+        deleteMany: {},
+        create: data.questions.map((q, index) => ({
+          order: index,
+          prompt: q.prompt,
+          points: q.points,
+          answerType: q.answerConfig.type,
+          answerConfig: q.answerConfig,
+        })),
+      },
+      certifications: {
+        deleteMany: {},
+        create: data.certificationIds.map((certificationId) => ({ certificationId })),
       },
     },
   });
 
   revalidatePath("/admin/quests");
+  revalidatePath(`/admin/quests/${questId}`);
   revalidatePath(`/quests/${quest.slug}`);
   return quest;
+}
+
+/** Fetch one quest with its questions, media, and linked certifications —
+ *  shaped for QuestBuilderForm's `initialValues` prop (the edit path). */
+export async function getQuestById(questId: string) {
+  const quest = await prisma.quest.findUnique({
+    where: { id: questId },
+    include: {
+      media: true,
+      certifications: { select: { certificationId: true } },
+      questions: { orderBy: { order: "asc" } },
+    },
+  });
+  if (!quest) return null;
+
+  const initialValues: QuestFormValues = {
+    title: quest.title,
+    difficulty: quest.difficulty as QuestFormValues["difficulty"],
+    category: quest.category as QuestFormValues["category"],
+    description: quest.description,
+    instructions: quest.instructions,
+    media: quest.media.map((m) => ({ type: m.type as any, url: m.url, fileName: m.fileName })),
+    questions: quest.questions.map((q) => ({
+      id: q.id,
+      prompt: q.prompt,
+      points: q.points,
+      answerConfig: answerConfigSchema.parse(q.answerConfig) as AnswerConfig,
+    })),
+    certificationIds: quest.certifications.map((c) => c.certificationId),
+    isPublished: quest.isPublished,
+  };
+
+  return { id: quest.id, slug: quest.slug, initialValues };
 }
 
 /**
@@ -94,58 +156,74 @@ export async function uploadMediaFile(formData: FormData, folder: "quest-media" 
 }
 
 /**
- * Grade a submitted answer, record it, update the user's progress totals,
- * and unlock any certification that submission just completed. This is the
- * one place those four things happen together, so callers (the quest page)
- * only need one round trip.
+ * Grade an entire quest attempt in one go — one answer per question,
+ * submitted together. Records the attempt, updates the user's progress
+ * totals, and unlocks any certification that attempt just completed.
  */
-export async function submitQuestAnswer(questId: string, rawSubmission: unknown) {
+export async function submitQuestAnswers(questId: string, rawAnswers: unknown) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Not authenticated");
   const userId = session.user.id;
 
-  const submission = submittedAnswerSchema.parse(rawSubmission);
+  const answers = submitQuestAnswersSchema.parse(rawAnswers);
 
-  if (submission.type === "FILE_UPLOAD") {
-    const quest = await prisma.quest.findUniqueOrThrow({ where: { id: questId } });
-    const config = quest.answerConfig as { allowedExtensions?: string[] };
-    if (config.allowedExtensions) {
-      assertAllowedExtension(submission.fileName, config.allowedExtensions);
-    }
+  const quest = await prisma.quest.findUniqueOrThrow({
+    where: { id: questId },
+    include: { questions: true },
+  });
+
+  if (answers.length !== quest.questions.length) {
+    throw new Error(`Expected ${quest.questions.length} answers, got ${answers.length}`);
   }
 
-  const quest = await prisma.quest.findUniqueOrThrow({ where: { id: questId } });
+  const questionsById = new Map(quest.questions.map((q) => [q.id, q]));
+  const graded = answers.map(({ questionId, answer }) => {
+    const question = questionsById.get(questionId);
+    if (!question) throw new Error(`Question ${questionId} does not belong to this quest`);
 
+    if (answer.type === "FILE_UPLOAD") {
+      const config = question.answerConfig as { allowedExtensions?: string[] };
+      if (config.allowedExtensions) assertAllowedExtension(answer.fileName, config.allowedExtensions);
+    }
+
+    const result = gradeAnswer(
+      answerConfigSchema.parse(question.answerConfig),
+      answer,
+      question.points
+    );
+    return { questionId, answer, result };
+  });
+
+  const isCorrect = graded.every((g) => g.result.isCorrect);
+  const pointsEarned = graded.reduce((sum, g) => sum + g.result.pointsEarned, 0);
   const previousAttempts = await prisma.questCompletion.count({ where: { userId, questId } });
-  const result = gradeAnswer(
-    quest.answerConfig as Parameters<typeof gradeAnswer>[0],
-    submission,
-    quest.points
-  );
 
   const completion = await prisma.$transaction(async (tx) => {
     const created = await tx.questCompletion.create({
       data: {
         userId,
         questId,
-        submittedAnswer: submission,
-        isCorrect: result.isCorrect,
-        pointsEarned: result.pointsEarned,
         attempt: previousAttempts + 1,
+        isCorrect,
+        pointsEarned,
+        answers: {
+          create: graded.map((g) => ({
+            questionId: g.questionId,
+            submittedAnswer: g.answer,
+            isCorrect: g.result.isCorrect,
+            pointsEarned: g.result.pointsEarned,
+          })),
+        },
       },
+      include: { answers: true },
     });
 
-    if (result.isCorrect && result.pointsEarned > 0) {
+    if (isCorrect && pointsEarned > 0) {
       await tx.userProgress.upsert({
         where: { userId },
-        create: {
-          userId,
-          totalPoints: result.pointsEarned,
-          questsCompleted: 1,
-          lastActivityAt: new Date(),
-        },
+        create: { userId, totalPoints: pointsEarned, questsCompleted: 1, lastActivityAt: new Date() },
         update: {
-          totalPoints: { increment: result.pointsEarned },
+          totalPoints: { increment: pointsEarned },
           questsCompleted: { increment: 1 },
           lastActivityAt: new Date(),
         },
@@ -155,12 +233,13 @@ export async function submitQuestAnswer(questId: string, rawSubmission: unknown)
     return created;
   });
 
-  const newlyUnlocked = result.isCorrect ? await unlockEligibleCertifications(userId) : [];
+  const newlyUnlocked = isCorrect ? await unlockEligibleCertifications(userId) : [];
 
-  return { ...result, completionId: completion.id, newlyUnlockedCertificationIds: newlyUnlocked };
+  return {
+    isCorrect,
+    pointsEarned,
+    completionId: completion.id,
+    perQuestion: graded.map((g) => ({ questionId: g.questionId, ...g.result })),
+    newlyUnlockedCertificationIds: newlyUnlocked,
+  };
 }
-
-
-
-
-

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { submitQuestAnswers } from "@/actions/quest-actions";
+import { submitQuestAnswers } from "@/lib/quest/quest-actions";
 import { toErrorResponse } from "@/lib/api-error";
 
 /** Body: an array of { questionId, answer } — one per question in the quest, submitted together. */

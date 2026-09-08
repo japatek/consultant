@@ -1,11 +1,26 @@
-"use server";
+// No "use server" here — getMyCertificationDashboard runs in Server
+// Components; unlockEligibleCertifications is called internally by
+// quest-actions.ts, never directly from a client component.
 
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/database/prisma";
 import {
   computeAllCertificationProgress,
   type CertificationRequirement,
-} from "@/lib/certificate/check-eligibility";
+} from "./check-eligibility";
+
+/** For the Quest Builder's certification multi-select — active only. */
+export async function listCertifications() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+  if (session.user.role !== "ADMIN") throw new Error("Admin access required");
+
+  return prisma.certification.findMany({
+    where: { isActive: true },
+    select: { id: true, title: true },
+    orderBy: { title: "asc" },
+  });
+}
 
 /**
  * Everything the dashboard needs to render progress bars + unlocked
@@ -18,7 +33,11 @@ export async function getMyCertificationDashboard() {
   const userId = session.user.id;
 
   const [certifications, correctCompletions, unlocked] = await Promise.all([
+    // Show a certification if it's active, OR the user already earned it
+    // before it was retired — so retiring one doesn't erase what someone
+    // already has.
     prisma.certification.findMany({
+      where: { OR: [{ isActive: true }, { unlockedBy: { some: { userId } } }] },
       include: { requiredQuests: { select: { questId: true } } },
       orderBy: { createdAt: "asc" },
     }),
@@ -63,7 +82,7 @@ export async function getMyCertificationDashboard() {
 }
 
 /**
- * Call this right after grading a quest (see submitQuestAnswer in
+ * Call this right after grading a quest attempt (see submitQuestAnswers in
  * quest-actions.ts). Re-checks every certification and issues any the user
  * has just become eligible for. Safe to call repeatedly — unlocking is
  * idempotent via the (userId, certificationId) unique constraint.
@@ -71,6 +90,7 @@ export async function getMyCertificationDashboard() {
 export async function unlockEligibleCertifications(userId: string) {
   const [certifications, correctCompletions, alreadyUnlocked] = await Promise.all([
     prisma.certification.findMany({
+      where: { isActive: true }, // retired certifications shouldn't be newly issued
       include: { requiredQuests: { select: { questId: true } } },
     }),
     prisma.questCompletion.findMany({

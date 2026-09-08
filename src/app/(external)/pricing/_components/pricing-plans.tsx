@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Check, Loader2, Tag } from "lucide-react";
+import { Check, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
-import { createSubscriptionCheckout } from "../_lib/billing-actions";
-import { Label } from "@/components/ui/label";
 
 export type PricingPlanData = {
   id: string;
@@ -20,10 +16,21 @@ export type PricingPlanData = {
   finalPriceIDR: number;
   discountCode: string | null;
   features: string[];
+  paymentLinkUrl: string | null;
 };
 
 const IDR = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
+/**
+ * Fetch active plans in a Server Component (page) with
+ * getActivePricingPlans() and pass them here as `plans`. Subscribing is a
+ * plain link to the plan's static iPaymu Payment Link (created by hand in
+ * the iPaymu dashboard, see PricingPlan.paymentLinkUrl) — there's no
+ * dynamic checkout call to make, so there's nothing to load or await here.
+ * The most expensive-duration plan (quarterly) gets the "Most Popular"
+ * badge by default; swap the `highlightSlug` prop if you'd rather flag a
+ * different one.
+ */
 export function PricingPlans({
   plans,
   currentPlanId,
@@ -34,10 +41,6 @@ export function PricingPlans({
   highlightSlug?: string;
 }) {
   const { t } = useLanguage();
-  const [discountCode, setDiscountCode] = useState("");
-  const [checkingOutPlanId, setCheckingOutPlanId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
 
   const intervalLabel: Record<PricingPlanData["interval"], string> = {
     WEEKLY: t.pricingPerWeek,
@@ -45,43 +48,14 @@ export function PricingPlans({
     QUARTERLY: t.pricingPerQuarter,
   };
 
-  function handleSubscribe(planId: string) {
-    setError(null);
-    setCheckingOutPlanId(planId);
-    
-    startTransition(() => {
-      void (async () => {
-        try {
-          const { redirectUrl } = await createSubscriptionCheckout(planId, discountCode || undefined);
-          
-          if (redirectUrl) {
-            window.location.href = redirectUrl;
-          } else {
-            throw new Error("Missing redirect URL");
-          }
-        } catch {
-          setError(t.pricingError);
-          setCheckingOutPlanId(null);
-        }
-      })();
-    });
-  }
-
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8">
-      
-      {/* HEADER SECTION */}
-      <div className="mx-auto max-w-3xl text-center space-y-4">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          {t.pricingTitle}
-        </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
-          {t.pricingSubtitle}
-        </p>
+    <div className="mx-auto w-full max-w-5xl space-y-8">
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold tracking-tight">{t.pricingTitle}</h1>
+        <p className="text-muted-foreground">{t.pricingSubtitle}</p>
       </div>
 
-      {/* PRICING CARDS */}
-      <div className="grid gap-8 lg:grid-cols-3 lg:gap-6 items-center">
+      <div className="grid gap-6 sm:grid-cols-3">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlanId;
           const isHighlighted = plan.slug === highlightSlug;
@@ -91,86 +65,58 @@ export function PricingPlans({
             <div
               key={plan.id}
               className={cn(
-                "relative flex flex-col rounded-3xl border bg-card p-8 transition-all duration-300",
-                isHighlighted 
-                  ? "border-transparent bg-background shadow-2xl ring-2 ring-[var(--royal-blue)] lg:scale-105 z-10" 
-                  : "border-border shadow-sm hover:border-primary/30 hover:shadow-md"
+                "relative flex flex-col rounded-xl border p-6",
+                isHighlighted ? "border-primary shadow-sm" : "border-border"
               )}
             >
               {isHighlighted && (
-                <Badge className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-primary border-none px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg">
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                   {t.pricingMostPopular}
                 </Badge>
               )}
 
-              <h3 className="text-xl font-bold">{plan.name}</h3>
+              <h3 className="font-semibold">{plan.name}</h3>
 
-              <div className="mt-4 flex flex-col gap-1">
+              <div className="mt-2">
                 {hasDiscount && (
-                  <span className="text-sm font-medium text-muted-foreground line-through decoration-destructive/50">
+                  <span className="mr-2 text-sm text-muted-foreground line-through">
                     {IDR.format(plan.priceIDR)}
                   </span>
                 )}
-                <div className="flex items-baseline text-4xl font-extrabold tracking-tight text-foreground">
+                <span className="text-2xl font-semibold tabular-nums">
                   {IDR.format(plan.finalPriceIDR)}
-                  <span className="ml-1.5 text-base font-medium text-muted-foreground">
-                    / {intervalLabel[plan.interval]}
-                  </span>
-                </div>
+                </span>
+                <span className="text-sm text-muted-foreground"> {intervalLabel[plan.interval]}</span>
               </div>
 
-              {/* DIVIDER */}
-              <div className="my-6 h-px w-full bg-border" />
+              {plan.discountCode && (
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  <Tag className="h-3 w-3" />
+                  {t.pricingHaveCode} {plan.discountCode}
+                </p>
+              )}
 
-              <ul className="flex-1 space-y-4">
+              <ul className="mt-4 flex-1 space-y-2">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <div className="mt-1 rounded-full bg-[var(--teal)]/10 p-1">
-                      <Check className="h-4 w-4 shrink-0 text-[var(--teal)]" strokeWidth={3} />
-                    </div>
-                    <span className="text-sm text-muted-foreground">{feature}</span>
+                  <li key={feature} className="flex items-start gap-2 text-sm">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              <Button
-                className={cn(
-                  "mt-8 w-full rounded-xl py-6 font-bold transition-all",
-                  isHighlighted 
-                    ? "bg-gradient-primary text-white border-0 hover:opacity-90 shadow-md hover:shadow-lg" 
-                    : "variant-outline"
+              <Button className="mt-6" variant={isHighlighted ? "default" : "outline"} disabled={isCurrent} asChild={!isCurrent}>
+                {isCurrent ? (
+                  <span>{t.pricingCurrentPlan}</span>
+                ) : (
+                  <a href={plan.paymentLinkUrl ?? "#"} target="_blank" rel="noreferrer">
+                    {t.pricingSubscribe}
+                  </a>
                 )}
-                variant={isHighlighted ? "default" : "outline"}
-                disabled={isCurrent || (isPending && checkingOutPlanId === plan.id)}
-                onClick={() => handleSubscribe(plan.id)}
-              >
-                {isPending && checkingOutPlanId === plan.id && (
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                )}
-                {isCurrent
-                  ? t.pricingCurrentPlan
-                  : isPending && checkingOutPlanId === plan.id
-                    ? t.pricingProcessing
-                    : t.pricingSubscribe}
               </Button>
             </div>
           );
         })}
-      </div>
-
-      {/* DISCOUNT CODE SECTION */}
-      <div className="mx-auto mt-12 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-muted/30 p-6">
-        <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          <Tag className="h-4 w-4" />
-          {t.pricingHaveCode}
-        </Label>
-        <Input
-          className="rounded-xl text-center font-mono text-lg uppercase tracking-wider"
-          placeholder="ENTER CODE"
-          value={discountCode}
-          onChange={(e) => setDiscountCode(e.target.value)}
-        />
-        {error && <p className="text-center text-sm font-medium text-destructive">{error}</p>}
       </div>
     </div>
   );

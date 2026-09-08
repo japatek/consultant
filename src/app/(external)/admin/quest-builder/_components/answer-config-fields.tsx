@@ -29,19 +29,23 @@ type T = (typeof translations)["en"];
 const FILE_EXTENSIONS = [".sldprt", ".step", ".stp", ".stl"] as const;
 
 /**
- * Renders a different set of inputs depending on `answerConfig.type` — this
- * is the "dynamic fields" part of the brief. Switching the type via the
- * <Select> replaces the whole answerConfig object with a fresh default
- * shape (defaultAnswerConfigFor) so stale fields from the previous type
- * never linger in the form state.
+ * Renders a different set of inputs depending on this question's
+ * `answerConfig.type` — the "dynamic fields" part of the brief, now scoped
+ * to one question at `index` within the quest's `questions` array (a quest
+ * holds a list of questions; each has its own answer type). Switching the
+ * type via the <Select> replaces the whole answerConfig object with a
+ * fresh default shape (defaultAnswerConfigFor) so stale fields from the
+ * previous type never linger in the form state.
  */
-export function AnswerConfigFields({ lang }: { lang: Language }) {
+export function AnswerConfigFields({ lang, index }: { lang: Language; index: number }) {
   const t = translations[lang];
   const { control, setValue } = useFormContext<QuestFormValues>();
-  const config = useWatch({ control, name: "answerConfig" });
+  const config = useWatch({ control, name: `questions.${index}.answerConfig` });
 
   function changeType(next: AnswerType) {
-    setValue("answerConfig", defaultAnswerConfigFor(next), { shouldValidate: true });
+    setValue(`questions.${index}.answerConfig`, defaultAnswerConfigFor(next), {
+      shouldValidate: true,
+    });
   }
 
   return (
@@ -61,30 +65,40 @@ export function AnswerConfigFields({ lang }: { lang: Language }) {
       </div>
 
       <div className="rounded-lg border bg-muted/30 p-4">
-        {config.type === "MULTIPLE_CHOICE" && <MultipleChoiceFields t={t} config={config} />}
-        {config.type === "TEXT_INPUT" && <TextInputFields t={t} config={config} />}
-        {config.type === "FILE_UPLOAD" && <FileUploadFields t={t} config={config} />}
+        {config.type === "MULTIPLE_CHOICE" && (
+          <MultipleChoiceFields t={t} index={index} config={config} />
+        )}
+        {config.type === "TEXT_INPUT" && <TextInputFields t={t} index={index} config={config} />}
+        {config.type === "FILE_UPLOAD" && <FileUploadFields t={t} index={index} config={config} />}
       </div>
     </div>
   );
 }
 
-function MultipleChoiceFields({ t, config }: { t: T; config: MultipleChoiceConfig }) {
+function MultipleChoiceFields({
+  t,
+  index,
+  config,
+}: {
+  t: T;
+  index: number;
+  config: MultipleChoiceConfig;
+}) {
   const { setValue } = useFormContext<QuestFormValues>();
 
   function update(partial: Partial<MultipleChoiceConfig>) {
-    setValue("answerConfig", { ...config, ...partial }, { shouldValidate: true });
+    setValue(`questions.${index}.answerConfig`, { ...config, ...partial }, { shouldValidate: true });
   }
-  function updateOption(index: number, value: string) {
+  function updateOption(i: number, value: string) {
     const options = [...config.options];
-    options[index] = value;
+    options[i] = value;
     update({ options });
   }
   function addOption() {
     update({ options: [...config.options, ""] });
   }
-  function removeOption(index: number) {
-    const options = config.options.filter((_, i) => i !== index);
+  function removeOption(i: number) {
+    const options = config.options.filter((_, idx) => idx !== i);
     update({ options, correctIndex: config.correctIndex >= options.length ? 0 : config.correctIndex });
   }
 
@@ -96,7 +110,7 @@ function MultipleChoiceFields({ t, config }: { t: T; config: MultipleChoiceConfi
           <div key={i} className="flex items-center gap-2">
             <input
               type="radio"
-              name="mc-correct-answer"
+              name={`mc-correct-answer-${index}`}
               checked={config.correctIndex === i}
               onChange={() => update({ correctIndex: i })}
               aria-label={t.questCorrectAnswer}
@@ -128,10 +142,10 @@ function MultipleChoiceFields({ t, config }: { t: T; config: MultipleChoiceConfi
   );
 }
 
-function TextInputFields({ t, config }: { t: T; config: TextInputConfig }) {
+function TextInputFields({ t, index, config }: { t: T; index: number; config: TextInputConfig }) {
   const { setValue } = useFormContext<QuestFormValues>();
   function update(partial: Partial<TextInputConfig>) {
-    setValue("answerConfig", { ...config, ...partial }, { shouldValidate: true });
+    setValue(`questions.${index}.answerConfig`, { ...config, ...partial }, { shouldValidate: true });
   }
 
   return (
@@ -147,11 +161,11 @@ function TextInputFields({ t, config }: { t: T; config: TextInputConfig }) {
 
       <div className="flex items-center gap-2">
         <Checkbox
-          id="case-sensitive"
+          id={`case-sensitive-${index}`}
           checked={config.caseSensitive}
           onCheckedChange={(v) => update({ caseSensitive: v === true })}
         />
-        <Label htmlFor="case-sensitive" className="cursor-pointer font-normal">
+        <Label htmlFor={`case-sensitive-${index}`} className="cursor-pointer font-normal">
           {t.questCaseSensitive}
         </Label>
       </div>
@@ -171,10 +185,10 @@ function TextInputFields({ t, config }: { t: T; config: TextInputConfig }) {
   );
 }
 
-function FileUploadFields({ t, config }: { t: T; config: FileUploadConfig }) {
+function FileUploadFields({ t, index, config }: { t: T; index: number; config: FileUploadConfig }) {
   const { setValue } = useFormContext<QuestFormValues>();
   function update(partial: Partial<FileUploadConfig>) {
-    setValue("answerConfig", { ...config, ...partial }, { shouldValidate: true });
+    setValue(`questions.${index}.answerConfig`, { ...config, ...partial }, { shouldValidate: true });
   }
   function toggleExtension(ext: (typeof FILE_EXTENSIONS)[number]) {
     const has = config.allowedExtensions.includes(ext);

@@ -1,7 +1,7 @@
 /**
  * Pure eligibility logic. Takes plain ids in, plain results out — no Prisma
  * import here on purpose, so the actual DB fetch stays in the server action
- * (src/actions/certification-actions.ts) and this file can be unit tested
+ * (src/lib/certificate/certification-actions.ts) and this file can be unit tested
  * with plain arrays.
  */
 

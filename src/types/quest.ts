@@ -8,12 +8,23 @@ import { z } from "zod";
 export const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
 
+/**
+ * Subject tags, aligned with the two certification families:
+ *   - "General Drawing Reading (ISO/ASME)" feeds the Associate Drawing
+ *     Inspector certification.
+ *   - The rest each feed their matching specific-type Drawing Inspector
+ *     certification (Welding Annotation, P&ID, Sheet Metal, Architectural).
+ * A quest's category is just a tag for browsing/filtering — which
+ * certification(s) it actually counts toward is set explicitly in the
+ * builder (see `certificationIds` below) since a quest can feed more than
+ * one certification, or none (pure training).
+ */
 export const CATEGORIES = [
-  "2D Drafting",
-  "3D Modeling",
-  "Assembly",
-  "GD&T",
-  "Simulation",
+  "General Drawing Reading (ISO/ASME)",
+  "Welding Annotation",
+  "P&ID",
+  "Sheet Metal",
+  "Architectural Drawing",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -24,10 +35,10 @@ export const MEDIA_TYPES = ["IMAGE", "VIDEO", "PDF"] as const;
 export type MediaType = (typeof MEDIA_TYPES)[number];
 
 /* -------------------------------------------------------------------------
- * Answer configuration — a discriminated union keyed on `type`.
- * This is what makes the Quest Builder's "Answer Configuration" section
- * dynamic: the form reads `answerConfig.type` and swaps in the matching
- * sub-schema, and grading later switches on the exact same field.
+ * Answer configuration — a discriminated union keyed on `type`. This is
+ * what makes each Question's "Answer Configuration" section dynamic: the
+ * form reads `answerConfig.type` and swaps in the matching sub-schema, and
+ * grading later switches on the exact same field.
  * ---------------------------------------------------------------------- */
 
 export const multipleChoiceConfigSchema = z
@@ -72,7 +83,7 @@ export type TextInputConfig = z.infer<typeof textInputConfigSchema>;
 export type FileUploadConfig = z.infer<typeof fileUploadConfigSchema>;
 export type AnswerConfig = z.infer<typeof answerConfigSchema>;
 
-/** Sensible starting value when the admin switches the answer-type <Select>. */
+/** Sensible starting value when the admin switches a question's answer-type <Select>. */
 export function defaultAnswerConfigFor(type: AnswerType): AnswerConfig {
   switch (type) {
     case "MULTIPLE_CHOICE":
@@ -85,7 +96,34 @@ export function defaultAnswerConfigFor(type: AnswerType): AnswerConfig {
 }
 
 /* -------------------------------------------------------------------------
- * Media + the full quest form
+ * A single Question within a Quest
+ * ---------------------------------------------------------------------- */
+
+export const questionFormSchema = z.object({
+  id: z.string().optional(), // present when editing an existing question
+  prompt: z.string().trim().min(5, "Give the question some real text"),
+  points: z.number().int().min(1).max(1000).default(10),
+  answerConfig: answerConfigSchema,
+});
+export type QuestionFormValues = z.infer<typeof questionFormSchema>;
+
+/** Shape of a submitted answer to ONE question — validated against that
+ *  question's own answerConfig at grading time (lib/quest/grade-answer.ts). */
+export const submittedAnswerSchema = z.union([
+  z.object({ type: z.literal("MULTIPLE_CHOICE"), selectedIndex: z.number().int().min(0) }),
+  z.object({ type: z.literal("TEXT_INPUT"), value: z.string() }),
+  z.object({ type: z.literal("FILE_UPLOAD"), fileUrl: z.string().url(), fileName: z.string() }),
+]);
+export type SubmittedAnswer = z.infer<typeof submittedAnswerSchema>;
+
+/** Submitting a whole quest attempt = one answer per question, all at once. */
+export const submitQuestAnswersSchema = z
+  .array(z.object({ questionId: z.string(), answer: submittedAnswerSchema }))
+  .min(1);
+export type SubmitQuestAnswersInput = z.infer<typeof submitQuestAnswersSchema>;
+
+/* -------------------------------------------------------------------------
+ * Media + the full quest form — a Quest is a titled SET of Questions
  * ---------------------------------------------------------------------- */
 
 export const questMediaSchema = z.object({
@@ -101,19 +139,12 @@ export const questFormSchema = z.object({
   category: z.enum(CATEGORIES),
   description: z.string().trim().min(20, "Give the quest a real description"),
   instructions: z.string().trim().min(10, "Instructions are required"),
-  points: z.number().int().min(1).max(1000).default(10),
   media: z.array(questMediaSchema).max(10, "10 attachments max").default([]),
-  answerConfig: answerConfigSchema,
+  questions: z.array(questionFormSchema).min(1, "Add at least one question"),
+  // Which certification(s) this quest counts toward — empty = pure
+  // training, not tied to any certification. Set of Certification ids.
+  certificationIds: z.array(z.string()).default([]),
   isPublished: z.boolean().default(false),
 });
 
 export type QuestFormValues = z.infer<typeof questFormSchema>;
-
-/** Shape of a submitted answer — validated against the quest's own
- *  answerConfig at grading time (see src/lib/quest/grade-answer.ts). */
-export const submittedAnswerSchema = z.union([
-  z.object({ type: z.literal("MULTIPLE_CHOICE"), selectedIndex: z.number().int().min(0) }),
-  z.object({ type: z.literal("TEXT_INPUT"), value: z.string() }),
-  z.object({ type: z.literal("FILE_UPLOAD"), fileUrl: z.string().url(), fileName: z.string() }),
-]);
-export type SubmittedAnswer = z.infer<typeof submittedAnswerSchema>;

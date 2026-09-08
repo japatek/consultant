@@ -8,7 +8,6 @@ type T = (typeof translations)["en"];
 export type CertificationCardData = {
   id: string;
   title: string;
-  slug: string;
   description: string;
   badgeUrl: string | null;
   requiredCount: number;

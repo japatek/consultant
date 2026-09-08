@@ -10,7 +10,7 @@ export type GradeResult = {
 /**
  * Pure grading function: (config, submission) -> result. No DB, no auth, no
  * Next.js imports, so it's trivial to unit test and safe to call from both
- * the submitQuestAnswer server action and, later, a queue worker if grading
+ * the submitQuestAnswers server action and, later, a queue worker if grading
  * ever needs to move off the request path (e.g. FILE_UPLOAD review).
  */
 export function gradeAnswer(

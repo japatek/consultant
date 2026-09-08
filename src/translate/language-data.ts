@@ -74,7 +74,6 @@ export const translations = {
         navTraining: 'Task',
         navHome: 'Home',
 
-
         // ------------------------------------------------------------------
         // Quest Builder (admin) — Engineering Drawing quests & certification
         // ------------------------------------------------------------------
@@ -109,6 +108,15 @@ export const translations = {
         questSaving: 'Saving...',
         questSaved: 'Quest saved.',
         questSaveError: "Couldn't save the quest — check the form and try again.",
+
+        // Questions within a quest
+        questionsLabel: 'Questions',
+        questionLabel: 'Question',
+        questionPrompt: 'Question Prompt',
+        questionAddQuestion: 'Add Question',
+        questionRemoveQuestion: 'Remove Question',
+        questFieldCertifications: 'Counts Toward Certification(s)',
+        questNoCertifications: 'No certifications yet — create one first, or leave this quest as pure training.',
 
         // Certification dashboard
         dashTitle: 'My Progress',
@@ -151,6 +159,15 @@ export const translations = {
         adminRedemptions: 'Redemptions',
         adminSave: 'Save',
         adminCancel: 'Cancel',
+
+        // Admin — certifications
+        certAdminTitle: 'Certifications',
+        certAdminSubtitle: 'Manage certifications and see which quests feed each one.',
+        certAdminAdd: 'Add Certification',
+        certAdminEdit: 'Edit Certification',
+        certAdminLinkedQuests: 'Linked Quests',
+        certAdminEarnedBy: 'Earned By',
+        certAdminBadge: 'Badge Image',
     },
     id: {
         // Navbar
@@ -223,13 +240,14 @@ export const translations = {
         yes: 'Mengerti',
         bck: 'Kembali',
 
+        // --- Navigation Menu ---
         navPlatform: 'Platform',
         navArticle: 'Artikel',
         navCertificate: 'Sertifikat',
         navTraining: 'Latihan',
         navHome: 'Beranda',
 
-         // ------------------------------------------------------------------
+        // ------------------------------------------------------------------
         // Quest Builder (admin) — Kuis/Sertifikasi Gambar Teknik
         // ------------------------------------------------------------------
         questBuilderTitle: 'Buat Quest',
@@ -263,6 +281,15 @@ export const translations = {
         questSaving: 'Menyimpan...',
         questSaved: 'Quest tersimpan.',
         questSaveError: 'Quest gagal disimpan — periksa formulir dan coba lagi.',
+
+        // Pertanyaan dalam satu quest
+        questionsLabel: 'Pertanyaan',
+        questionLabel: 'Pertanyaan',
+        questionPrompt: 'Teks Pertanyaan',
+        questionAddQuestion: 'Tambah Pertanyaan',
+        questionRemoveQuestion: 'Hapus Pertanyaan',
+        questFieldCertifications: 'Termasuk Sertifikasi',
+        questNoCertifications: 'Belum ada sertifikasi — buat satu terlebih dahulu, atau biarkan quest ini sebagai latihan saja.',
 
         // Certification dashboard
         dashTitle: 'Progres Saya',
@@ -305,6 +332,15 @@ export const translations = {
         adminRedemptions: 'Penukaran',
         adminSave: 'Simpan',
         adminCancel: 'Batal',
+
+        // Admin — sertifikasi
+        certAdminTitle: 'Sertifikasi',
+        certAdminSubtitle: 'Kelola sertifikasi dan lihat quest mana yang menjadi syaratnya.',
+        certAdminAdd: 'Tambah Sertifikasi',
+        certAdminEdit: 'Ubah Sertifikasi',
+        certAdminLinkedQuests: 'Quest Terkait',
+        certAdminEarnedBy: 'Diperoleh Oleh',
+        certAdminBadge: 'Gambar Lencana',
     }
 };
 
