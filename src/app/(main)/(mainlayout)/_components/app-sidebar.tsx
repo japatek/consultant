@@ -23,48 +23,10 @@ import { SidebarSupportCard } from "./sidebar-support-card";
 import { useSession } from "next-auth/react";
 import { useLanguage } from "../../../../hooks/use-language"; 
 
-const _data = {
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: CircleHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: Database,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardList,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: File,
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const id = session?.user?.id;
   
-  // 2. Initialize the translation object
   const { t } = useLanguage();
   
   const currentUser = React.useMemo(() => {
@@ -77,8 +39,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const sidebarData = React.useMemo(() => {
     if (!id) return [];
-    
-    // 3. Pass 't' as the second argument
     return sidebarItems(id, t); 
   }, [id, t]);
 
@@ -103,8 +63,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>
-            <div className="group-data-[collapsible=icon]:mx-auto">
-              <SidebarTrigger className="h-8 w-8 hover:bg-sidebar-accent" />
+            {/* Hidden on mobile, visible on desktop */}
+            <div className="hidden md:block group-data-[collapsible=icon]:mx-auto">
+              <SidebarTrigger className="h-8 w-8 hover:bg-sidebar-accent md:hidden -ml-2" />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { ChevronRight, Menu, X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react"; // Removed Menu, kept X
 
 import { Button } from "../../../../components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../../../components/ui/collapsible";
@@ -46,7 +46,7 @@ const NavItemExpanded = ({
 }) => {
   return (
     <Collapsible key={item.title} asChild defaultOpen={isSubmenuOpen(item.subItems)} className="group/collapsible">
-      <SidebarMenuItem >
+      <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           {item.subItems ? (
             <SidebarMenuButton
@@ -143,7 +143,7 @@ const NavItemCollapsed = ({
 
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
-  const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
@@ -159,17 +159,17 @@ export function NavMain({ items }: NavMainProps) {
   return (
     <>
       {isMobile && (
-        <div className="mb-3 flex items-center justify-between border-b px-2 py-2 md:hidden">
-          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Menu</span>
+        <div className="mb-3 flex items-center justify-between border-b px-3 py-2 md:hidden">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Menu</span>
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="icon"
             className="h-8 w-8"
-            aria-label={openMobile ? "Close sidebar" : "Open sidebar"}
-            onClick={toggleSidebar}
+            aria-label="Close sidebar"
+            onClick={() => setOpenMobile(false)}
           >
-            {openMobile ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+             <X className="h-4 w-4" />
           </Button>
         </div>
       )}
@@ -181,7 +181,6 @@ export function NavMain({ items }: NavMainProps) {
             <SidebarMenu>
               {group.items.map((item) => {
                 if (state === "collapsed" && !isMobile) {
-                  // If no subItems, just render the button as a link
                   if (!item.subItems) {
                     return (
                       <SidebarMenuItem key={item.title}>
@@ -199,10 +198,8 @@ export function NavMain({ items }: NavMainProps) {
                       </SidebarMenuItem>
                     );
                   }
-                  // Otherwise, render the dropdown as before
                   return <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />;
                 }
-                // Expanded view
                 return (
                   <NavItemExpanded key={item.title} item={item} isActive={isItemActive} isSubmenuOpen={isSubmenuOpen} />
                 );
