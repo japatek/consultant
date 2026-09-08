@@ -41,6 +41,7 @@ export type PlanRecord = {
   features: string[];
   isActive: boolean;
   sortOrder: number;
+  paymentLinkUrl: string | null;
 };
 export type AdminPlanRow = PlanRecord & { _count: { subscriptions: number } };
 
