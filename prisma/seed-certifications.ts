@@ -1,14 +1,5 @@
-/**
- * Seeds the two certification families described in the brief. Run once
- * (e.g. `npx tsx prisma/seed-certifications.ts`) after migrating — the
- * Quest Builder's certification multi-select reads from this table, so it
- * needs at least these rows to have anything to show.
- *
- * Uses your existing Prisma client singleton import path — adjust if yours
- * lives somewhere else.
- */
-import { prisma } from "../src/lib/database/prisma";
-
+// 1. Suntikkan URL ke environment sebelum Prisma Client dimuat
+process.env.DATABASE_URL = 'postgres://3198291bd9db991a8484e4f5ee5e6941b2ca1f77a9227f5a5ca9436afa9b55dc:sk_h67OvH1rlrUxBoq0lJ3iG@db.prisma.io:5432/postgres?sslmode=require';
 const CERTIFICATIONS = [
   {
     slug: "associate-drawing-inspector",
@@ -35,10 +26,14 @@ const CERTIFICATIONS = [
     slug: "drawing-inspector-architectural",
     title: "Drawing Inspector — Architectural Drawing",
     description: "Specialist certification in reading and verifying architectural drawings.",
-  },
+  }
 ];
 
 async function main() {
+  // 2. Gunakan dynamic import agar Prisma mengambil konfigurasi adapter 
+  // bawaan aplikasi Anda beserta URL yang baru disuntikkan di atas.
+  const { prisma } = await import("../src/lib/database/prisma");
+
   for (const cert of CERTIFICATIONS) {
     await prisma.certification.upsert({
       where: { slug: cert.slug },
@@ -46,12 +41,12 @@ async function main() {
       create: cert,
     });
   }
+  
   console.log(`Seeded ${CERTIFICATIONS.length} certifications.`);
+  await prisma.$disconnect();
 }
 
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
