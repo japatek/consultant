@@ -64,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </Link>
             </SidebarMenuButton>
             {/* Hidden on mobile, visible on desktop */}
-            <div className="hidden md:block group-data-[collapsible=icon]:mx-auto">
+            <div className="md:block group-data-[collapsible=icon]:mx-auto">
               <SidebarTrigger className="h-8 w-8 hover:bg-sidebar-accent" />
             </div>
           </SidebarMenuItem>
