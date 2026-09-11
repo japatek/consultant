@@ -10,21 +10,22 @@ import XTwitterLogoIcon from "./ui/twitter";
 
 // 1. Added id_label for Indonesian translations
 const SERVICES_SURFACES = [
-  { href: "/download", id: "web", label: "Website", id_label: "Situs Web" },
-  { href: "/download/ui", id: "ext", label: "Desktop App", id_label: "Aplikasi Desktop" },
-  { href: "/documentation", id: "off", label: "Documentation", id_label: "Dokumentasi" },
+  { href: "/landing/project", id: "web", label: "Article", id_label: "Artikel" },
+  // { href: "/download/ui", id: "ext", label: "Desktop App", id_label: "Aplikasi Desktop" },
+  { href: "/landing/services", id: "services", label: "Services", id_label: "Servis" },
 ] as const;
 
 const RESOURCES = [
-  { href: "/docs", id: "docs", label: "Documentation", id_label: "Dokumentasi" },
-  { href: "/marketplace", id: "tool", label: "Tools", id_label: "Alat" },
+  { href: "/course", id: "course", label: "Course", id_label: "Kursus" },
+  // { href: "/marketplace", id: "tool", label: "Tools", id_label: "Alat" },
   { href: "/terms", id: "terms", label: "Terms of Service", id_label: "Ketentuan Layanan" },
   { href: "/privacy", id: "privacy", label: "Privacy Policy", id_label: "Kebijakan Privasi" },
 ] as const;
 
 const COMPANY = [
   { href: "mailto:info@japatek.com", id: "contact", label: "Contact", id_label: "Kontak" },
-  { href: "https://japatek.com", id: "japatek", label: "PT. Japa Teknika Solusi", id_label: "PT. Japa Teknika Solusi" },
+  { href: "https://japatek.space/landing/about", id: "japatek", label: "PT. Japa Teknika Solusi", id_label: "PT. Japa Teknika Solusi" },
+  { href: "https://japatek.space/landing/team", id: "team", label: "Teams", id_label: "Team Kami"}
 ] as const;
 
 export default function Footer() {
