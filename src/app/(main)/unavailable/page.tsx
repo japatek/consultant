@@ -11,8 +11,7 @@ export default function NotFound() {
         <h1 className="mb-2 text-5xl font-bold text-chart-4">I'm Sorry</h1>
         <h2 className="mb-3 text-xl font-semibold text-[var(--color-chart-1)]">The Page currently not ready</h2>
         <p className="mb-7 leading-relaxed text-[#888] text-sm">
-          But you can explore another page  
-          <Smile/>
+          But you can explore another page, Thanks  
         </p>
 
         <div className="flex justify-center">
