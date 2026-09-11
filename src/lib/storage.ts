@@ -10,7 +10,7 @@
  *   AWS_REGION
  *   AWS_ACCESS_KEY_ID
  *   AWS_SECRET_ACCESS_KEY
- *   AWS_S3_BUCKET
+ *   AWS_BUCKET_NAME          <-- Telah disesuaikan dengan variabel Anda
  *   CLOUDFRONT_DOMAIN        e.g. d2tbt8ofproaan.cloudfront.net (no protocol, no trailing slash)
  *
  * Optional:
@@ -24,14 +24,11 @@
  */
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
+// Fungsi requireEnv dimodifikasi agar bisa mengecek fallbackName jika nama pertama tidak ada
+function requireEnv(name: string, fallbackName?: string): string {
+  const value = process.env[name] || (fallbackName ? process.env[fallbackName] : undefined);
   if (!value) {
-    // Thrown intentionally instead of letting the AWS SDK fail with a
-    // vaguer error further down — in production Next.js hides the real
-    // message behind "An error occurred in the Server Components render",
-    // so check your server/function logs for this exact message + digest.
-    throw new Error(`Missing required env var: ${name} (see src/lib/storage.ts)`);
+    throw new Error(`Missing required env var: ${name}${fallbackName ? ` or ${fallbackName}` : ""} (see src/lib/storage.ts)`);
   }
   return value;
 }
@@ -75,7 +72,8 @@ function buildKey(folder: string, fileName: string): string {
  * bucket itself isn't meant to be public (CloudFront is the CDN in front of it).
  */
 export async function uploadFile(file: File, folder: string): Promise<UploadedFile> {
-  const bucket = requireEnv("AWS_S3_BUCKET");
+  // Mengecek AWS_BUCKET_NAME terlebih dahulu, jika tidak ada baru mengecek AWS_S3_BUCKET
+  const bucket = requireEnv("AWS_BUCKET_NAME", "AWS_S3_BUCKET");
   const cdnDomain = requireEnv("CLOUDFRONT_DOMAIN");
   const bytes = Buffer.from(await file.arrayBuffer());
   const key = buildKey(folder, file.name);
@@ -109,7 +107,8 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
 
 /** Accepts either a full CloudFront URL or a bare S3 key. */
 export async function deleteFile(urlOrKey: string): Promise<void> {
-  const bucket = requireEnv("AWS_S3_BUCKET");
+  // Mengecek AWS_BUCKET_NAME terlebih dahulu, jika tidak ada baru mengecek AWS_S3_BUCKET
+  const bucket = requireEnv("AWS_BUCKET_NAME", "AWS_S3_BUCKET");
   const key = urlOrKey.startsWith("http") ? new URL(urlOrKey).pathname.replace(/^\/+/, "") : urlOrKey;
   await getClient().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
