@@ -125,3 +125,6 @@ jobs:
         
         echo "=== Waiting for MCP Server rollout ==="
         kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
+
+        echo "=== Forcing Next.js Pod to read new Secrets ==="
+        kubectl rollout restart deployment/japa-consultant --insecure-skip-tls-verify
