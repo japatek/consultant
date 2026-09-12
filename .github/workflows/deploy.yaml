@@ -87,7 +87,9 @@ jobs:
           --from-literal=AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           --from-literal=AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
           --from-literal=AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }} \
+          --from-literal=AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }} \
           --from-literal=NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }} \
+          --from-literal=CLOUDFRONT_DOMAIN=${{ secrets.CLOUDFRONT_DOMAIN }} \
           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
 
         # Replace Placeholders in Manifest

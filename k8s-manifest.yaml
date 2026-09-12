@@ -95,6 +95,17 @@ spec:
             secretKeyRef:
               name: aws-s3-secret
               key: NEXT_PUBLIC_CLOUDFRONT_URL
+        # +++ DITAMBAHKAN TANPA MENGHAPUS YANG LAMA +++
+        - name: AWS_BUCKET_NAME
+          valueFrom:
+            secretKeyRef:
+              name: aws-s3-secret
+              key: AWS_BUCKET_NAME
+        - name: CLOUDFRONT_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: aws-s3-secret
+              key: CLOUDFRONT_DOMAIN
 ---
 apiVersion: v1
 kind: Service
