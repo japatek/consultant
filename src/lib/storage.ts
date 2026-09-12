@@ -71,10 +71,13 @@ function buildKey(folder: string, fileName: string): string {
  * bucket itself isn't meant to be public (CloudFront is the CDN in front of it).
  */
 export async function uploadFile(file: File, folder: string): Promise<UploadedFile> {
-  // Telah diubah menggunakan AWS_S3_BUCKET
   const bucket = requireEnv("AWS_S3_BUCKET_NAME");
-  // Telah diubah menggunakan NEXT_PUBLIC_CLOUDFRONT_URL
-  const cdnDomain = requireEnv("NEXT_PUBLIC_CLOUDFRONT_URL");
+  
+  // MENGAMBIL DAN MEMBERSIHKAN NAMA DOMAIN
+  let cdnDomain = requireEnv("NEXT_PUBLIC_CLOUDFRONT_URL");
+  // Menghapus 'http://' atau 'https://' di awal dan '/' di akhir (jika ada)
+  cdnDomain = cdnDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
   const bytes = Buffer.from(await file.arrayBuffer());
   const key = buildKey(folder, file.name);
 
@@ -88,8 +91,6 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
       })
     );
   } catch (error) {
-    // Re-thrown with context — the raw AWS SDK error (AccessDenied, NoSuchBucket,
-    // credential errors, etc.) is preserved as `cause` so it still shows up in logs.
     throw new Error(
       `S3 upload failed for key "${key}" in bucket "${bucket}": ${
         error instanceof Error ? error.message : String(error)
@@ -99,7 +100,7 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
   }
 
   return {
-    url: `https://${cdnDomain}/${key}`,
+    url: `https://${cdnDomain}/${key}`, // Sekarang dipastikan aman tanpa double https
     fileName: file.name,
     sizeBytes: bytes.byteLength,
   };
