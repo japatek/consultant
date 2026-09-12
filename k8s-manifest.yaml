@@ -85,27 +85,16 @@ spec:
             secretKeyRef:
               name: aws-s3-secret
               key: AWS_SECRET_ACCESS_KEY
-        - name: AWS_S3_BUCKET_NAME
+        - name: AWS_BUCKET
           valueFrom:
             secretKeyRef:
               name: aws-s3-secret
-              key: AWS_S3_BUCKET_NAME
-        - name: NEXT_PUBLIC_CLOUDFRONT_URL
+              key: AWS_BUCKET
+        - name: NEXT_PUBLIC_AWS_CLOUDFRONT
           valueFrom:
             secretKeyRef:
               name: aws-s3-secret
-              key: NEXT_PUBLIC_CLOUDFRONT_URL
-        # +++ DITAMBAHKAN TANPA MENGHAPUS YANG LAMA +++
-        - name: AWS_BUCKET_NAME
-          valueFrom:
-            secretKeyRef:
-              name: aws-s3-secret
-              key: AWS_BUCKET_NAME
-        - name: CLOUDFRONT_DOMAIN
-          valueFrom:
-            secretKeyRef:
-              name: aws-s3-secret
-              key: CLOUDFRONT_DOMAIN
+              key: NEXT_PUBLIC_AWS_CLOUDFRONT
 ---
 apiVersion: v1
 kind: Service
