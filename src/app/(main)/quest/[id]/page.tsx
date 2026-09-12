@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/database/prisma";
-import { QuestInteractiveClient } from "./quest-client";
+import { prisma } from "../../../../lib/database/prisma";
+import { QuestInteractiveClient } from "./_components/quest-client";
 
 // Menangani params sebagai Promise untuk kompatibilitas Next.js terbaru
 type PageProps = {
