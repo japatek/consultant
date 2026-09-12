@@ -100,7 +100,7 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
   }
 
   return {
-    url: `https://${cdnDomain}/${key}`, // Sekarang dipastikan aman tanpa double https
+    url: `${cdnDomain}/${key}`, // Sekarang dipastikan aman tanpa double https
     fileName: file.name,
     sizeBytes: bytes.byteLength,
   };
