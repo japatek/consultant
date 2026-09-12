@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from "react";
@@ -17,12 +16,11 @@ import {
   ResizablePanelGroup,
 } from "../../../../../components/ui/resizable";
 
-// Mocking the types based on your schema
 type Question = {
   id: string;
   prompt: string;
   answerType: "MULTIPLE_CHOICE" | "TEXT_INPUT" | "FILE_UPLOAD";
-  answerConfig: any; // Stored as JSON
+  answerConfig: any;
 };
 
 type QuestMedia = {
@@ -43,10 +41,23 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
   const { t } = useLanguage();
   
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // MENCEGAH CRASH JIKA SOAL KOSONG
+  if (!quest.questions || quest.questions.length === 0) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-background text-foreground p-4 text-center">
+        <h2 className="mb-2 text-2xl font-bold">No Questions Yet</h2>
+        <p className="mb-6 text-muted-foreground">This quest has been created but no questions have been added.</p>
+        <Button onClick={() => router.push("/training")} className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          {t.bck || "Go Back"}
+        </Button>
+      </div>
+    );
+  }
+
   const currentQuestion = quest.questions[currentIndex];
-  
-  // Just grabbing the first piece of media for the "Task Picture" section
-  const primaryMedia = quest.media[0];
+  const primaryMedia = quest.media && quest.media.length > 0 ? quest.media[0] : null;
 
   const handleNext = () => {
     if (currentIndex < quest.questions.length - 1) setCurrentIndex((prev) => prev + 1);
@@ -56,15 +67,11 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
     if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
   };
 
-  // --------------------------------------------------------
-  // DYNAMIC ANSWER COMPONENT RENDERER
-  // --------------------------------------------------------
   const renderAnswerSection = (question: Question) => {
     const config = question.answerConfig;
 
     switch (question.answerType) {
       case "MULTIPLE_CHOICE":
-        // Generates A, B, C, D labels dynamically based on array index
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         return (
           <RadioGroup className="flex flex-col gap-4 mt-4">
@@ -117,7 +124,6 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       
-      {/* TOP NAVIGATION BAR */}
       <header className="flex h-16 shrink-0 items-center justify-between border-b px-4 lg:px-6">
         <Button variant="ghost" onClick={() => router.push("/training")} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
@@ -138,13 +144,10 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
         </div>
       </header>
 
-      {/* MAIN CONTENT AREA */}
       <div className="flex-1 overflow-hidden">
         
-        {/* DESKTOP LAYOUT (Resizable Panes) */}
         <ResizablePanelGroup direction="horizontal" className="hidden md:flex h-full">
           
-          {/* LEFT: QUESTION SECTION */}
           <ResizablePanel defaultSize={40} minSize={25} className="bg-muted/10 p-6 flex flex-col">
             <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
               {t.questionLabel || "Question Section"}
@@ -156,11 +159,9 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
 
           <ResizableHandle withHandle />
 
-          {/* RIGHT: PICTURE & ANSWER SPLIT */}
           <ResizablePanel defaultSize={60}>
             <ResizablePanelGroup direction="vertical">
               
-              {/* TOP RIGHT: TASK PICTURE */}
               <ResizablePanel defaultSize={50} minSize={25} className="bg-muted/5 relative p-6 flex flex-col">
                  <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
                   Task Picture
@@ -180,7 +181,6 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
 
               <ResizableHandle withHandle />
 
-              {/* BOTTOM RIGHT: ANSWER SECTION */}
               <ResizablePanel defaultSize={50} minSize={30} className="p-6 flex flex-col bg-background">
                 <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
                   Answer Section
@@ -202,10 +202,8 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
         </ResizablePanelGroup>
 
 
-        {/* MOBILE LAYOUT (Stacked, standard scrolling - disables resizer for small screens) */}
         <div className="flex h-full flex-col overflow-y-auto md:hidden p-4 space-y-6">
            
-           {/* Picture Mobile */}
            <div className="space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Task Picture</h2>
               <div className="aspect-video w-full rounded-md border bg-muted/10 flex items-center justify-center overflow-hidden">
@@ -218,7 +216,6 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
               </div>
            </div>
 
-           {/* Question Mobile */}
            <div className="space-y-2 rounded-lg bg-muted/10 p-4 border">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 {t.questionLabel || "Question"}
@@ -226,7 +223,6 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
               <p className="text-base leading-relaxed">{currentQuestion.prompt}</p>
            </div>
 
-           {/* Answer Mobile */}
            <div className="space-y-4 pb-8">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Answer</h2>
               {renderAnswerSection(currentQuestion)}
