@@ -74,9 +74,9 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
   const bucket = requireEnv("AWS_S3_BUCKET_NAME");
   
   // MENGAMBIL DAN MEMBERSIHKAN NAMA DOMAIN
-  let cdnDomain = requireEnv("MEDIA_URL");
+  let cdnDomain = requireEnv("NEXT_PUBLIC_CLOUDFRONT_URL");
   // Menghapus 'http://' atau 'https://' di awal dan '/' di akhir (jika ada)
-  // cdnDomain = cdnDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  cdnDomain = cdnDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const key = buildKey(folder, file.name);
