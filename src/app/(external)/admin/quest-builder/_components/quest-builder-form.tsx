@@ -257,7 +257,13 @@ export function QuestBuilderForm({
                   type="button"
                   variant="outline"
                   disabled={isSubmitting}
-                  onClick={form.handleSubmit((v) => onSubmit(v, false))}
+                  onClick={form.handleSubmit(
+                    (v) => onSubmit(v, false),
+                    (errors) => {
+                      console.error("Validation errors:", errors);
+                      setFormError("Validation failed: Please check all tabs for missing or invalid fields.");
+                    }
+                  )}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {t.questSaveDraft}
@@ -265,7 +271,13 @@ export function QuestBuilderForm({
                 <Button
                   type="button"
                   disabled={isSubmitting}
-                  onClick={form.handleSubmit((v) => onSubmit(v, true))}
+                  onClick={form.handleSubmit(
+                    (v) => onSubmit(v, true),
+                    (errors) => {
+                      console.error("Validation errors:", errors);
+                      setFormError("Validation failed: Please check all tabs for missing or invalid fields.");
+                    }
+                  )}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isSubmitting ? t.questSaving : t.questPublish}
@@ -273,7 +285,12 @@ export function QuestBuilderForm({
               </div>
             </div>
 
-            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            {/* Display both API errors and Form Validation errors globally */}
+            {(formError || Object.keys(form.formState.errors).length > 0) && (
+              <p className="text-sm text-destructive font-medium bg-destructive/10 p-3 rounded-md">
+                {formError || "Please fix the errors in the tabs above before submitting."}
+              </p>
+            )}
           </form>
         </FormProvider>
       </CardContent>
