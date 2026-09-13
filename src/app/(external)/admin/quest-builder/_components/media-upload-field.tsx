@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { FileImage, FileVideo, FileText, X, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,47 +24,61 @@ const ICONS: Record<MediaType, typeof FileImage> = {
   PDF: FileText,
 };
 
-/** Reference-file uploader for the quest brief (image, video, or PDF). */
 export function MediaUploadField({ lang }: { lang: Language }) {
   const t = translations[lang];
-  const { watch, setValue } = useFormContext<QuestFormValues>();
-  const media = watch("media");
-  const [isPending, startTransition] = useTransition();
+  const { watch, setValue, getValues, formState } = useFormContext<QuestFormValues>();
+  
+  // Menggunakan getValues untuk mencegah data hilang saat re-render
+  const media = watch("media") || [];
+  
+  // MENGGANTI useTransition dengan useState agar status loading (isUploading) akurat
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleFiles(files: FileList | null) {
+  // Mengambil error spesifik dari Zod untuk field 'media'
+  const mediaZodError = formState.errors.media;
+
+  async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
+    setIsUploading(true);
 
-    // startTransition's callback must return void, not a Promise (this is
-    // enforced by React's types on React 18) — the async work runs in an
-    // IIFE inside it instead of being returned directly.
-    startTransition(() => {
-      void (async () => {
-        for (const file of Array.from(files)) {
-          try {
-            const formData = new FormData();
-            formData.set("file", file);
-            formData.set("folder", "quest-media");
-            const uploaded = await apiRequest<UploadedFile>("/api/media/upload", { formData });
-            const next: QuestMediaInput = {
-              type: mediaTypeFor(file),
-              url: uploaded.url,
-              fileName: uploaded.fileName,
-            };
-            setValue("media", [...watch("media"), next], { shouldValidate: true });
-          } catch (err) {
-            setError(err instanceof Error ? err.message : "Upload failed");
-          }
-        }
-      })();
-    });
+    try {
+      // Selalu ambil nilai paling baru dari form untuk mencegah stale data
+      const currentMedia = getValues("media") || [];
+      const newMedia = [...currentMedia];
+
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("folder", "quest-media");
+        
+        const uploaded = await apiRequest<UploadedFile>("/api/media/upload", { formData });
+        
+        // Menambahkan properti "name" sebagai fallback apabila schema Zod Anda tidak menggunakan "fileName"
+        const next: any = {
+          type: mediaTypeFor(file),
+          url: uploaded.url,
+          fileName: uploaded.fileName,
+          name: uploaded.fileName, // Tambahan asuransi skema Zod
+        };
+        
+        newMedia.push(next);
+      }
+      
+      setValue("media", newMedia, { shouldValidate: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   function removeAt(index: number) {
+    const currentMedia = getValues("media") || [];
     setValue(
       "media",
-      media.filter((_, i) => i !== index),
+      currentMedia.filter((_, i) => i !== index),
       { shouldValidate: true }
     );
   }
@@ -77,41 +91,53 @@ export function MediaUploadField({ lang }: { lang: Language }) {
       <label
         className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border py-8 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
       >
-        {isPending ? (
+        {isUploading ? (
           <Loader2 className="h-6 w-6 animate-spin" />
         ) : (
           <Upload className="h-6 w-6" />
         )}
-        <span className="text-sm">{isPending ? t.questUploading : t.questUploadFile}</span>
+        <span className="text-sm">{isUploading ? t.questUploading : t.questUploadFile}</span>
         <input
           type="file"
           accept={ACCEPT}
           multiple
           className="hidden"
-          disabled={isPending}
+          disabled={isUploading}
           onChange={(e) => handleFiles(e.target.files)}
         />
       </label>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
+      {/* +++ KOTAK DEBUG ZOD ERROR +++ 
+          Akan langsung menampilkan teks alasan kenapa Zod menolak gambar ini */}
+      {mediaZodError && (
+        <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive overflow-auto border border-destructive/20">
+          <p className="font-bold mb-1">Zod Validation Error Details:</p>
+          <pre>{JSON.stringify(mediaZodError, null, 2)}</pre>
+        </div>
+      )}
+
       {media.length > 0 && (
         <ul className="space-y-2">
           {media.map((item, i) => {
-            const Icon = ICONS[item.type];
+            const Icon = ICONS[item.type as MediaType] || FileText;
             return (
               <li
                 key={`${item.url}-${i}`}
                 className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm"
               >
                 <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="flex-1 truncate">{item.fileName}</span>
+                <span className="flex-1 truncate">{item.fileName || (item as any).name}</span>
                 <Button
-                  type="button"
+                  type="button" // PENTING: Mencegah tombol silang (hapus) melakukan submit form!
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6"
-                  onClick={() => removeAt(i)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    removeAt(i);
+                  }}
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
