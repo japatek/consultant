@@ -36,6 +36,16 @@ type Quest = {
   media: QuestMedia[];
 };
 
+// +++ FUNGSI PEMBERSIH URL OTOMATIS +++
+// Fungsi ini akan mengubah "https://https//domain.com..." menjadi "https://domain.com..."
+const sanitizeImageUrl = (rawUrl: string) => {
+  if (!rawUrl) return "";
+  // Menghapus SEMUA variasi awalan http://, https://, http//, atau https// di awal string
+  const cleanPath = rawUrl.replace(/^(https?:\/\/|https?\/\/)+/gi, "");
+  // Menggabungkan kembali dengan HANYA SATU https:// yang valid
+  return `https://${cleanPath}`;
+};
+
 export function QuestInteractiveClient({ quest }: { quest: Quest }) {
   const router = useRouter();
   const { t } = useLanguage();
@@ -168,8 +178,9 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
                  </h2>
                  <div className="flex-1 overflow-hidden rounded-md border bg-background flex items-center justify-center">
                     {primaryMedia ? (
+                      // +++ MENGGUNAKAN SANITIZE URL DI SINI +++
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={primaryMedia.url} alt="Task Reference" className="h-full w-full object-contain" />
+                      <img src={sanitizeImageUrl(primaryMedia.url)} alt="Task Reference" className="h-full w-full object-contain" />
                     ) : (
                       <div className="flex flex-col items-center text-muted-foreground">
                         <ImageIcon className="h-10 w-10 mb-2 opacity-50" />
@@ -208,8 +219,9 @@ export function QuestInteractiveClient({ quest }: { quest: Quest }) {
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Task Picture</h2>
               <div className="aspect-video w-full rounded-md border bg-muted/10 flex items-center justify-center overflow-hidden">
                 {primaryMedia ? (
+                   // +++ MENGGUNAKAN SANITIZE URL DI SINI +++
                    // eslint-disable-next-line @next/next/no-img-element
-                   <img src={primaryMedia.url} alt="Task Reference" className="h-full w-full object-cover" />
+                   <img src={sanitizeImageUrl(primaryMedia.url)} alt="Task Reference" className="h-full w-full object-cover" />
                 ) : (
                    <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
                 )}
