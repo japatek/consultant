@@ -47,11 +47,8 @@ export function QuestBuilderForm({
   initialValues,
   certifications,
 }: {
-  /** Pass both when editing an existing quest; omit both to create a new one. */
   questId?: string;
   initialValues?: QuestFormValues;
-  /** Available certifications this quest can be linked to — fetched by the
-   *  parent Server Component page via listCertifications(). */
   certifications: CertificationOption[];
 }) {
   const { lang, t } = useLanguage();
@@ -90,6 +87,21 @@ export function QuestBuilderForm({
     }
   }
 
+  // Fungsi untuk memetakan error agar lebih mudah dibaca manusia
+  const generateErrorMessage = (errors: any) => {
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length === 0) return "Validation failed. Please check your inputs.";
+    
+    const fields = errorKeys.map(key => {
+      if (key === 'title') return 'Title (Metadata Tab)';
+      if (key === 'description') return 'Description (Content Tab)';
+      if (key === 'questions') return 'Questions (Questions Tab)';
+      return key;
+    });
+    
+    return `Cannot save! You must fill in: ${fields.join(", ")}`;
+  };
+
   return (
     <Card className="mx-auto w-full max-w-3xl">
       <CardHeader>
@@ -108,7 +120,6 @@ export function QuestBuilderForm({
                 <TabsTrigger value="questions">{t.questionsLabel}</TabsTrigger>
               </TabsList>
 
-              {/* --- Metadata --- */}
               <TabsContent value="metadata" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">{t.questFieldTitle}</Label>
@@ -181,12 +192,9 @@ export function QuestBuilderForm({
                 </div>
               </TabsContent>
 
-              {/* --- Content --- */}
               <TabsContent value="content" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="description">{t.questFieldDescription}</Label>
-                  {/* TODO: swap for a rich text editor (Tiptap/Lexical) — kept
-                      as a plain textarea placeholder per the brief. */}
                   <Textarea id="description" rows={5} {...form.register("description")} />
                   {form.formState.errors.description && (
                     <p className="text-sm text-destructive">
@@ -200,13 +208,10 @@ export function QuestBuilderForm({
                 </div>
               </TabsContent>
 
-              {/* --- Media --- */}
               <TabsContent value="media" className="pt-4">
                 <MediaUploadField lang={lang} />
               </TabsContent>
 
-              {/* --- Questions: a quest is a list of questions, each with
-                  its own dynamic answer configuration --- */}
               <TabsContent value="questions" className="space-y-4 pt-4">
                 {form.formState.errors.questions?.message && (
                   <p className="text-sm text-destructive">{form.formState.errors.questions.message}</p>
@@ -259,10 +264,7 @@ export function QuestBuilderForm({
                   disabled={isSubmitting}
                   onClick={form.handleSubmit(
                     (v) => onSubmit(v, false),
-                    (errors) => {
-                      console.error("Validation errors:", errors);
-                      setFormError("Validation failed: Please check all tabs for missing or invalid fields.");
-                    }
+                    (errors) => setFormError(generateErrorMessage(errors))
                   )}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -273,10 +275,7 @@ export function QuestBuilderForm({
                   disabled={isSubmitting}
                   onClick={form.handleSubmit(
                     (v) => onSubmit(v, true),
-                    (errors) => {
-                      console.error("Validation errors:", errors);
-                      setFormError("Validation failed: Please check all tabs for missing or invalid fields.");
-                    }
+                    (errors) => setFormError(generateErrorMessage(errors))
                   )}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -285,11 +284,12 @@ export function QuestBuilderForm({
               </div>
             </div>
 
-            {/* Display both API errors and Form Validation errors globally */}
             {(formError || Object.keys(form.formState.errors).length > 0) && (
-              <p className="text-sm text-destructive font-medium bg-destructive/10 p-3 rounded-md">
-                {formError || "Please fix the errors in the tabs above before submitting."}
-              </p>
+              <div className="rounded-md bg-destructive/10 p-4 border border-destructive/20">
+                <p className="text-sm font-medium text-destructive">
+                  {formError || "Please fix the red errors in the tabs above before submitting."}
+                </p>
+              </div>
             )}
           </form>
         </FormProvider>
