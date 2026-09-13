@@ -50,11 +50,11 @@ export const featuredProjects: Project[] = [
   • Pelatihan dan pengenalan – aset ini dirancang untuk orientasi teknisi baru, mendukung eksplorasi langkah-demi-langkah dari bagian dalam turbin tanpa memerlukan akses fisik ke unit yang sedang berjalan.
   • Integrasi portofolio digital – simulasi ini juga berfungsi sebagai aset pemasaran, menyajikan cerita teknik yang meningkatkan jejak digital perusahaan sambil mempertahankan kredibilitas teknis.
 
-  Deskripsi tambahan ini memperjelas bagaimana proyek melayani audiens yang berbeda. Bagi insinyur garis depan, ini menawarkan referensi berorientasi inspeksi yang membuat tugas pemeliharaan lebih efisien dan tidak rentan terhadap kesalahan. Bagi manajer proyek dan perencana operasional, ini memberikan representasi visual yang jelas tentang tahapan inspeksi, membantu menyelaraskan sumber daya, menjadwalkan pemadaman, dan mengoordinasikan dukungan vendor.
+  Deskripsi tambahan ini memperjelas bagaimana proyek melayani audiens yang berbeda. Bagi insinyur garis depan, ini menawarkan referensi umtuk melaksanakan inspeksi dan tugas pemeliharaan menjadi lebih efisien dan tidak rentan terhadap kesalahan. Bagi manajer proyek dan perencana operasional, ini memberikan representasi visual yang jelas tentang tahapan inspeksi, membantu menyelaraskan sumber daya, menjadwalkan pemadaman, dan mengoordinasikan dukungan vendor.
 
-  Dari perspektif konten, hasil kerjanya diposisikan sebagai etalase digital yang dapat diakses. Hal ini melengkapi narasi situs web dengan menunjukkan kemampuan perusahaan untuk menangani sistem pembangkit listrik yang kompleks dan memberikan simulasi yang akurat secara teknis dan menarik secara visual. Simulasi ini terstruktur untuk menjawab pertanyaan yang paling relevan bagi klien: di mana komponen kritis berada, bagaimana mereka terhubung, dan apa yang harus diperiksa selama inspeksi.
+  Dari perspektif konten, hasil kerja dapat diposisikan sebagai etalase digital yang mudah diakses oleh para stakeholder. Hal ini melengkapi desain website dengan menunjukkan kemampuan perusahaan untuk menangani sistem pembangkit listrik yang kompleks dan memberikan simulasi yang akurat secara teknis dan menarik secara visual. Simulasi ini terstruktur untuk menjawab pertanyaan yang paling relevan bagi klien: di mana komponen kritis berada, bagaimana mereka terhubung, dan apa yang harus diperiksa selama inspeksi.
 
-  Singkatnya, simulasi inspeksi M701F adalah aset rekayasa fungsional sekaligus platform komunikasi. Ini dibangun untuk mengurangi risiko inspeksi, meningkatkan keselarasan tim, dan mengangkat portofolio klien melalui cerita digital yang disempurnakan dan didasarkan pada kebutuhan pemeliharaan yang nyata.`,
+  Singkatnya, simulasi inspeksi M701F adalah aset rekayasa fungsional sekaligus platform komunikasi. Proyek ini dibangun untuk mengurangi risiko inspeksi, meningkatkan keselarasan tim, dan mengangkat portofolio klien melalui cerita digital yang disempurnakan dan didasarkan pada kebutuhan pemeliharaan yang nyata.`,
     media: {
       type: 'image',
       url: 'https://d2tbt8ofproiin.cloudfront.net/pln-ip/pln-ip-1.jpg',
@@ -92,11 +92,11 @@ export const featuredProjects: Project[] = [
   • Ketahanan operasional – desain sistem mencakup redundansi, pengaturan jalan pintas (bypass), dan volume penyimpanan penyangga untuk mengelola variabilitas aliran masuk dan memastikan operasi berkelanjutan selama pemeliharaan.
   • Dokumentasi dan pengiriman – proyek ini juga mencakup hasil manajemen proyek seperti spesifikasi peralatan, gambar konstruksi, dan dokumentasi commissioning, memastikan desain siap untuk diimplementasikan.
 
-  Narasi menjelaskan bagaimana proyek menangani persyaratan situs dan operasional tertentu. Hal ini membahas bagaimana instalasi pengolahan diatur untuk menangani air limbah pabrik gula berkekuatan tinggi, bagaimana instalasi ini mengakomodasi variasi musiman dalam aliran dan beban, dan bagaimana ia terintegrasi dengan jaringan utilitas industri yang ada. Hal ini juga menyoroti kebutuhan untuk menyelaraskan dengan pemantauan peraturan, strategi pemberian dosis bahan kimia, dan pertimbangan dewatering lumpur.
+  Desain ini diharapkan mampu menjelaskan bagaimana proyek menangani persyaratan situs dan operasional tertentu. Hal ini menjadi pembahasan bagaimana instalasi pengolahan  dapat diatur untuk menangani air limbah pabrik gula berkekuatan tinggi, bagaimana instalasi ini mengakomodasi variasi musiman dalam aliran dan beban, dan bagaimana ia terintegrasi dengan jaringan utilitas industri yang ada. Selain itu hal ini juga menyoroti kebutuhan untuk menyelaraskan proses produksi dengan peraturan yang ada, strategi pemberian dosis bahan kimia, dan pertimbangan dewatering lumpur.
 
-  Selain detail teknis, deskripsi ini menekankan manfaat bagi pemangku kepentingan. Bagi operator pabrik, desain ini memberikan fondasi yang kuat untuk pengelolaan air limbah yang stabil dan pemecahan masalah yang lebih mudah. Bagi manajemen dan regulator, ini menunjukkan komitmen terhadap praktik industri yang berkelanjutan melalui pemulihan sumber daya yang efisien, pembuangan yang terkontrol, dan meminimalkan dampak lingkungan.
+  Selain detail teknis, deskripsi ini menekankan manfaat bagi pemangku kepentingan. Bagi operator pabrik, desain ini memberikan fondasi yang kuat untuk pengelolaan air limbah yang stabil dan pemecahan masalah yang lebih mudah. Bagi manajemen dan regulator, ini menunjukkan komitmen yang baik terhadap praktik industri yang berkelanjutan melalui pemulihan sumber daya yang efisien, pengolahan limbah yang terkontrol, dan meminimalkan dampak lingkungan.
 
-  Pada akhirnya, desain instalasi ini disajikan sebagai investasi strategis dalam kinerja operasional jangka panjang. Narasi memposisikan proyek ini sebagai tonggak rekayasa sekaligus solusi lingkungan, menunjukkan bagaimana fasilitas pengolahan air limbah yang terorganisir dengan baik dapat melindungi pabrik gula, melestarikan sumber daya air, dan mendukung pertumbuhan industri yang bertanggung jawab.`,
+  Pada akhirnya, desain instalasi ini disajikan sebagai investasi strategis dalam kinerja operasional jangka panjang. Kami memposisikan proyek ini sebagai tonggak rekayasa sekaligus solusi lingkungan, menunjukkan bagaimana fasilitas pengolahan air limbah yang terorganisir dengan baik dapat melindungi pabrik gula, melestarikan sumber daya alam, dan mendukung pertumbuhan industri yang bertanggung jawab.`,
     media: {
       type: 'image',
       url: 'https://d2tbt8ofproiin.cloudfront.net/ipal/ipal-1.jpg',
@@ -127,14 +127,14 @@ export const featuredProjects: Project[] = [
   In conclusion, the Pharmacy Vending Machine is presented as a forward-looking solution that combines engineering reliability with patient-centered design. The project is positioned as an innovation that can improve pharmacy operations, enhance medication safety, and deliver a strong user experience while maintaining the strict security and compliance standards required in healthcare.`,
     id_extend_desc: `  Proyek ini mendokumentasikan desain dan konsep operasional untuk Mesin Penjual Otomatis Farmasi, sebuah sistem pengeluaran obat otomatis yang dimaksudkan untuk mendukung apotek dan fasilitas perawatan kesehatan. Solusi ini memadukan kontrol gerak mekanis, pengaturan slot internal, dan antarmuka yang berfokus pada pengguna untuk memberikan pengiriman obat-obatan yang aman dan efisien.
 
-  Deskripsi diatur dengan petunjuk rinci:
+  Deskripsi diatur dengan petunjuk sebagai berikut:
   • Arsitektur penyimpanan modular – mesin ini menampung obat-obatan dalam kompartemen terpisah, disusun berdasarkan dosis, faktor bentuk, dan persyaratan penanganan.
-  • Mekanisme pengambilan – aktuator robotik memilih dan mengirimkan barang secara akurat, dengan kontrol gerak yang dirancang untuk getaran minimal dan ekstraksi yang andal.
-  • Antarmuka pengguna dan alur kerja – layar memandu pelanggan melalui pemilihan resep, verifikasi pasien, dan konfirmasi penyelesaian, sementara staf apotek tetap mengawasi proses pengeluaran.
+  • Mekanisme pengambilan – aktuator robotik memilih dan mengirimkan barang secara akurat, dengan kontrol gerak yang dirancang untuk memastikan getaran yang terjadi seminimal mungkin dan memiliki kemampuan ekstraksi yang andal.
+  • Antarmuka pengguna dan alur kerja – fitu layar dapat memandu pelanggan untuk melakukan pemilihan resep, verifikasi pasien, dan konfirmasi penyelesaian, sementara staf apotek tetap mengawasi proses pengeluaran.
   • Kepatuhan dan audit – sistem mencakup langkah-langkah kontrol akses, pencatatan transaksi, dan fitur pemisahan dosis untuk mendukung persyaratan peraturan dan penanganan zat yang dikendalikan.
   • Kontrol suhu dan lingkungan – desain mendukung penyimpanan obat-obatan sensitif melalui kompartemen tersegmentasi dan kontrol iklim opsional untuk stabilitas.
 
-  Narasi menjelaskan keunggulan operasional dari mesin penjual otomatis. Hal ini menyoroti bagaimana sistem mengurangi waktu tunggu, meningkatkan konsistensi layanan, dan menurunkan risiko kesalahan pengobatan melalui otomatisasi. Ini juga menjelaskan bagaimana mesin mendukung manajemen inventaris apotek dengan memberikan pembaruan status waktu nyata, peringatan stok rendah, dan indikator penyetokan ulang otomatis.
+  Desain ini diharapkan memiliki keunggulan operasional dari mesin penjual otomatis. Hal ini menyoroti bagaimana sistem mengurangi waktu tunggu, meningkatkan konsistensi layanan, dan menurunkan risiko kesalahan pengobatan melalui otomatisasi. Ini juga menjelaskan bagaimana mesin mendukung manajemen inventaris apotek dengan memberikan pembaruan status waktu nyata, peringatan stok rendah, dan indikator penyetokan ulang otomatis.
 
   Deskripsi lebih lanjut merinci pengalaman pelanggan. Ini menekankan instruksi yang jelas, petunjuk intuitif, dan serah terima obat-obatan yang cepat dan aman. Ini juga mencakup bagaimana mesin dapat mengakomodasi pengguna langsung (walk-up) maupun personel apotek, menjadikannya aset fleksibel untuk pengaturan perawatan kesehatan yang sibuk.
 
@@ -168,21 +168,61 @@ export const featuredProjects: Project[] = [
   In summary, the Education Robot is presented as both a technical assessment tool and an educational resource. The project demonstrates how a robotic system can be evaluated for long-term serviceability while also functioning as a learning device that helps users understand the importance of condition monitoring, lifecycle planning, and system reliability.`,
     id_extend_desc: `  Proyek Robot Edukasi ini digambarkan sebagai platform komprehensif untuk penilaian kondisi struktural dan analisis sisa umur pakai dari sistem mekanis otomatis. Ini menggabungkan tuntutan praktis dari evaluasi teknik dengan kebutuhan pedagogis dari robot pendidikan, menawarkan solusi yang relevan baik untuk pelatihan maupun pengambilan keputusan teknis.
 
-  Deskripsi ini dibangun di sekitar beberapa poin rinci:
-  • Evaluasi struktural – penilaian memeriksa sasis robot, sambungan, rakitan aktuator, mekanisme penggerak, dan rangka pendukung untuk menentukan kondisi komponen mekanis saat ini.
-  • Sistem kontrol dan operasional – ini menganalisis bagaimana sensor, pengontrol, perangkat lunak, dan sistem gerak berinteraksi untuk menghasilkan perilaku yang dapat diprediksi dan diulang selama operasi normal dan latihan instruksional.
-  • Analisis siklus hidup – proyek mengukur sisa umur pakai yang berguna untuk bagian yang dapat aus, memprediksi interval pemeliharaan, dan mengevaluasi komponen mana yang paling mungkin memerlukan penggantian terlebih dahulu.
-  • Aplikasi pendidikan – robot ini juga dirancang untuk mengajari siswa tentang ketahanan mekanis, diagnostik sistem, dan proses menerjemahkan data menjadi keputusan pemeliharaan.
+  Deskripsi ini dibangun dengan beberapa poin berikut:
+  • Evaluasi struktural – memeriksa sasis robot, sambungan, rakitan aktuator, mekanisme penggerak, dan rangka pendukung untuk menentukan kondisi komponen mekanis saat ini.
+  • Sistem kontrol dan operasional – menganalisis bagaimana sensor, pengontrol, perangkat lunak, dan sistem gerak berinteraksi untuk menghasilkan perilaku yang dapat diprediksi dan diulang selama operasi normal dan simulasi instruksional.
+  • Analisis siklus hidup – proyek mengukur sisa umur pakai yang berguna untuk mengetahui bagian memiliki keausan, memprediksi interval pemeliharaan, dan mengevaluasi komponen yang paling mungkin memerlukan perewatan terlebih dahulu.
+  • Aplikasi pendidikan – robot ini juga dirancang untuk memberikan informasi kepada siswa tentang ketahanan mekanis, diagnostik sistem, dan proses menerjemahkan data menjadi keputusan.
 
-  Narasi menjelaskan mengapa pendekatan tujuan ganda ini berharga. Bagi para insinyur dan perencana pemeliharaan, platform ini memberikan wawasan yang dapat ditindaklanjuti tentang kesehatan komponen dan perkiraan umur pakai. Bagi instruktur dan siswa, ini menawarkan demonstrasi yang jelas tentang prinsip-prinsip teknik seperti distribusi beban, mode kegagalan, dan pemeliharaan preventif.
+Desain ini diharapkan mengapa pendekatan tujuan ganda ini menjadi berharga. Bagi para insinyur dan perencana pemeliharaan, platform ini memberikan informasi yang dapat ditindaklanjuti dalam konteks kesehatan komponen dan perkiraan umur pakai. Bagi para instruktur dan siswa, robot ini menawarkan demonstrasi yang jelas tentang prinsip-prinsip teknik seperti distribusi beban, mode kegagalan, dan proses pemeliharaan.
 
-  Deskripsi ini juga mencakup bagaimana proyek mendukung pengambilan keputusan. Ini mengidentifikasi titik kegagalan kritis, mengarahkan perhatian pada area inspeksi yang paling penting, dan menyediakan kerangka kerja untuk mendokumentasikan bagaimana kondisi robot berubah seiring waktu. Hal ini menjadikan Robot Edukasi aset yang berguna untuk mengembangkan strategi pemeliharaan dan mengurangi risiko waktu henti yang tidak terduga.
+  Deskripsi ini juga mencakup bagaimana proyek mendukung pengambilan keputusan. Serta mampu mengidentifikasi titik kegagalan kritis, mengarahkan perhatian pada area inspeksi yang paling penting, dan menyediakan kerangka kerja untuk mendokumentasikan bagaimana kondisi robot berubah seiring waktu. Hal ini menjadikan Robot Edukasi aset yang berguna untuk mengembangkan strategi pemeliharaan dan mengurangi risiko waktu henti yang tidak terduga.
 
   Singkatnya, Robot Edukasi disajikan sebagai alat penilaian teknis sekaligus sumber pendidikan. Proyek ini menunjukkan bagaimana sistem robotik dapat dievaluasi untuk kemudahan servis jangka panjang sementara juga berfungsi sebagai perangkat pembelajaran yang membantu pengguna memahami pentingnya pemantauan kondisi, perencanaan siklus hidup, dan keandalan sistem.`,
     media: {
       type: 'image',
       url: 'https://d2tbt8ofproiin.cloudfront.net/edu-bot/edu-bot-1.jpg',
       alt: 'Education Robotics'
+    }
+  },
+{
+  tag: "Construction",
+    id_tag: "Konstruksi",
+    title: "Traditional Joglo House",
+    id_title: "Rumah Joglo",
+    desc: "Inspection, precision measurement, and construction supervision of a traditional Javanese Joglo house, designed as a homestay facility and a medium for art communication.",
+    id_desc: "Inspeksi, pengukuran presisi, dan pengawasan pembangunan rumah tradisional Joglo yang difungsikan sebagai fasilitas homestay dan media komunikasi seni.",
+    slug: "joglo-house",
+    extend_desc: `  This Traditional Joglo House project is described as a comprehensive framework for the construction, precision measurement, and structural supervision of a heritage Javanese building designed to function as an immersive homestay facility and a medium for artistic communication. It combines the practical demands of modern structural evaluation with the cultural preservation of traditional architectural techniques.
+
+  The description is built around several detailed pointers:
+  • Architectural Measurement – precise dimensioning and surveying of the *Soko Guru* (four main pillars), *Tumpang Sari* (layered roof structure), and overall spatial layout to maintain strict traditional proportions.
+  • Material and Joinery Assessment – evaluation of teak wood quality and the structural integrity of traditional wooden interlocking joinery (system without nails) to ensure long-term stability.
+  • Functional Adaptation & Art Communication – adapting the traditional layout to serve as a modern homestay facility, providing an immersive cultural experience while acting as a living gallery to communicate Javanese philosophy and local arts to visitors.
+  • Load Distribution & Foundation – analyzes how the massive weight of the roof is efficiently transferred through the wooden frame down to the *umpak* (stone bases), ensuring resilience against environmental stresses and seismic activity.
+
+  The narrative explains why this multi-purpose approach is valuable. For architects and civil engineers, the project provides actionable insights into preserving traditional construction methods using measurable structural standards. For the hospitality sector and artists, it creates a unique accommodation experience that actively communicates cultural heritage and serves as a physical medium for art appreciation.
+
+  The description also covers how the project supports long-term structural maintenance. It identifies critical stress points in the timber frame, directs attention toward the most important areas for termite or weather inspection, and provides a framework for documenting the wood's condition over time. This makes the measurement and supervision process a useful asset for developing preservation strategies for commercial heritage buildings.
+
+  In summary, the Joglo House project is presented as a structural engineering feat, a cultural preservation effort, and a functional commercial space. The project demonstrates how heritage architecture can be systematically measured, built, and maintained, ensuring that traditional Javanese construction methods remain structurally sound while thriving as a dynamic homestay and artistic hub for future generations.`,
+    id_extend_desc: `  Proyek Rumah Tradisional Joglo ini digambarkan sebagai kerangka kerja komprehensif untuk konstruksi, pengukuran presisi, dan pengawasan struktural dari bangunan warisan budaya Jawa yang dirancang untuk berfungsi sebagai fasilitas homestay dan media komunikasi seni. Proyek ini menggabungkan tuntutan praktis dari evaluasi struktural modern dengan pelestarian budaya teknik arsitektur tradisional.
+
+  Deskripsi ini dibangun dengan beberapa poin berikut:
+  • Pengukuran Arsitektur – penentuan dimensi presisi dan survei dari *Soko Guru* (empat tiang utama), *Tumpang Sari* (struktur atap berlapis), dan tata letak ruang keseluruhan untuk mempertahankan proporsi tradisional yang ketat.
+  • Penilaian Material dan Sambungan – evaluasi kualitas kayu jati dan integritas struktural dari teknik sambungan kayu tradisional (sistem tanpa paku) untuk memastikan stabilitas jangka panjang.
+  • Adaptasi Fungsi & Komunikasi Seni – mengadaptasi tata ruang tradisional untuk difungsikan sebagai fasilitas homestay modern, memberikan pengalaman budaya yang mendalam sekaligus bertindak sebagai galeri hidup untuk mengkomunikasikan filosofi Jawa dan seni lokal kepada pengunjung.
+  • Distribusi Beban & Fondasi – menganalisis bagaimana beban atap yang sangat berat ditransfer secara efisien melalui rangka kayu turun ke *umpak* (batu alas), memastikan ketahanan terhadap tekanan lingkungan dan aktivitas seismik.
+
+  Bagi para arsitek dan insinyur sipil, proyek ini memberikan wawasan yang dapat ditindaklanjuti dalam melestarikan metode konstruksi tradisional menggunakan standar struktural yang terukur. Bagi sektor pariwisata dan seniman, proyek ini menciptakan pengalaman menginap unik yang secara aktif mengkomunikasikan warisan budaya dan berfungsi sebagai media fisik untuk apresiasi seni.
+
+  Pada proyek telah dilakukan analisis mengenai pemeliharaan struktural jangka panjang, Pengukuran ini mengidentifikasi titik-titik tegangan kritis pada rangka kayu, mengarahkan perhatian pada area yang paling rentan terhadap rayap atau cuaca, dan menyediakan kerangka kerja untuk mendokumentasikan kondisi kayu seiring waktu. Hal ini menjadikan proses pengukuran dan pengawasan sebagai aset yang berguna untuk mengembangkan strategi pelestarian bangunan komersial bersejarah.
+
+  Singkatnya, Proyek Rumah Joglo disajikan sebagai pencapaian teknik rekayasa, upaya pelestarian budaya, sekaligus ruang komersial yang fungsional. Proyek ini menunjukkan bagaimana arsitektur warisan dapat diukur, dibangun, dan dipelihara secara sistematis, memastikan metode konstruksi tradisional Jawa tetap kokoh secara struktural sekaligus berkembang sebagai homestay dan pusat seni yang dinamis untuk generasi mendatang.`,
+  media: {
+      type: 'image',
+      url: 'https://d2tbt8ofproiin.cloudfront.net/joglo/rumah-joglo.jpeg',
+      alt: 'Traditional Joglo House'
     }
   }
 ];
