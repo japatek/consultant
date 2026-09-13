@@ -76,7 +76,11 @@ export async function uploadFile(file: File, folder: string): Promise<UploadedFi
   // MENGAMBIL DAN MEMBERSIHKAN NAMA DOMAIN
   let cdnDomain = requireEnv("NEXT_PUBLIC_CLOUDFRONT_URL");
   // Menghapus 'http://' atau 'https://' di awal dan '/' di akhir (jika ada)
-  cdnDomain = cdnDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+ cdnDomain = cdnDomain
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/^https?\/\//i, '')
+    .replace(/\/$/, '');
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const key = buildKey(folder, file.name);
