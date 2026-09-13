@@ -28,14 +28,10 @@ export function MediaUploadField({ lang }: { lang: Language }) {
   const t = translations[lang];
   const { watch, setValue, getValues, formState } = useFormContext<QuestFormValues>();
   
-  // Menggunakan getValues untuk mencegah data hilang saat re-render
   const media = watch("media") || [];
-  
-  // MENGGANTI useTransition dengan useState agar status loading (isUploading) akurat
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mengambil error spesifik dari Zod untuk field 'media'
   const mediaZodError = formState.errors.media;
 
   async function handleFiles(files: FileList | null) {
@@ -44,7 +40,6 @@ export function MediaUploadField({ lang }: { lang: Language }) {
     setIsUploading(true);
 
     try {
-      // Selalu ambil nilai paling baru dari form untuk mencegah stale data
       const currentMedia = getValues("media") || [];
       const newMedia = [...currentMedia];
 
@@ -55,12 +50,13 @@ export function MediaUploadField({ lang }: { lang: Language }) {
         
         const uploaded = await apiRequest<UploadedFile>("/api/media/upload", { formData });
         
-        // Menambahkan properti "name" sebagai fallback apabila schema Zod Anda tidak menggunakan "fileName"
-        const next: any = {
+        // +++ CEK URL YANG DIKEMBALIKAN DARI SERVER +++
+        console.log("URL DARI API UPLOAD:", uploaded.url);
+
+        const next: QuestMediaInput = {
           type: mediaTypeFor(file),
           url: uploaded.url,
           fileName: uploaded.fileName,
-          name: uploaded.fileName, // Tambahan asuransi skema Zod
         };
         
         newMedia.push(next);
@@ -109,8 +105,6 @@ export function MediaUploadField({ lang }: { lang: Language }) {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {/* +++ KOTAK DEBUG ZOD ERROR +++ 
-          Akan langsung menampilkan teks alasan kenapa Zod menolak gambar ini */}
       {mediaZodError && (
         <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive overflow-auto border border-destructive/20">
           <p className="font-bold mb-1">Zod Validation Error Details:</p>
@@ -128,9 +122,9 @@ export function MediaUploadField({ lang }: { lang: Language }) {
                 className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm"
               >
                 <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="flex-1 truncate">{item.fileName || (item as any).name}</span>
+                <span className="flex-1 truncate">{item.fileName}</span>
                 <Button
-                  type="button" // PENTING: Mencegah tombol silang (hapus) melakukan submit form!
+                  type="button"
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6"
