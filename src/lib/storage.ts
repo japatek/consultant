@@ -59,7 +59,7 @@ function sanitizeFileName(fileName: string): string {
 }
 
 function buildKey(folder: string, fileName: string): string {
-  const parts = [KEY_PREFIX, "quest", folder, `${crypto.randomUUID()}-${sanitizeFileName(fileName)}`];
+  const parts = [KEY_PREFIX, "Consultant","quest", folder, `${crypto.randomUUID()}-${sanitizeFileName(fileName)}`];
   return parts.filter(Boolean).join("/");
 }
 
