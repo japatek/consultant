@@ -62,7 +62,7 @@ export async function createQuest(values: QuestFormValues) {
     },
   });
 
-  revalidatePath("/admin/quests");
+  revalidatePath("/admin/quest-builder");
   return quest;
 }
 
@@ -100,9 +100,9 @@ export async function updateQuest(questId: string, values: QuestFormValues) {
     },
   });
 
-  revalidatePath("/admin/quests");
-  revalidatePath(`/admin/quests/${questId}`);
-  revalidatePath(`/quests/${quest.slug}`);
+  revalidatePath("/admin/quest-builder");
+  revalidatePath(`/admin/quest-builder/${questId}`);
+  revalidatePath(`/quest-builder/${quest.slug}`);
   return quest;
 }
 
