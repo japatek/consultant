@@ -88,9 +88,16 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
       // 2. Ambil teks paling baru dari ref (bukan dari state lama)
       const currentText = latestValueRef.current || ""; 
 
-      if (res.success) {
-        // 3. Ganti teks sementara dengan URL asli dari S3
-        const newText = currentText.replace(placeholderText, `\n![${file.name}](${res.url})\n`);
+      // +++ TAMBAHKAN && res.url DI SINI +++
+      if (res.success && res.url) {
+        // +++ MODIFIKASI CLOUDFRONT URL +++
+        // Ambil hanya nama filenya saja dari response backend
+        const fileName = res.url.split('/').pop();
+        // Paksa penyusunan URL menggunakan domain CloudFront
+        const cloudFrontUrl = `https://d2tbt8ofproiin.cloudfront.net/articles/${fileName}`;
+
+        // 3. Ganti teks sementara dengan URL CloudFront yang sudah bersih
+        const newText = currentText.replace(placeholderText, `\n![${file.name}](${cloudFrontUrl})\n`);
         onChange(newText);
       } else {
         notifyError("Gagal mengunggah gambar.");
@@ -104,7 +111,6 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
       setIsUploading(false);
     }
   };
-
   // Handler interaksi UI
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -202,14 +208,28 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex, rehypeRaw]}
               components={{
-                // Custom renderer untuk gambar agar rapi dan responsif
-                img: ({ node, ...props }) => (
-                  <img 
-                    {...props} 
-                    className="rounded-xl mx-auto shadow-md max-h-[500px] object-cover my-6" 
-                    alt={props.alt || "Article image"} 
-                  />
-                )
+                // +++ INTERCEPTOR GAMBAR DI PREVIEW +++
+                // Menjamin pratinjau juga selalu membaca format CloudFront yang benar
+                img: ({ node, src, alt, ...props }) => {
+                  if (!src) return null;
+                  const srcString = src as string;
+                  let finalSrc = srcString;
+                  
+                  if (!srcString.startsWith("http")) {
+                    const fileName = srcString.split('/').pop();
+                    finalSrc = `https://d2tbt8ofproiin.cloudfront.net/articles/${fileName}`;
+                  }
+
+                  return (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img 
+                      src={finalSrc} 
+                      alt={alt || "Article image"} 
+                      className="rounded-xl mx-auto shadow-md max-h-[500px] object-cover my-6" 
+                      {...props} 
+                    />
+                  );
+                }
               }}
             >
               {value}
