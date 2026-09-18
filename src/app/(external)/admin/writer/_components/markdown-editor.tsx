@@ -79,6 +79,8 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
 
     const formData = new FormData();
     formData.append("file", file);
+    // Tambahkan parameter folder agar backend tahu di mana harus menyimpannya
+    formData.append("folder", "Consultant/articles");
 
     try {
       const res = await uploadImageToS3(formData);

@@ -2,7 +2,7 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import ReactMarkdown from "react-markdown";
-import { prisma } from "@/lib/database/prisma"; // Sesuaikan dengan path instance Prisma Anda
+import { prisma } from "@/lib/database/prisma";
 import Footer from "@/components/Footer";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -10,7 +10,6 @@ import rehypeKatex from "rehype-katex";
 import 'katex/dist/katex.min.css';
 import rehypeRaw from "rehype-raw";
 
-// 1. Ubah tipe params menjadi Promise (Standar Next.js 15)
 interface ArticleDetailPageProps {
   params: Promise<{
     slug: string;
@@ -20,28 +19,22 @@ interface ArticleDetailPageProps {
 export const revalidate = 60;
 
 export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
-  // 2. WAJIB tambahkan 'await' saat membaca params!
   const { slug } = await params;
 
-  // Ambil data artikel dari database berdasarkan slug
   const article = await prisma.article.findUnique({
     where: { slug: slug },
   });
 
-  // Jika artikel tidak ditemukan, otomatis arahkan ke halaman 404
   if (!article) {
     notFound();
   }
 
-  // Baca bahasa dari cookies (sudah menggunakan await)
   const cookieStore = await cookies();
   const lang = cookieStore.get("language")?.value || "en";
 
-  // Tentukan konten mana yang ditampilkan berdasarkan bahasa
   const displayTitle = lang === "id" && article.id_title ? article.id_title : article.title;
   const displayDesc = lang === "id" && article.id_desc ? article.id_desc : article.desc;
 
-  // 3. Fallback keamanan: pastikan selalu berupa string (bukan null)
   const rawContent = lang === "id" && article.id_content ? article.id_content : article.content;
   const displayContent = rawContent || "";
 
@@ -81,8 +74,37 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
         {/* Konten Utama (Markdown) */}
         <div className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary/80 max-w-none">
           <ReactMarkdown 
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex, rehypeRaw]}
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex, rehypeRaw]}
+            components={{
+              // Interceptor untuk merender tag gambar
+              img: ({ node, src, alt, ...props }) => {
+                if (!src) return null;
+
+                // 1. Beritahu TypeScript secara tegas bahwa src adalah string
+                const srcString = src as string;
+                let finalSrc = srcString;
+                
+                // 2. Sekarang TypeScript tahu ini string, error startsWith dan split akan hilang!
+                if (!srcString.startsWith("http")) {
+                  // Ambil hanya nama file murninya untuk menghindari path ganda jika ada
+                  const fileName = srcString.split('/').pop();
+                  
+                  // Sisipkan domain CloudFront dan folder articles secara paksa
+                  finalSrc = `https://d2tbt8ofproiin.cloudfront.net/articles/${fileName}`;
+                }
+
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={finalSrc}
+                    alt={alt || "Article image"}
+                    className="rounded-xl mx-auto shadow-md max-h-[500px] object-cover my-6"
+                    {...props}
+                  />
+                );
+              }
+            }}
           >
             {displayContent}
           </ReactMarkdown>
