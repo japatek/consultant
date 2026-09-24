@@ -1,6 +1,138 @@
-#Comment this code under this LoC for deploy only 
+# #Comment this code under this LoC for deploy only 
 
-name: JAPA Deploy Kubeadm Docker Pipeline
+# name: JAPA Deploy Kubeadm Docker Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths-ignore:
+#       - 'src/app/_unfinished-folder/**'
+#       - 'src/components/drafts/**'
+#       - 'src/app/(main)/_dashboard'
+#       - 'src/app/(main)/_mail'
+#       - 'src/app/(main)/_unauthorized'
+#       - 'src/test/**'
+#       - 'src/app/(external)/(admin)/**'
+#   workflow_dispatch:
+
+# env:
+#   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+#   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+#   ECR_WEB_REPOSITORY: japa/consultant
+#   ECR_MCP_REPOSITORY: japa/mcp
+#   IMAGE_TAG: ${{ github.sha }}
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout Code
+#       uses: actions/checkout@v4
+
+#     - name: Configure AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v4
+#       with:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: ${{ secrets.AWS_REGION }}
+
+#     - name: Login to Amazon ECR
+#       uses: aws-actions/amazon-ecr-login@v2
+
+#     - name: Build, tag, and push Next.js Web image
+#       run: |
+#         docker build \
+#           --build-arg AUTH_SECRET="${{ secrets.AUTH_SECRET }}" \
+#           --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+#           --build-arg GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+#           --build-arg GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+#           --build-arg NEXT_PUBLIC_CAP_SITE_KEY="${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}" \
+#           --build-arg CAP_BACKEND_URL="http://cap-service:8080" \
+#           --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY="${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}" \
+#           --build-arg AWS_S3_BUCKET_NAME="${{ secrets.AWS_S3_BUCKET_NAME }}" \
+#           --build-arg NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
+#           --build-arg NEXT_PUBLIC_IPAYMU_LINK="${{ secrets.NEXT_PUBLIC_IPAYMU_LINK }}" \
+#           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
+#           -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
+          
+#         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
+#         docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
+
+#     - name: Build, tag, and push MCP Server image
+#       run: |
+#         docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
+#         docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG
+#         docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest
+
+#     - name: Set up Kubeconfig
+#       run: |
+#         mkdir -p ~/.kube
+#         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+#         chmod 600 ~/.kube/config
+#         sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
+
+#     - name: Deploy to Kubeadm Cluster
+#       run: |
+#         # Refresh ECR Secret
+#         kubectl create secret docker-registry ecr-secret \
+#           --docker-server=${{ env.ECR_REGISTRY }} \
+#           --docker-username=AWS \
+#           --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
+#           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
+
+#         # +++ CREATE AWS S3 SECRET FOR NEXT.JS PODS +++
+#         kubectl create secret generic aws-s3-secret \
+#           --from-literal=AWS_REGION="${{ secrets.AWS_REGION }}" \
+#           --from-literal=AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+#           --from-literal=AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+#           --from-literal=AWS_S3_BUCKET_NAME="${{ secrets.AWS_S3_BUCKET_NAME }}" \
+#           --from-literal=AWS_BUCKET_NAME="${{ secrets.AWS_BUCKET_NAME }}" \
+#           --from-literal=NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
+#           --from-literal=CLOUDFRONT_DOMAIN="${{ secrets.CLOUDFRONT_DOMAIN }}" \
+#           --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
+
+#         # Replace Placeholders in Manifest
+#         sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
+#         sed -i "s|ECR_REGION_PLACEHOLDER|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
+#         sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
+#         sed -i "s|AUTH_URL_PLACEHOLDER|${{ secrets.AUTH_URL }}|g" k8s-manifest.yaml
+#         sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
+#         sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
+#         sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
+#         sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" k8s-manifest.yaml
+#         sed -i "s|SMTP_HOST_PLACEHOLDER|${{ secrets.SMTP_HOST }}|g" k8s-manifest.yaml
+#         sed -i "s|SMTP_USER_PLACEHOLDER|${{ secrets.SMTP_USER }}|g" k8s-manifest.yaml
+#         sed -i "s|SMTP_PASS_PLACEHOLDER|${{ secrets.SMTP_PASS }}|g" k8s-manifest.yaml
+#         sed -i "s|NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}|g" k8s-manifest.yaml
+#         sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${{ secrets.TURNSTILE_SECRET_KEY }}|g" k8s-manifest.yaml
+#         sed -i "s|NEXT_PUBLIC_CLOUDFRONT_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}|g" k8s-manifest.yaml
+        
+#         # ==========================================
+#         # 3. APPLY AND UPDATE CLUSTER
+#         # ==========================================
+#         kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
+        
+#         kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
+#         kubectl set image deployment/japa-mcp mcp=$ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
+        
+#         echo "=== Checking pod status ==="
+#         sleep 5
+#         kubectl get pods --insecure-skip-tls-verify
+        
+#         echo "=== Waiting for Next.js rollout ==="
+#         kubectl rollout status deployment/japa-consultant --timeout=10m --insecure-skip-tls-verify
+        
+#         echo "=== Waiting for MCP Server rollout ==="
+#         kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
+
+#         echo "=== Forcing Next.js Pod to read new Secrets ==="
+#         kubectl rollout restart deployment/japa-consultant --insecure-skip-tls-verify
+
+
+
+name: JAPA Vercel Production Deployment
 
 on:
   push:
@@ -17,115 +149,52 @@ on:
   workflow_dispatch:
 
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-  ECR_WEB_REPOSITORY: japa/consultant
-  ECR_MCP_REPOSITORY: japa/mcp
-  IMAGE_TAG: ${{ github.sha }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  build-and-deploy:
+  Deploy-NextJS-to-Vercel:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v2
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
-    - name: Build, tag, and push Next.js Web image
-      run: |
-        docker build \
-          --build-arg AUTH_SECRET="${{ secrets.AUTH_SECRET }}" \
-          --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-          --build-arg GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
-          --build-arg GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
-          --build-arg NEXT_PUBLIC_CAP_SITE_KEY="${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}" \
-          --build-arg CAP_BACKEND_URL="http://cap-service:8080" \
-          --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY="${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}" \
-          --build-arg AWS_S3_BUCKET_NAME="${{ secrets.AWS_S3_BUCKET_NAME }}" \
-          --build-arg NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
-          --build-arg NEXT_PUBLIC_IPAYMU_LINK="${{ secrets.NEXT_PUBLIC_IPAYMU_LINK }}" \
-          -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG \
-          -t $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest .
-          
-        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_WEB_REPOSITORY:latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-    - name: Build, tag, and push MCP Server image
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest ./mcp-server
-        docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_MCP_REPOSITORY:latest
+      - name: Inject GitHub Secrets into Local Environment
+        run: |
+          cat << EOF > .env.production.local
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          NEXT_PUBLIC_CAP_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}
+          CAP_BACKEND_URL=${{ secrets.CAP_BACKEND_URL }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}
+          NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}
+          CLOUDFRONT_DOMAIN=${{ secrets.CLOUDFRONT_DOMAIN }}
+          NEXT_PUBLIC_IPAYMU_LINK=${{ secrets.NEXT_PUBLIC_IPAYMU_LINK }}
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          EOF
 
-    - name: Set up Kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-        chmod 600 ~/.kube/config
-        sed -i "s|172.31.41.165|47.129.183.178|g" ~/.kube/config
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-    - name: Deploy to Kubeadm Cluster
-      run: |
-        # Refresh ECR Secret
-        kubectl create secret docker-registry ecr-secret \
-          --docker-server=${{ env.ECR_REGISTRY }} \
-          --docker-username=AWS \
-          --docker-password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) \
-          --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
-
-        # +++ CREATE AWS S3 SECRET FOR NEXT.JS PODS +++
-        kubectl create secret generic aws-s3-secret \
-          --from-literal=AWS_REGION="${{ secrets.AWS_REGION }}" \
-          --from-literal=AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          --from-literal=AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-          --from-literal=AWS_S3_BUCKET_NAME="${{ secrets.AWS_S3_BUCKET_NAME }}" \
-          --from-literal=AWS_BUCKET_NAME="${{ secrets.AWS_BUCKET_NAME }}" \
-          --from-literal=NEXT_PUBLIC_CLOUDFRONT_URL="${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}" \
-          --from-literal=CLOUDFRONT_DOMAIN="${{ secrets.CLOUDFRONT_DOMAIN }}" \
-          --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify
-
-        # Replace Placeholders in Manifest
-        sed -i "s|AWS_ACCOUNT_ID|${{ secrets.AWS_ACCOUNT_ID }}|g" k8s-manifest.yaml
-        sed -i "s|ECR_REGION_PLACEHOLDER|${{ secrets.AWS_REGION }}|g" k8s-manifest.yaml
-        sed -i "s|IMAGE_TAG|${{ env.IMAGE_TAG }}|g" k8s-manifest.yaml
-        sed -i "s|AUTH_URL_PLACEHOLDER|${{ secrets.AUTH_URL }}|g" k8s-manifest.yaml
-        sed -i "s|AUTH_SECRET_PLACEHOLDER|${{ secrets.AUTH_SECRET }}|g" k8s-manifest.yaml
-        sed -i "s|DATABASE_URL_PLACEHOLDER|${{ secrets.DATABASE_URL }}|g" k8s-manifest.yaml
-        sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" k8s-manifest.yaml
-        sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" k8s-manifest.yaml
-        sed -i "s|SMTP_HOST_PLACEHOLDER|${{ secrets.SMTP_HOST }}|g" k8s-manifest.yaml
-        sed -i "s|SMTP_USER_PLACEHOLDER|${{ secrets.SMTP_USER }}|g" k8s-manifest.yaml
-        sed -i "s|SMTP_PASS_PLACEHOLDER|${{ secrets.SMTP_PASS }}|g" k8s-manifest.yaml
-        sed -i "s|NEXT_PUBLIC_CAP_SITE_KEY_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CAP_SITE_KEY }}|g" k8s-manifest.yaml
-        sed -i "s|TURNSTILE_SECRET_KEY_PLACEHOLDER|${{ secrets.TURNSTILE_SECRET_KEY }}|g" k8s-manifest.yaml
-        sed -i "s|NEXT_PUBLIC_CLOUDFRONT_PLACEHOLDER|${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}|g" k8s-manifest.yaml
-        
-        # ==========================================
-        # 3. APPLY AND UPDATE CLUSTER
-        # ==========================================
-        kubectl apply -f k8s-manifest.yaml --validate=false --insecure-skip-tls-verify
-        
-        kubectl set image deployment/japa-consultant nextjs=$ECR_REGISTRY/$ECR_WEB_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
-        kubectl set image deployment/japa-mcp mcp=$ECR_REGISTRY/$ECR_MCP_REPOSITORY:$IMAGE_TAG --insecure-skip-tls-verify
-        
-        echo "=== Checking pod status ==="
-        sleep 5
-        kubectl get pods --insecure-skip-tls-verify
-        
-        echo "=== Waiting for Next.js rollout ==="
-        kubectl rollout status deployment/japa-consultant --timeout=10m --insecure-skip-tls-verify
-        
-        echo "=== Waiting for MCP Server rollout ==="
-        kubectl rollout status deployment/japa-mcp --timeout=10m --insecure-skip-tls-verify
-
-        echo "=== Forcing Next.js Pod to read new Secrets ==="
-        kubectl rollout restart deployment/japa-consultant --insecure-skip-tls-verify
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
