@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/tooltip";
 
 const teamImages = [
-  { id: 1, src: "https://d2tbt8ofproiin.cloudfront.net/about-us/003.jpg", alt: "Taem Working_2" },
-  { id: 2, src: "https://d2tbt8ofproiin.cloudfront.net/about-us/002.jpg", alt: "Team Working" },
-  { id: 3, src: "https://d2tbt8ofproiin.cloudfront.net/about-us/001.jpg", alt: "Team Member" }
+  { id: 1, src: "https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/about/003.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ5OTkxMTE3LCJpYXQiOjE3OTAzMDY3OTEyNTN9.F9tX9W34qskrPMnEVkFIoL2Psr9YBxmALrnNJkTvVl8&vercel-blob-signature=iKimE3z7keHCfGX6wz8iE0uJuMSrR7oTj_Rlsj1UZ_Q", alt: "Taem Working_2" },
+  { id: 2, src: "https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/about/002.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ5OTcwNzE2LCJpYXQiOjE3OTAzMDY3NzA4NTR9.sXY5UNndtt5bWdKBLuBb-INZ-fpmrnq3Bq0sRsPxvs0&vercel-blob-signature=ZHLuB-m7pRueUTyAwWCVh26wov40hBEha53wG5dCcCY", alt: "Team Working" },
+  { id: 3, src: "https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/about/001.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ5OTM5NDE1LCJpYXQiOjE3OTAzMDY3Mzk1NDV9.wIfpjOyIj1igN569ljVr1ugLHF6MS8GyyXmDRKDbnU0&vercel-blob-signature=400u6vSJBMLSHt1zpSbcyfK_6Y5qixlzCaevRTxsAT4", alt: "Team Member" }
 ];
 
 export const Team: React.FC = () => {
