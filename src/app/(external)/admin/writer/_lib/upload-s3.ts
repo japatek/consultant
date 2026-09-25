@@ -3,8 +3,6 @@
 import { put } from "@vercel/blob";
 import crypto from "crypto";
 
-// HAPUS SEMUA inisialisasi s3Client dan variabel AWS di sini
-
 export async function uploadImage(formData: FormData) {
   try {
     const file = formData.get("file") as File;
