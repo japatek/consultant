@@ -13,8 +13,11 @@ import {
   type AnswerConfig,
 } from "@/types/quest";
 import { gradeAnswer } from "./grade-answer";
-import { uploadFile, assertAllowedExtension } from "@/lib/storage";
+import { assertAllowedExtension } from "@/lib/storage";
 import { unlockEligibleCertifications } from "@/lib/certificate/certification-actions";
+
+// IMPORT VERCEL BLOB
+import { put } from "@vercel/blob";
 
 async function requireAdmin() {
   const session = await auth();
@@ -34,7 +37,7 @@ function slugify(title: string) {
 /** Create a quest (with its questions and certification links) from the Quest Builder form. */
 export async function createQuest(values: QuestFormValues) {
   const admin = await requireAdmin();
-  const data = questFormSchema.parse(values); // re-validate server-side, never trust the client
+  const data = questFormSchema.parse(values); 
 
   const quest = await prisma.quest.create({
     data: {
@@ -66,9 +69,7 @@ export async function createQuest(values: QuestFormValues) {
   return quest;
 }
 
-/** Edit an existing quest. Same validation path as create; questions and
- *  certification links are fully replaced rather than diffed — simplest
- *  correct approach for a builder form that always submits the full set. */
+/** Edit an existing quest. */
 export async function updateQuest(questId: string, values: QuestFormValues) {
   await requireAdmin();
   const data = questFormSchema.parse(values);
@@ -106,8 +107,7 @@ export async function updateQuest(questId: string, values: QuestFormValues) {
   return quest;
 }
 
-/** Fetch one quest with its questions, media, and linked certifications —
- *  shaped for QuestBuilderForm's `initialValues` prop (the edit path). */
+/** Fetch one quest with its questions, media, and linked certifications. */
 export async function getQuestById(questId: string) {
   const quest = await prisma.quest.findUnique({
     where: { id: questId },
@@ -141,8 +141,8 @@ export async function getQuestById(questId: string) {
 
 /**
  * Upload one reference file (image/video/PDF) for a quest, or one answer
- * file (.sldprt/.step/.stl) for a submission. `folder` keeps the two kinds
- * of upload separated in storage.
+ * file (.sldprt/.step/.stl) for a submission. 
+ * KINI MENGGUNAKAN VERCEL BLOB.
  */
 export async function uploadMediaFile(formData: FormData, folder: "quest-media" | "answer-files") {
   const session = await auth();
@@ -151,14 +151,21 @@ export async function uploadMediaFile(formData: FormData, folder: "quest-media" 
   const file = formData.get("file");
   if (!(file instanceof File)) throw new Error("No file provided");
 
-  const uploaded = await uploadFile(file, folder);
-  return uploaded;
+  // Upload langsung ke Vercel Blob menggunakan SDK
+  const blob = await put(`${folder}/${file.name}`, file, {
+    access: 'public',
+    addRandomSuffix: true, // Mencegah konflik nama file yang sama
+  });
+
+  // Mengembalikan objek berisi URL dan fileName agar sesuai dengan skema prisma "media: { create: data.media }"
+  return {
+    url: blob.url,
+    fileName: file.name
+  };
 }
 
 /**
- * Grade an entire quest attempt in one go — one answer per question,
- * submitted together. Records the attempt, updates the user's progress
- * totals, and unlocks any certification that attempt just completed.
+ * Grade an entire quest attempt in one go.
  */
 export async function submitQuestAnswers(questId: string, rawAnswers: unknown) {
   const session = await auth();
