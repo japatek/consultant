@@ -8,12 +8,12 @@ const app = express();
 app.use(cors());
 
 const PORT = process.env.PORT || 8080;
-const NEXTJS_SERVICE_URL = process.env.NEXTJS_SERVICE_URL || "http://japa-consultant-service:3000";
+const NEXTJS_SERVICE_URL = process.env.NEXTJS_SERVICE_URL || "https://japatek.space";
 
 // Standard MCP Server initialization
 function createMcpServer() {
   const server = new Server(
-    { name: "japa-engineering-tools", version: "1.0.0" },
+    { name: "japatek-mcp-server", version: "1.0.0" },
     { capabilities: { tools: {} } }
   );
 
