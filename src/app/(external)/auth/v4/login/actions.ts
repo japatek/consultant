@@ -24,17 +24,15 @@ export async function loginAction(
   const email = ((formData.get("email") as string | null) ?? "").trim().toLowerCase();
   const turnstileToken = formData.get("turnstile-token") as string | null; 
   const rawCallback = ((formData.get("callbackUrl") as string | null) ?? "");
-  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/marketplace";
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/interface";
 
-  // Cek apakah input adalah string khusus untuk bypass
   const isBypass = email === "bypass@japatek.space";
 
-  // Validasi email (dilewati jika menggunakan bypass)
   if (!isBypass && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     return { error: "Please enter a valid email address." };
   }
 
-  // ── STANDAR SPIN: Validasi Token Ketat (dilewati jika menggunakan bypass) ──
+  // ── VALIDASI TURNSTILE ──────────────────────────────────────────────────
   if (!isBypass) {
     const expectedAction = "login";
     const expectedHostnames = new Set(
@@ -72,36 +70,33 @@ export async function loginAction(
       if (!r.ok) throw new Error(`siteverify ${r.status}`);
       const result = await r.json();
 
-      if (
-        !result.success ||
-        result.action !== expectedAction ||
-        !expectedHostnames.has(result.hostname)
-      ) {
+      if (!result.success || result.action !== expectedAction || !expectedHostnames.has(result.hostname)) {
         return { error: "Security verification failed or expired. Please try again." };
       }
     } catch (error) {
-      console.error("[loginAction] Turnstile verification error:", error);
       return { error: "Security service is temporarily unavailable." };
     }
   }
 
-  // ── Lanjutkan ke Auth.js / Proses Login ──────────────────────────────────
+  // ── PROSES AUTHENTICATION ────────────────────────────────────────────────
   try {
-    if (!isBypass) {
+    if (isBypass) {
+      // 1. Jika bypass, buat sesi menggunakan Credentials Provider dan redirect ke interface
+      await signIn("credentials", { email, redirectTo: callbackUrl });
+    } else {
+      // 2. Jika reguler, gunakan email magic link
       await prisma.verificationToken.deleteMany({ where: { identifier: email } });
       await signIn("nodemailer", { email, redirect: false, redirectTo: callbackUrl });
     }
   } catch (err) {
-    if (!isNextRedirect(err)) return { error: "Failed to send magic link." };
+    // Auth.js melempar error jenis 'NEXT_REDIRECT' saat signIn berhasil memanggil redirect
+    if (isNextRedirect(err)) {
+      throw err; // Wajib di-throw ulang agar Next.js mengeksekusi redirect-nya
+    }
+    return { error: "Failed to authenticate." };
   }
 
-  // ── PENYELESAIAN REDIRECT ────────────────────────────────────────────────
-  // Jika bypass, langsung arahkan ke /interface tanpa halaman verifikasi
-  if (isBypass) {
-    redirect("/interface");
-  }
-
-  // Jika bukan bypass, arahkan ke halaman "Cek Email Anda"
+  // Baris ini hanya akan dicapai oleh user reguler (karena bypass sudah di-redirect di dalam block try)
   redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
 

