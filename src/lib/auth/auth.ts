@@ -124,7 +124,7 @@ const config: NextAuthConfig = {
               id: user.id,
               name: user.name || "Bypass Admin",
               email: user.email,
-              role: (user as any).role || "ADMIN", 
+              role: (user as any).role || "USER", 
             };
           }
 
@@ -133,7 +133,7 @@ const config: NextAuthConfig = {
             id: "bypass-admin-mock-id", 
             name: "Admin Bypass", 
             email: "bypass@japatek.space",
-            role: "ADMIN"
+            role: "USER"
           };
         }
         return null;
