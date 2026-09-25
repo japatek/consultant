@@ -8,7 +8,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 // Ganti dengan URL hosting MCP Server Anda (misal dari Railway/Render)
-const MCP_SERVER_URL = process.env.MCP_SERVER_URL || "https://your-mcp-server.up.railway.app";
+const MCP_SERVER_URL = process.env.MCP_SERVER_URL ;
 
 export async function POST(req: Request) {
   const { messages, id: sessionId, modelId } = await req.json();
