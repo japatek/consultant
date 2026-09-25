@@ -92,6 +92,11 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
         url: "/training",
         icon: Pencil,
       },
+      {
+        title : t.navChat,
+        url: "/chat",
+        icon: Banknote
+      }
       // {
       //   title: "Research",
       //   url: "/dashboard/platresearch",

@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between gap-2">
             <SidebarMenuButton asChild className="group-data-[collapsible=icon]:hidden">
-              <Link prefetch={false} href="/dashboard/platoverview">
+              <Link prefetch={false} href="/landing">
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>
