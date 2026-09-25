@@ -9,22 +9,22 @@ import { translations, Language } from '@/translate/language-data';
 const clients = [
   {
     name: 'PLN Indonesia Power',
-    logo: 'https://d2tbt8ofproiin.cloudfront.net/client/ip.png',
+    logo: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/client/ip.png?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3Njc5ODExLCJpYXQiOjE3OTAzMDQ0ODAwMDR9.qX-yYti1wHsqUfAB5AyanFaE4qEaCkrlZfuNBBegwk0&vercel-blob-signature=8Ky4aOhLaSESvng-EvQejRnHIXZDbivWVnwfLRsQUew',
     url:  'https://www.plnindonesiapower.co.id/'
   },
   {
     name: 'PT Sandesign Cipta Teknika',
-    logo: 'https://d2tbt8ofproiin.cloudfront.net/client/sandi.png',
+    logo: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/client/sandi.png?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3NzczMDYwLCJpYXQiOjE3OTAzMDQ1NzMxODd9.kUYAyCtv_g5tgFjTScQyhyPLzVNRIKWr6EYM3tCM-ks&vercel-blob-signature=I3reNW1z_4H7r_ymMRzhxvHzqDHc0s3RHCMrpuYqS_I',
     url:  'https://www.linkedin.com/in/sandesign-ct-27aa45308/?locale=en'
   },
   {
     name: 'LPP Agro Nusantara',
-    logo: 'https://d2tbt8ofproiin.cloudfront.net/client/lpp.png',
+    logo: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/client/lpp.png?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3NzQ3MDgxLCJpYXQiOjE3OTAzMDQ1NDcyMjV9.GXUaereFupJOGERvEqqOJm5vOKzFfaKowbC0SlbTkvs&vercel-blob-signature=xF3DwGgf66nCUpAz1GnOcz-pfBzXSrjGtt0aJPat4Xg',
     url:  'https://lpp.co.id/'
   },
   {
     name: 'PT Tensor Sinergi Indonesia',
-    logo: 'https://d2tbt8ofproiin.cloudfront.net/client/tensor.png',
+    logo: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/client/tensor.png?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3ODE4MTM0LCJpYXQiOjE3OTAzMDQ2MTgyNjh9.u-siI3SokQcKPZTobffbjfjw9ThelHJN0QHvcj0VGUw&vercel-blob-signature=KxpWs1t4Jw5oFqqOdkmB9FC0Y_YvwWUK2vG4C6ns2Oc',
     url:  'https://pttensor.com/'
   },
 ];
