@@ -9,8 +9,6 @@ import {
   Settings, 
   Construction, 
   ArrowRight, 
-  StrikethroughIcon,
-  EllipseIcon,
   Ellipsis
 } from 'lucide-react';
 
