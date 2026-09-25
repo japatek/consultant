@@ -95,6 +95,13 @@ export async function loginAction(
     if (!isNextRedirect(err)) return { error: "Failed to send magic link." };
   }
 
+  // ── PENYELESAIAN REDIRECT ────────────────────────────────────────────────
+  // Jika bypass, langsung arahkan ke /interface tanpa halaman verifikasi
+  if (isBypass) {
+    redirect("/interface");
+  }
+
+  // Jika bukan bypass, arahkan ke halaman "Cek Email Anda"
   redirect(`/auth/v4/login?state=verify&callbackUrl=${encodeURIComponent(callbackUrl)}`);
 }
 
