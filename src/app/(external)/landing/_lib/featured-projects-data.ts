@@ -57,7 +57,7 @@ export const featuredProjects: Project[] = [
   Singkatnya, simulasi inspeksi M701F adalah aset rekayasa fungsional sekaligus platform komunikasi. Proyek ini dibangun untuk mengurangi risiko inspeksi, meningkatkan keselarasan tim, dan mengangkat portofolio klien melalui cerita digital yang disempurnakan dan didasarkan pada kebutuhan pemeliharaan yang nyata.`,
     media: {
       type: 'image',
-      url: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/featured-projects/pln-ip-1.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4Mzg4ODAxLCJpYXQiOjE3OTAzMDUxODg5MzV9.MvO5EFj4aDVZXstLFbhRL1Of_fcYHB7wFwcEQCl6x1A&vercel-blob-signature=-qjvAmY4Wqg0cnUEs7MoA2_fh7zvcXEnR_DemyGIfIU',
+      url: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/pln-ip/pln-ip-2.jpg',
       alt: 'Gas Turbine M701F'
     }
   },
@@ -99,7 +99,7 @@ export const featuredProjects: Project[] = [
   Pada akhirnya, desain instalasi ini disajikan sebagai investasi strategis dalam kinerja operasional jangka panjang. Kami memposisikan proyek ini sebagai tonggak rekayasa sekaligus solusi lingkungan, menunjukkan bagaimana fasilitas pengolahan air limbah yang terorganisir dengan baik dapat melindungi pabrik gula, melestarikan sumber daya alam, dan mendukung pertumbuhan industri yang bertanggung jawab.`,
     media: {
       type: 'image',
-      url: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/featured-projects/ipal-1.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4NDA5MDU1LCJpYXQiOjE3OTAzMDUyMDkzMzR9.ivK0iGVyZjQo8O2ttN0B1727qvlhep31UCkXanVDHm0&vercel-blob-signature=R4sIAz6roMuqYNdStAZbE_FvIOckxI21HDkxej5tnFg',
+      url: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/ipal/ipal-1.jpg',
       alt: 'Water Waste Treatment Plant'
     }
   },
@@ -141,8 +141,8 @@ export const featuredProjects: Project[] = [
   Kesimpulannya, Mesin Penjual Otomatis Farmasi disajikan sebagai solusi berwawasan ke depan yang menggabungkan keandalan teknik dengan desain yang berpusat pada pasien. Proyek ini diposisikan sebagai inovasi yang dapat meningkatkan operasi apotek, meningkatkan keamanan pengobatan, dan memberikan pengalaman pengguna yang kuat sambil mempertahankan standar keamanan dan kepatuhan ketat yang diperlukan dalam perawatan kesehatan.`,
     media: {
       type: 'image',
-      url: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/featured-projects/robotics-2.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4NTMwNTMxLCJpYXQiOjE3OTAzMDUzMzA2Njd9.Im8ZUkP5iUIiJqJx6JV--CIGhURJgof0OTNpYXSCtyU&vercel-blob-signature=rGJenA2CI8T7h1wc2t-m0QUDRDv7kbBm-l4-2WeiRLI',
-      alt: 'Pharmacy Vending Machine'
+      url: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/vending-machine/vending-machine-1.jpg',
+      alt: 'Vending-Machine'
     }
   },
   {
@@ -181,7 +181,7 @@ Desain ini diharapkan mengapa pendekatan tujuan ganda ini menjadi berharga. Bagi
   Singkatnya, Robot Edukasi disajikan sebagai alat penilaian teknis sekaligus sumber pendidikan. Proyek ini menunjukkan bagaimana sistem robotik dapat dievaluasi untuk kemudahan servis jangka panjang sementara juga berfungsi sebagai perangkat pembelajaran yang membantu pengguna memahami pentingnya pemantauan kondisi, perencanaan siklus hidup, dan keandalan sistem.`,
     media: {
       type: 'image',
-      url: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/featured-projects/robotics-1.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4NTU5NTU2LCJpYXQiOjE3OTAzMDUzNTk2OTh9.Nrxr8D9Az84jCTFoJPYgsvVdVnK_tR3UgGPDWzvi1PY&vercel-blob-signature=NL0xnTAx4Yc5khHqUWZVWlyQTgYOdQ1nDNSQ9uuTicQ',
+      url: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/edu-bot/edu-bot-1.jpg',
       alt: 'Education Robotics'
     }
   },
@@ -221,7 +221,7 @@ Desain ini diharapkan mengapa pendekatan tujuan ganda ini menjadi berharga. Bagi
   Singkatnya, Proyek Rumah Joglo disajikan sebagai pencapaian teknik rekayasa, upaya pelestarian budaya, sekaligus ruang komersial yang fungsional. Proyek ini menunjukkan bagaimana arsitektur warisan dapat diukur, dibangun, dan dipelihara secara sistematis, memastikan metode konstruksi tradisional Jawa tetap kokoh secara struktural sekaligus berkembang sebagai homestay dan pusat seni yang dinamis untuk generasi mendatang.`,
   media: {
       type: 'image',
-      url: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/featured-projects/rumah-joglo.jpeg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4NjUyODk1LCJpYXQiOjE3OTAzMDU0NTMwMzJ9.QMN3e3nVJdiojsNYqP_U2dqzD_5fcPIEuzk0bNUdTf0&vercel-blob-signature=1GXmx1mhYY8hcRNozHNf-k-UFrkzbH_KG-upbj94Nmc',
+      url: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/joglo-house/joglo-house-1.jpeg',
       alt: 'Traditional Joglo House'
     }
   }
