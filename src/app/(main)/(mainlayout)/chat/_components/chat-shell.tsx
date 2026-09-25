@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { Toaster } from "sonner"
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
 import { filesFromMessage } from "../_lib/artifact"
 import { initialMessages, models } from "../_lib/constants"
 import type { ChatSession, ChatStatus, MessageType } from "../_lib/types"

@@ -73,6 +73,7 @@ export const translations = {
         navCertificate: 'Certification',
         navTraining: 'Task',
         navHome: 'Home',
+        navChat: 'Chat',
 
         // ------------------------------------------------------------------
         // Quest Builder (admin) — Engineering Drawing quests & certification
@@ -246,6 +247,7 @@ export const translations = {
         navCertificate: 'Sertifikat',
         navTraining: 'Latihan',
         navHome: 'Beranda',
+        navChat: 'Chat',
 
         // ------------------------------------------------------------------
         // Quest Builder (admin) — Kuis/Sertifikasi Gambar Teknik

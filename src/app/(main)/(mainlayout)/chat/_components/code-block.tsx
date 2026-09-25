@@ -2,11 +2,11 @@
 
 import { memo } from "react"
 import { CopyIcon, DownloadIcon, CodeIcon, WorkflowIcon, XIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
-import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable"
-import { CodeBlock } from "@/components/ai/code-block"
-import { FileTree, FileTreeFile } from "@/components/ai/file-tree"
+import { Button } from "../../../../../components/ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "../../../../../components/ui/tooltip"
+import { ResizableHandle, ResizablePanel } from "../../../../../components/ui/resizable"
+import { CodeBlock } from "../../../../../components/ai/code-block"
+import { FileTree, FileTreeFile } from "../../../../../components/ai/file-tree"
 import { usePanelContext } from "./chat-context"
 
 type CodeLang = React.ComponentProps<typeof CodeBlock>["language"]

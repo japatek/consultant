@@ -2,7 +2,7 @@
 
 import { memo } from "react"
 import { PanelLeftIcon, Folder } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "../../../../../lib/utils"
 import { usePanelContext } from "./chat-context"
 import { saveChatPreferences } from "../_lib/actions"
 
