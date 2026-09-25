@@ -194,7 +194,7 @@ export default function CombinedDynamicPage({ params }: PageProps) {
   // REFORMAT: Changed old AWS domain to new generic blob storage endpoint.
   // Replace 'https://cdn.ja-pa-tek.com' with your actual new blob storage endpoint.
  const slideshowBaseUrls = [1, 2, 3].map(
-    (index) => `https://v9q59xezuogmt5o7.public.blob.vercel-storage.com/${mainSlug}/${formattedSlug}-${index}`
+    (index) => `https://uwtzrtpvr9dcj5x7.public.blob.vercel-storage.com/${mainSlug}/${formattedSlug}-${index}`
   );
 
   let heroTitle = '';
