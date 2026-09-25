@@ -48,6 +48,11 @@ model User {
   tierExpiresAt DateTime?
   subscriptions Subscription[]
 
+  // ==========================================================
+  // --- Relasi AI Chat ---
+  // ==========================================================
+  chatSessions  ChatSession[]
+
   @@map("users")
 }
 
@@ -469,4 +474,37 @@ model Subscription {
   @@index([userId])
   @@index([ipaymuTrxId])
   @@map("subscriptions")
+}
+
+  // ============================================================
+  // AI CHAT SESSIONS & MESSAGES
+  // ============================================================
+
+  model ChatSession {
+    id        String   @id @default(cuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+    title     String?  
+    messages  ChatMessage[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt 
+
+    @@index([userId, updatedAt(sort: Desc)])
+    @@map("chat_sessions")
+}
+
+  model ChatMessage {
+    id        String      @id @default(cuid())
+    sessionId String
+    session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+    role      String      // "user" | "assistant" | "system"
+    content   String      @db.Text
+  
+    createdAt DateTime    @default(now())
+
+    @@index([sessionId, createdAt(sort: Asc)])
+    @@map("chat_messages")
 }

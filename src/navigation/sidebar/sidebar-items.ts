@@ -66,7 +66,7 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
-// Ubah menjadi fungsi yang menerima parameter 'id' dan 't' (objek terjemahan)
+// Menggunakan parameter 'id' dan 't' (objek terjemahan)
 export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
   {
     id: 1,
@@ -94,8 +94,9 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
       },
       {
         title : t.navChat,
-        url: "/chat",
-        icon: Banknote
+        // Jika parameter id tersedia, arahkan ke /chat/[id]. Jika kosong, arahkan ke /chat
+        url: id ? `/chat/${id}` : "/chat",
+        icon: MessageSquare, // Diubah dari Banknote agar lebih sesuai dengan konteks Chat
       }
       // {
       //   title: "Research",
@@ -104,7 +105,6 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
       // },
     ],
   },
-
   // {
   //   id: 2,
   //   label: "Consumption",
