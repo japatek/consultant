@@ -1,20 +1,25 @@
 import "server-only"
 import { cache } from "react"
-import { unstable_cache } from "next/cache"
+import { prisma } from "../../../../../lib/database/prisma"
+import { auth } from "../../../../../lib/auth/auth"
 import type { ChatSession } from "./types"
 
-// Replace with a real DB/API call. Tagged so createChatSession() can invalidate it.
 async function fetchSessions(): Promise<ChatSession[]> {
-  return [
-    { id: "1", title: "Dijkstra's Algorithm", pinned: true },
-    { id: "2", title: "React Hooks Architecture", pinned: false },
-  ]
+  const session = await auth()
+  if (!session?.user?.id) return []
+
+  const chats = await prisma.chatSession.findMany({
+    where: { userId: session.user.id },
+    orderBy: { updatedAt: "desc" },
+    select: { id: true, title: true, pinned: true }
+  })
+
+  return chats.map(chat => ({
+    id: chat.id,
+    title: chat.title || "New Conversation",
+    pinned: chat.pinned
+  }))
 }
 
-const cachedFetchSessions = unstable_cache(fetchSessions, ["chat-sessions"], {
-  tags: ["chat-sessions"],
-  revalidate: 60,
-})
-
-// react cache() dedupes calls within a single request (e.g. layout + page both reading sessions)
-export const getSessions = cache(cachedFetchSessions)
+// react cache() dedupes calls within a single request 
+export const getSessions = cache(fetchSessions)

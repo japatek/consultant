@@ -1,10 +1,16 @@
 "use client"
 
 import { memo, useTransition } from "react"
-import { PlusIcon, MessageSquareIcon, PinIcon, XIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer"
-import { createChatSession, saveChatPreferences } from "../_lib/actions"
+import { PlusIcon, MessageSquareIcon, PinIcon, XIcon, MoreVertical, Trash, Pencil, PinOff } from "lucide-react"
+import { cn } from "../../../../../lib/utils"
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from "../../../../../components/ui/drawer"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../../../../components/ui/dropdown-menu"
+import { createChatSession, saveChatPreferences, deleteChatSession, updateChatSession } from "../_lib/actions"
 import type { ChatSession } from "../_lib/types"
 
 interface SidebarChatList {
@@ -14,10 +20,12 @@ interface SidebarChatList {
   activeSessionId: string
   onSessionCreated: (session: ChatSession) => void
   onSessionSelected: (id: string) => void
+  onSessionDeleted?: (id: string) => void
+  onSessionUpdated?: (session: ChatSession) => void
 }
 
 function SidebarChatListImpl({
-  open, onOpenChange, sessions, activeSessionId, onSessionCreated, onSessionSelected,
+  open, onOpenChange, sessions, activeSessionId, onSessionCreated, onSessionSelected, onSessionDeleted, onSessionUpdated
 }: SidebarChatList) {
   const [, startTransition] = useTransition()
 
@@ -33,6 +41,35 @@ function SidebarChatListImpl({
     onSessionSelected(id)
     onOpenChange(false)
     void saveChatPreferences({ activeSessionId: id })
+  }
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    if (!window.confirm("Are you sure you want to delete this chat?")) return
+    
+    startTransition(async () => {
+      await deleteChatSession(id)
+      if (onSessionDeleted) onSessionDeleted(id)
+    })
+  }
+
+  const handleRename = (e: React.MouseEvent, session: ChatSession) => {
+    e.stopPropagation()
+    const newTitle = window.prompt("Enter new chat title:", session.title || "")
+    if (!newTitle || newTitle.trim() === "" || newTitle === session.title) return
+
+    startTransition(async () => {
+      const updated = await updateChatSession(session.id, { title: newTitle })
+      if (onSessionUpdated) onSessionUpdated(updated)
+    })
+  }
+
+  const handleTogglePin = (e: React.MouseEvent, session: ChatSession) => {
+    e.stopPropagation()
+    startTransition(async () => {
+      const updated = await updateChatSession(session.id, { pinned: !session.pinned })
+      if (onSessionUpdated) onSessionUpdated(updated)
+    })
   }
 
   return (
@@ -62,15 +99,54 @@ function SidebarChatListImpl({
             {sessions.map((session) => (
               <div
                 key={session.id}
-                onClick={() => handleSelect(session.id)}
                 className={cn(
-                  "group relative flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-accent/40",
+                  "group relative flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-accent/40",
                   activeSessionId === session.id ? "bg-accent/20 font-medium text-foreground" : "text-muted-foreground",
                 )}
               >
-                <MessageSquareIcon className="size-4 shrink-0" />
-                <div className="flex-1 truncate pr-6">{session.title}</div>
-                {session.pinned && <PinIcon className="absolute right-9 size-3.5 opacity-60 text-primary" />}
+                <div 
+                  className="flex flex-1 cursor-pointer items-center gap-2 overflow-hidden"
+                  onClick={() => handleSelect(session.id)}
+                >
+                  <MessageSquareIcon className="size-4 shrink-0" />
+                  <div className="flex-1 truncate pr-2">{session.title}</div>
+                  {session.pinned && <PinIcon className="size-3.5 shrink-0 opacity-60 text-primary" />}
+                </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 flex h-6 w-6 shrink-0 items-center justify-center rounded-md hover:bg-accent transition-opacity"
+                    >
+                      <MoreVertical className="size-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem onClick={(e) => handleRename(e, session)}>
+                      <Pencil className="mr-2 size-4" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => handleTogglePin(e, session)}>
+                      {session.pinned ? (
+                        <>
+                          <PinOff className="mr-2 size-4" /> Unpin
+                        </>
+                      ) : (
+                        <>
+                          <PinIcon className="mr-2 size-4" /> Pin
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={(e) => handleDelete(e, session.id)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash className="mr-2 size-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ))}
           </div>

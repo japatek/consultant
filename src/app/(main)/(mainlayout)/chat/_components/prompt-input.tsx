@@ -2,23 +2,23 @@
 
 import { memo, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { GlobeIcon, MicIcon } from "lucide-react"
+import { GlobeIcon, MicIcon, SquareIcon } from "lucide-react"
 import {
   PromptInput, PromptInputHeader, PromptInputBody, PromptInputFooter,
   PromptInputTools, PromptInputButton, PromptInputTextarea,
   PromptInputActionMenu, PromptInputActionMenuTrigger,
   PromptInputActionMenuContent, PromptInputActionAddAttachments,
   usePromptInputAttachments, type PromptInputMessage, PromptInputSubmit,
-} from "@/components/ai/prompt-input"
-import { Attachments, Attachment, AttachmentPreview, AttachmentRemove } from "@/components/ai/attachments"
-import { AudioVisualizer } from "@/components/ai/audio-visualizer"
-import { Suggestion, Suggestions } from "@/components/ai/suggestion"
+} from "../../../../../components/ai/prompt-input"
+import { Attachments, Attachment, AttachmentPreview, AttachmentRemove } from "../../../../../components/ai/attachments"
+import { AudioVisualizer } from "../../../../../components/ai/audio-visualizer"
+import { Suggestion, Suggestions } from "../../../../../components/ai/suggestion"
 import {
   ModelSelector, ModelSelectorTrigger, ModelSelectorContent,
   ModelSelectorInput, ModelSelectorList, ModelSelectorGroup,
   ModelSelectorItem, ModelSelectorLogo, ModelSelectorLogoGroup,
   ModelSelectorName, ModelSelectorEmpty,
-} from "@/components/ai/model-selector"
+} from "../../../../../components/ai/model-selector"
 import { saveChatPreferences } from "../_lib/actions"
 import { suggestions } from "../_lib/constants"
 import type { ChatStatus, ModelOption } from "../_lib/types"
@@ -45,9 +45,10 @@ interface PromptInputBarProps {
   status: ChatStatus
   showSuggestions: boolean
   onSubmit: (content: string) => void
+  onStop?: () => void
 }
 
-function PromptInputBarImpl({ models, model, onModelChange, status, showSuggestions, onSubmit }: PromptInputBarProps) {
+function PromptInputBarImpl({ models, model, onModelChange, status, showSuggestions, onSubmit, onStop }: PromptInputBarProps) {
   const [text, setText] = useState("")
   const [useWebSearch, setUseWebSearch] = useState(false)
   const [useMicrophone, setUseMicrophone] = useState(false)
@@ -68,13 +69,12 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
       audioStream.getTracks().forEach((t) => t.stop())
       setAudioStream(null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useMicrophone])
+  }, [useMicrophone, audioStream])
 
   const handleSubmit = (msg: PromptInputMessage) => {
     if (!msg.text?.trim() && !msg.files?.length) return
     onSubmit(msg.text ?? "Sent with attachments")
-    setText("")
+    setText("") // Reset input setelah dikirim
   }
 
   const handleSuggestion = (s: string) => onSubmit(s)
@@ -171,7 +171,13 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
               </ModelSelector>
             </PromptInputTools>
 
-            <PromptInputSubmit disabled={!text.trim() && status !== "streaming"} status={status} />
+            {status === "streaming" && onStop ? (
+              <PromptInputButton onClick={onStop} className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <SquareIcon size={14} className="fill-current" />
+              </PromptInputButton>
+            ) : (
+              <PromptInputSubmit disabled={!text.trim()} status={status} />
+            )}
           </PromptInputFooter>
         </PromptInput>
 

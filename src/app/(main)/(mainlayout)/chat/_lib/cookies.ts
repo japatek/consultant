@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 import { cache } from "react"
 import type { ChatPreferences } from "./types"
 
-export const PREFS_COOKIE = "jupot-chat-prefs"
+export const PREFS_COOKIE = "japatek-chat-prefs"
 
 const defaults: ChatPreferences = {
   model: "gpt-4o",

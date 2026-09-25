@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation" // Ditambahkan untuk routing
-import { Toaster } from "sonner"
-import { Sparkles } from "lucide-react" // Icon untuk layar Welcome
+import { useRouter } from "next/navigation"
+import { Toaster, toast } from "sonner"
+import { Sparkles } from "lucide-react"
+import { useChat } from "@ai-sdk/react" // Kembali menggunakan @ai-sdk/react
+
 import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
 import { filesFromMessage } from "../_lib/artifact"
-import { initialMessages, models } from "../_lib/constants"
+import { models } from "../_lib/constants"
 import type { ChatSession, ChatStatus, MessageType } from "../_lib/types"
 import { PanelProvider, usePanelContext } from "./chat-context"
 import { SidebarDrawer } from "./sidebar-chatlist"
@@ -15,11 +17,10 @@ import { ChatHeader } from "./chat-header"
 import { MessageList } from "./messages-list"
 import { PromptInputBar } from "./prompt-input"
 import { ArtifactPanel } from "./artifact"
+import { createChatSession } from "../_lib/actions" 
 
-// Pulls in Shiki via CodeBlock - kept out of the initial bundle, only loaded when a file exists.
 const CodePanel = dynamic(() => import("./code-block").then((m) => m.CodePanel), { ssr: false })
 
-// PROPS DIPERBARUI: Menambahkan dukungan untuk null session dan terjemahan
 interface ChatShellProps {
   initialSessions: ChatSession[]
   initialModel: string
@@ -48,27 +49,50 @@ function ChatShellInner({
   const router = useRouter()
   const { isArtifactOpen, isCodePanelOpen, setArtifactFiles, setCodePanelTab, openCodePanel } = usePanelContext()
 
-  // STATE DIPERBARUI: Jika tidak ada session (New Chat), kosongkan daftar pesan
-  const [messages, setMessages] = useState<MessageType[]>(
-    initialActiveSessionId ? initialMessages : []
-  )
-  
-  const [status, setStatus] = useState<ChatStatus>("ready")
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
   const [model, setModel] = useState(initialModel)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  // Two-pass guard for artifacts
-  useEffect(() => {
-    if (messages.length === 0) return // Skip jika pesan kosong
+  const chat = useChat({
+    id: activeSessionId || "new-chat",
+    experimental_prepareRequestBody: ({ messages, requestData }: { messages: any; requestData: any }) => ({
+      ...requestData,
+      id: activeSessionId,
+      modelId: model,
+      messages,
+    }),
+    onError: (err: Error) => {
+      toast.error(`Error: ${err.message}`)
+    }
+  } as any) as any
 
-    const last = messages[messages.length - 1]
+  const { messages: aiMessages, append, status, setMessages, stop } = chat
+
+  const isLoading = status === "streaming" || status === "submitted"
+
+  // PERBAIKAN TYPE CASTING (m: any) untuk menangani variasi UIMessage
+  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
+    const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
+    
+    return {
+      key: m.id,
+      from: m.role === "user" ? "user" : "assistant",
+      versions: [{ id: m.id, content: textContent }],
+    }
+  })
+
+  const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
+
+  useEffect(() => {
+    if (mappedMessages.length === 0) return
+
+    const last = mappedMessages[mappedMessages.length - 1]
     if (!last || last.from !== "assistant") return
 
     if (lastCodeMessageKeyRef.current === null) {
-      const allFiles = messages
+      const allFiles = mappedMessages
         .filter((m) => m.from === "assistant")
         .flatMap((m) => filesFromMessage(m.key, m.versions[0]?.content ?? ""))
       if (allFiles.length > 0) setArtifactFiles(allFiles)
@@ -85,54 +109,58 @@ function ChatShellInner({
     setArtifactFiles((prev) => [...prev, ...newFiles])
     setCodePanelTab("code")
     openCodePanel(newFiles[0].id)
-  }, [messages, setArtifactFiles, setCodePanelTab, openCodePanel])
+  }, [mappedMessages, setArtifactFiles, setCodePanelTab, openCodePanel])
 
-  // FUNGSI DIPERBARUI: Menangani logika jika itu adalah pesan pertama (New Chat)
   const addUserMessage = useCallback(async (content: string) => {
-    const userMsg: MessageType = {
-      key: `user-${Date.now()}`,
-      from: "user",
-      versions: [{ id: `u-${Date.now()}`, content }],
-    }
-    
-    setMessages((prev) => [...prev, userMsg])
-    setStatus("submitted")
+    let currentSessionId = activeSessionId
 
-    // LOGIKA DATABASE & ROUTING UNTUK NEW CHAT
-    if (!activeSessionId) {
-      // 1. Panggil server action Anda di sini untuk membuat chat di database
-      // const newSessionId = await createNewChatSession(content)
-      
-      // 2. Set active session di state
-      // setActiveSessionId(newSessionId)
-
-      // 3. Ubah URL ke /chat/[id] secara diam-diam (tanpa hard reload)
-      // router.push(`/chat/${newSessionId}`)
-      
-      console.log("New chat initiated! (Replace this block with DB call & router.push)")
-    }
-
-    // Mock response dari AI (Ganti ini dengan stream/fetch ke API AI yang sebenarnya)
-    setTimeout(() => {
-      const assistantMsg: MessageType = {
-        key: `asst-${Date.now()}`,
-        from: "assistant",
-        reasoningSteps: [{ label: "Processing your request…", status: "complete" }],
-        versions: [{ id: `a-${Date.now()}`, content: "I've analysed that for you. Let me know if you need adjustments!" }],
+    if (!currentSessionId) {
+      try {
+        const title = content.length > 30 ? content.slice(0, 30) + "..." : content
+        const newSession = await createChatSession(title)
+        
+        currentSessionId = newSession.id
+        setActiveSessionId(currentSessionId)
+        setSessions(prev => [newSession, ...prev])
+        
+        window.history.pushState(null, "", `/chat/${currentSessionId}`)
+      } catch (error) {
+        toast.error("Failed to create chat session")
+        return
       }
-      setMessages((prev) => [...prev, assistantMsg])
-      setStatus("ready")
-    }, 1200)
-  }, [activeSessionId, router])
+    }
+
+    await append({
+      role: "user",
+      content: content
+    }, {
+      data: { sessionId: currentSessionId, modelId: model }
+    })
+  }, [activeSessionId, model, append])
 
   const handleNewSession = useCallback((session: ChatSession) => {
     setSessions((prev) => [session, ...prev])
     setActiveSessionId(session.id)
-  }, [])
+    setMessages([]) 
+    router.push(`/chat/${session.id}`)
+  }, [router, setMessages])
 
   const handleSelectSession = useCallback((id: string) => {
     setActiveSessionId(id)
-    // Jangan lupa setMessages dengan riwayat chat dari ID tersebut jika memuat dari sidebar
+    router.push(`/chat/${id}`)
+  }, [router])
+
+  const handleDeleteSession = useCallback((id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id))
+    if (activeSessionId === id) {
+      setActiveSessionId(null)
+      setMessages([])
+      router.push('/chat')
+    }
+  }, [activeSessionId, router, setMessages])
+
+  const handleUpdateSession = useCallback((updated: ChatSession) => {
+    setSessions(prev => prev.map(s => s.id === updated.id ? updated : s))
   }, [])
 
   const handleModelChange = useCallback((id: string) => setModel(id), [])
@@ -148,6 +176,8 @@ function ChatShellInner({
         activeSessionId={activeSessionId || ""}
         onSessionCreated={handleNewSession}
         onSessionSelected={handleSelectSession}
+        onSessionDeleted={handleDeleteSession}
+        onSessionUpdated={handleUpdateSession}
       />
 
       <div
@@ -158,8 +188,7 @@ function ChatShellInner({
           <ResizablePanel defaultSize={isCodePanelOpen && !isArtifactOpen ? 52 : 100} minSize={30} className="relative h-full flex flex-col">
             <ChatHeader onMenuClick={() => setIsDrawerOpen(true)} />
             
-            {/* LAYAR WELCOME: Muncul jika tidak ada pesan */}
-            {messages.length === 0 ? (
+            {mappedMessages.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
                 <div className="bg-primary/10 p-4 rounded-full mb-6 border border-primary/20 shadow-sm shadow-primary/10">
                   <Sparkles className="w-8 h-8 text-primary" />
@@ -172,16 +201,17 @@ function ChatShellInner({
                 </p>
               </div>
             ) : (
-              <MessageList messages={messages} />
+              <MessageList messages={mappedMessages} />
             )}
 
             <PromptInputBar
               models={models}
               model={model}
               onModelChange={handleModelChange}
-              status={status}
-              showSuggestions={messages.length === 0}
+              status={chatStatus}
+              showSuggestions={mappedMessages.length === 0}
               onSubmit={addUserMessage}
+              onStop={stop}
             />
           </ResizablePanel>
 
