@@ -37,6 +37,7 @@
     "@react-email/render": "^2.0.9",
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-table": "^8.21.3",
+    "@vercel/blob": "^2.8.0",
     "@xyflow/react": "^12.11.0",
     "ai": "^6.0.202",
     "ansi-to-react": "^6.2.6",

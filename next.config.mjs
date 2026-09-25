@@ -17,9 +17,8 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'japa-media-062995001999-ap-southeast-1-an.s3.ap-southeast-1.amazonaws.com',
+        hostname: '*.public.blob.vercel-storage.com',
         port: '',
-        pathname: '/**',
       },
     ],
   },
