@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { translations, Language } from "@/translate/language-data";
 const slideImages = [
-  { type: 'image', src: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/hero/main-1.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3NjMyNDY5LCJpYXQiOjE3OTAzMDQ0MzI2MDh9.0HQN6mUnd3KVsqH8_zW-7iyWTVBk2BGvJDK3EnmgsLc&vercel-blob-signature=bHhF-aDiHll08DHQ-O3NwuxsW5jNPVaCnxb2wW0SgjQ' },
-  { type: 'video', src: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/hero/pln-ip-video-1.mp4?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3NTgzNjk5LCJpYXQiOjE3OTAzMDQzODM4NDF9.Fzw3L97RxEBk3t8cbQkK75gu7dL544aVKpeWaxOwaqM&vercel-blob-signature=tbugeGFZ2EEYPHFNZ3ZDIyW-u46S34y7YAlh9eKmMDo' },
-  { type: 'image', src: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/hero/ipal-3.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ3NTY0MDA4LCJpYXQiOjE3OTAzMDQzNjQxNjN9.HIFC4JqxY5ER_jOeZm0VCXHGyYKJnXds33ZqoaW1biI&vercel-blob-signature=3eaVYcdgfleDz0XNSMGU34nloc22sxj8t2vzUcZmsVQ' }
+  { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/ipal/ipal-1.jpg' },
+  { type: 'video', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/pln-ip/pln-ip-video-1.mp4' },
+  { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/ipal/ipal-3.jpg' }
 ]
 
 import { Button } from '@/components/ui/button';
