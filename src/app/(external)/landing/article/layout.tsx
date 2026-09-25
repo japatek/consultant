@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Navbar } from "./_components/nav-bar"; // Sesuaikan path ini jika letak nav-bar berbeda
+import { Navbar } from "../../landing/_components/nav-bar"; // Sesuaikan path ini jika letak nav-bar berbeda
 import { translations, Language } from '@/translate/language-data';
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
