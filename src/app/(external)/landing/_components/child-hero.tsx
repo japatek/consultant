@@ -22,7 +22,7 @@ interface ChildHeroProps {
 }
 
 const DEFAULT_MEDIA: HeroMedia[] = [
-  { type: 'image', src: 'https://uwtzrtpvr9dcj5x7.private.blob.vercel-storage.com/child/child-1.jpg?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfVVdUWlJUUHZyOURjSjV4NyIsIm93bmVySWQiOiJ0ZWFtX3AydEpzYVEzbGtIRXplR0Mya2p0VTVGdCIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzkwMzQ4MTcyMTU3LCJpYXQiOjE3OTAzMDQ5NzIzMzB9.KvSNtlhMCKZ5cqYeZmbhQaYpfq6CF-ut9nGbRDvq60A&vercel-blob-signature=_vRLNBbfrbb9DlJUcPWRILJQrwtBGQYgaF6aN1cJLeE' },
+  { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/single/child-1.jpg' },
   { type: 'video', src: 'https://media.istockphoto.com/id/480961036/id/video/skema.mp4?s=mp4-640x640-is&k=20&c=VKNdw1JtD9efX6R-s2PqMIEX8YUBnMDWgrFbBCvNhAs=' },
   { type: 'image', src: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1920' }
 ]

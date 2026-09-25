@@ -91,7 +91,7 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
                   const fileName = srcString.split('/').pop();
                   
                   // Sisipkan domain CloudFront dan folder articles secara paksa
-                  finalSrc = `https://d2tbt8ofproiin.cloudfront.net/articles/${fileName}`;
+                  finalSrc = `https://zrag0isxqbcebeen.public.blob.vercel-storage.com/articles/${fileName}`;
                 }
 
                 return (

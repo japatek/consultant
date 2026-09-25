@@ -6,7 +6,7 @@ import { translations, Language } from "@/translate/language-data";
 const slideImages = [
   { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/ipal/ipal-1.jpg' },
   { type: 'video', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/pln-ip/pln-ip-video-1.mp4' },
-  { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/ipal/ipal-3.jpg' }
+  { type: 'image', src: 'https://zrag0isxqbcebeen.public.blob.vercel-storage.com/single/main-1.jpg' }
 ]
 
 import { Button } from '@/components/ui/button';
