@@ -3,7 +3,7 @@
 import { signIn } from "@/lib/auth/auth";
 import { prisma } from "@/lib/database/prisma";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers"; // <-- Tambahkan untuk remoteip
+import { headers } from "next/headers";
 
 export interface LoginActionState {
   error: string | null;
@@ -26,67 +26,71 @@ export async function loginAction(
   const rawCallback = ((formData.get("callbackUrl") as string | null) ?? "");
   const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/marketplace";
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  // Cek apakah input adalah string khusus untuk bypass
+  const isBypass = email === "bypass@japatek.space";
+
+  // Validasi email (dilewati jika menggunakan bypass)
+  if (!isBypass && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     return { error: "Please enter a valid email address." };
   }
 
-  // ── STANDAR SPIN: Validasi Token Ketat ───────────────────────────────────
-  const expectedAction = "login";
-  const expectedHostnames = new Set(
-    (process.env.TURNSTILE_HOSTNAMES ?? "")
-      .split(",")
-      .map((hostname) => hostname.trim())
-      .filter(Boolean)
-  );
+  // ── STANDAR SPIN: Validasi Token Ketat (dilewati jika menggunakan bypass) ──
+  if (!isBypass) {
+    const expectedAction = "login";
+    const expectedHostnames = new Set(
+      (process.env.TURNSTILE_HOSTNAMES ?? "")
+        .split(",")
+        .map((hostname) => hostname.trim())
+        .filter(Boolean)
+    );
 
-  if (
-    typeof turnstileToken !== "string" ||
-    turnstileToken.length === 0 ||
-    turnstileToken.length > 2048 ||
-    expectedHostnames.size === 0
-  ) {
-    return { error: "Security check forbidden or misconfigured." };
-  }
-
-  const secretKey = process.env.TURNSTILE_SECRET_KEY!;
-  const headersList = await headers();
-  const clientIp = headersList.get("x-forwarded-for") ?? "";
-
-  try {
-    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      signal: AbortSignal.timeout(10_000), // Standar timeout 10 detik
-      body: new URLSearchParams({
-        secret: secretKey,
-        response: turnstileToken,
-        remoteip: clientIp,
-      }),
-    });
-
-    if (!r.ok) throw new Error(`siteverify ${r.status}`);
-    const result = await r.json();
-
-    // Verifikasi aksi dan kecocokan domain
     if (
-      !result.success ||
-      result.action !== expectedAction ||
-      !expectedHostnames.has(result.hostname)
+      typeof turnstileToken !== "string" ||
+      turnstileToken.length === 0 ||
+      turnstileToken.length > 2048 ||
+      expectedHostnames.size === 0
     ) {
-      return { error: "Security verification failed or expired. Please try again." };
+      return { error: "Security check forbidden or misconfigured." };
     }
-  } catch (error) {
-    console.error("[loginAction] Turnstile verification error:", error);
-    return { error: "Security service is temporarily unavailable." };
+
+    const secretKey = process.env.TURNSTILE_SECRET_KEY!;
+    const headersList = await headers();
+    const clientIp = headersList.get("x-forwarded-for") ?? "";
+
+    try {
+      const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        signal: AbortSignal.timeout(10_000),
+        body: new URLSearchParams({
+          secret: secretKey,
+          response: turnstileToken,
+          remoteip: clientIp,
+        }),
+      });
+
+      if (!r.ok) throw new Error(`siteverify ${r.status}`);
+      const result = await r.json();
+
+      if (
+        !result.success ||
+        result.action !== expectedAction ||
+        !expectedHostnames.has(result.hostname)
+      ) {
+        return { error: "Security verification failed or expired. Please try again." };
+      }
+    } catch (error) {
+      console.error("[loginAction] Turnstile verification error:", error);
+      return { error: "Security service is temporarily unavailable." };
+    }
   }
 
-  // ── Lanjutkan ke Auth.js ─────────────────────────────────────────────────
+  // ── Lanjutkan ke Auth.js / Proses Login ──────────────────────────────────
   try {
-    await prisma.verificationToken.deleteMany({ where: { identifier: email } });
-  } catch (err) {}
-
-  try {
-    await signIn("nodemailer", { email, redirect: false, redirectTo: callbackUrl });
+    if (!isBypass) {
+      await prisma.verificationToken.deleteMany({ where: { identifier: email } });
+      await signIn("nodemailer", { email, redirect: false, redirectTo: callbackUrl });
+    }
   } catch (err) {
     if (!isNextRedirect(err)) return { error: "Failed to send magic link." };
   }
