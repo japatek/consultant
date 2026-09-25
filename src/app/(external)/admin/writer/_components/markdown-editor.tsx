@@ -5,7 +5,7 @@ import {
   Bold, Italic, Heading1, List, Image as ImageIcon, 
   Loader2, Eye, PenLine 
 } from "lucide-react";
-import { uploadImageToS3 } from "../_lib/upload-s3";
+import { uploadImage } from "../_lib/upload-s3";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex"; 
@@ -83,7 +83,7 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
     formData.append("folder", "Consultant/articles");
 
     try {
-      const res = await uploadImageToS3(formData);
+      const res = await uploadImage(formData);
       
       // 2. Ambil teks paling baru dari ref (bukan dari state lama)
       const currentText = latestValueRef.current || ""; 
@@ -94,7 +94,7 @@ export function MarkdownEditor({ value, onChange, name, placeholder, onError }: 
         // Ambil hanya nama filenya saja dari response backend
         const fileName = res.url.split('/').pop();
         // Paksa penyusunan URL menggunakan domain CloudFront
-        const cloudFrontUrl = `https://d2tbt8ofproiin.cloudfront.net/articles/${fileName}`;
+        const cloudFrontUrl = `https://zrag0isxqbcebeen.public.blob.vercel-storage.com/articles/${fileName}`;
 
         // 3. Ganti teks sementara dengan URL CloudFront yang sudah bersih
         const newText = currentText.replace(placeholderText, `\n![${file.name}](${cloudFrontUrl})\n`);
