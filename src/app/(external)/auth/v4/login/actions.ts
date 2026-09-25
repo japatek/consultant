@@ -96,6 +96,6 @@ export async function loginAction(
 
 export async function googleAction(formData: FormData): Promise<void> {
   const rawCallback = (formData.get("callbackUrl") as string | null) ?? "";
-  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/marketplace";
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/interface";
   await signIn("google", { redirectTo: callbackUrl });
 }
