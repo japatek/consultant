@@ -2,6 +2,9 @@
 
 export const translations = {
     en: {
+        //Welcome Chat
+        welcomeTitle:"Hello",
+        welcomeDesc:"Start Chat With Me",
         // Nav-bar
         services: 'Services',
         sectors: 'Sectors',
@@ -171,6 +174,9 @@ export const translations = {
         certAdminBadge: 'Badge Image',
     },
     id: {
+        // Welcome
+        welcomeTitle:"Hallo",
+        welcomeDesc:"Ada yang bisa saya bantu?",
         // Navbar
         services: 'Layanan',
         sectors: 'Sektor',
