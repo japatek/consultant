@@ -2,7 +2,7 @@ import { nanoid } from "nanoid"
 import type { MessageType, ModelOption } from "./types"
 
 
-export const AVAILABLE_MODELS: ModelOption[] = [
+export const models: ModelOption[] = [
   // OpenAI Models
   { id: "gpt-4o", name: "GPT-4o", chef: "OpenAI", chefSlug: "openai" },
   { id: "gpt-4o-mini", name: "GPT-4o Mini", chef: "OpenAI", chefSlug: "openai" },
