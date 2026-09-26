@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { Toaster, toast } from "sonner"
 import { Sparkles } from "lucide-react"
-import { useChat } from "@ai-sdk/react" // Kembali menggunakan @ai-sdk/react
+import { useChat } from "@ai-sdk/react" 
 
 import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
 import { filesFromMessage } from "../_lib/artifact"
@@ -26,6 +26,7 @@ interface ChatShellProps {
   initialModel: string
   initialActiveSessionId: string | null 
   initialArtifactOpen: boolean
+  initialMessages?: any[] // Menerima riwayat chat dari page.tsx
   lang?: string
   welcomeTitle?: string
   welcomeDesc?: string
@@ -43,6 +44,7 @@ function ChatShellInner({
   initialSessions, 
   initialModel, 
   initialActiveSessionId,
+  initialMessages = [],
   welcomeTitle = "Welcome",
   welcomeDesc = "Start a new conversation"
 }: ChatShellProps) {
@@ -51,28 +53,26 @@ function ChatShellInner({
 
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
+  
+  // ID Hook yang stabil agar Vercel AI SDK tidak menghapus pesan saat beralih dari sesi baru
+  const [chatHookId, setChatHookId] = useState<string>(initialActiveSessionId || "new-chat")
+  
   const [model, setModel] = useState(initialModel)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  const chat = useChat({
-    id: activeSessionId || "new-chat",
-    experimental_prepareRequestBody: ({ messages, requestData }: { messages: any; requestData: any }) => ({
-      ...requestData,
-      id: activeSessionId,
-      modelId: model,
-      messages,
-    }),
+  // Konfigurasi useChat standar Vercel AI SDK v6 (tanpa experimental_prepareRequestBody)
+  const { messages: aiMessages, append, status, setMessages, stop } = useChat({
+    api: "/api/chat",
+    id: chatHookId,
+    initialMessages,
     onError: (err: Error) => {
       toast.error(`Error: ${err.message}`)
     }
-  } as any) as any
-
-  const { messages: aiMessages, append, status, setMessages, stop } = chat
+  }as any) as any
 
   const isLoading = status === "streaming" || status === "submitted"
 
-  // PERBAIKAN TYPE CASTING (m: any) untuk menangani variasi UIMessage
   const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
     const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
     
@@ -123,30 +123,36 @@ function ChatShellInner({
         setActiveSessionId(currentSessionId)
         setSessions(prev => [newSession, ...prev])
         
-        window.history.pushState(null, "", `/chat/${currentSessionId}`)
+        // Menggunakan replaceState agar transisi URL instan dan mencegah halaman reload
+        window.history.replaceState(null, "", `/chat/${currentSessionId}`)
       } catch (error) {
         toast.error("Failed to create chat session")
         return
       }
     }
 
+    // Menggunakan parameter `options.body` yang sesuai dengan spesifikasi v6
     await append({
       role: "user",
       content: content
     }, {
-      data: { sessionId: currentSessionId, modelId: model }
+      options: {
+        body: { id: currentSessionId, modelId: model }
+      }
     })
   }, [activeSessionId, model, append])
 
   const handleNewSession = useCallback((session: ChatSession) => {
     setSessions((prev) => [session, ...prev])
     setActiveSessionId(session.id)
+    setChatHookId(session.id) // Sinkronisasi ID hook dengan sesi aktif
     setMessages([]) 
     router.push(`/chat/${session.id}`)
   }, [router, setMessages])
 
   const handleSelectSession = useCallback((id: string) => {
     setActiveSessionId(id)
+    setChatHookId(id) 
     router.push(`/chat/${id}`)
   }, [router])
 
@@ -154,8 +160,9 @@ function ChatShellInner({
     setSessions(prev => prev.filter(s => s.id !== id))
     if (activeSessionId === id) {
       setActiveSessionId(null)
+      setChatHookId("new-chat")
       setMessages([])
-      router.push('/chat')
+      router.push('/chat/new') // Memaksa router menuju param ID 'new'
     }
   }, [activeSessionId, router, setMessages])
 
