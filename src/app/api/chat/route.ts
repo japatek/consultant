@@ -78,6 +78,7 @@ export async function POST(req: Request) {
         }
       });
     }
+    console.log("lastMessage shape:", JSON.stringify(lastMessage));
 
     const aiModel = getSelectedModel(modelId);
 
