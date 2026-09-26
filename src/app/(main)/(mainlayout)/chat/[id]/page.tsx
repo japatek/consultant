@@ -32,7 +32,7 @@ interface ChatShellProps {
   welcomeDesc?: string
 }
 
-export function ChatShell(props: ChatShellProps) {
+export default function ChatShell(props: ChatShellProps) {
   return (
     <PanelProvider initialArtifactOpen={props.initialArtifactOpen}>
       <ChatShellInner {...props} />
