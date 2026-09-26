@@ -3,22 +3,22 @@ import { getSessions } from "../_lib/data"
 import { getChatPreferences } from "../_lib/cookies"
 import { ChatShell } from "../_components/chat-shell"
 import { translations, type Language } from "../../../../../translate/language-data"
-import { prisma } from "../../../../../lib/database/prisma" // Pastikan import Prisma Anda benar
+import { prisma } from "../../../../../lib/database/prisma" 
 
 export default async function ChatPage({ params }: { params: Promise<{ id?: string }> }) {
   const cookieStore = await cookies()
   const resolvedParams = await params;
   
-  // Deteksi apakah ini route chat baru atau membuka riwayat lama
-  const isNewChat = !resolvedParams?.id || resolvedParams.id === "new";
-  const sessionId = isNewChat ? null : resolvedParams.id;
+  // 👈 FIX: Memastikan tipe data selalu string | null (bukan undefined)
+  const sessionId = (resolvedParams?.id && resolvedParams.id !== "new") 
+    ? resolvedParams.id 
+    : null;
 
   const [sessions, preferences] = await Promise.all([
     getSessions(), 
     getChatPreferences()
   ])
 
-  // Fetch riwayat pesan dari database jika ini adalah sesi chat lama
   let initialMessages: any[] = [];
   if (sessionId) {
     const chatRecords = await prisma.chatMessage.findMany({
@@ -26,7 +26,6 @@ export default async function ChatPage({ params }: { params: Promise<{ id?: stri
       orderBy: { createdAt: "asc" }
     });
     
-    // Mapping format Prisma ke format yang dimengerti Vercel AI SDK
     initialMessages = chatRecords.map(msg => ({
       id: msg.id,
       role: msg.role,
@@ -40,10 +39,11 @@ export default async function ChatPage({ params }: { params: Promise<{ id?: stri
 
   return (
     <ChatShell
+      key={sessionId || "new-chat"} 
       initialSessions={sessions}
       initialModel={preferences.model}
       initialActiveSessionId={sessionId}
-      initialMessages={initialMessages} // 👈 PENTING: Oper data ini ke ChatShell
+      initialMessages={initialMessages}
       initialArtifactOpen={preferences.isArtifactOpen}
       lang={lang}
       welcomeTitle={welcomeTitle}

@@ -26,7 +26,7 @@ interface ChatShellProps {
   initialModel: string
   initialActiveSessionId: string | null 
   initialArtifactOpen: boolean
-  initialMessages?: any[] // Menerima riwayat chat dari page.tsx
+  initialMessages?: any[] 
   lang?: string
   welcomeTitle?: string
   welcomeDesc?: string
@@ -53,23 +53,22 @@ function ChatShellInner({
 
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
-  
-  // ID Hook yang stabil agar Vercel AI SDK tidak menghapus pesan saat beralih dari sesi baru
   const [chatHookId, setChatHookId] = useState<string>(initialActiveSessionId || "new-chat")
   
   const [model, setModel] = useState(initialModel)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  // Konfigurasi useChat standar Vercel AI SDK v6 (tanpa experimental_prepareRequestBody)
-  const { messages: aiMessages, append, status, setMessages, stop } = useChat({
+  const chat = useChat({
     api: "/api/chat",
     id: chatHookId,
     initialMessages,
     onError: (err: Error) => {
       toast.error(`Error: ${err.message}`)
     }
-  }as any) as any
+  } as any) as any
+
+  const { messages: aiMessages, append, status, setMessages, stop } = chat
 
   const isLoading = status === "streaming" || status === "submitted"
 
@@ -123,7 +122,6 @@ function ChatShellInner({
         setActiveSessionId(currentSessionId)
         setSessions(prev => [newSession, ...prev])
         
-        // Menggunakan replaceState agar transisi URL instan dan mencegah halaman reload
         window.history.replaceState(null, "", `/chat/${currentSessionId}`)
       } catch (error) {
         toast.error("Failed to create chat session")
@@ -131,40 +129,35 @@ function ChatShellInner({
       }
     }
 
-    // Menggunakan parameter `options.body` yang sesuai dengan spesifikasi v6
-    await append({
-      role: "user",
-      content: content
-    }, {
-      options: {
+    try {
+      // 👈 FIX: Hilangkan bungkus options agar 'body' terbaca oleh backend
+      await append({
+        role: "user",
+        content: content
+      }, {
+        data: { id: currentSessionId, modelId: model },
         body: { id: currentSessionId, modelId: model }
-      }
-    })
+      } as any)
+    } catch (err: any) {
+      toast.error("Failed to send message: " + err.message)
+    }
   }, [activeSessionId, model, append])
 
   const handleNewSession = useCallback((session: ChatSession) => {
     setSessions((prev) => [session, ...prev])
-    setActiveSessionId(session.id)
-    setChatHookId(session.id) // Sinkronisasi ID hook dengan sesi aktif
-    setMessages([]) 
     router.push(`/chat/${session.id}`)
-  }, [router, setMessages])
+  }, [router])
 
   const handleSelectSession = useCallback((id: string) => {
-    setActiveSessionId(id)
-    setChatHookId(id) 
     router.push(`/chat/${id}`)
   }, [router])
 
   const handleDeleteSession = useCallback((id: string) => {
     setSessions(prev => prev.filter(s => s.id !== id))
     if (activeSessionId === id) {
-      setActiveSessionId(null)
-      setChatHookId("new-chat")
-      setMessages([])
-      router.push('/chat/new') // Memaksa router menuju param ID 'new'
+      router.push('/chat/new')
     }
-  }, [activeSessionId, router, setMessages])
+  }, [activeSessionId, router])
 
   const handleUpdateSession = useCallback((updated: ChatSession) => {
     setSessions(prev => prev.map(s => s.id === updated.id ? updated : s))
