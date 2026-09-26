@@ -41,6 +41,7 @@ export function AnswerConfigFields({ lang, index }: { lang: Language; index: num
   const t = translations[lang];
   const { control, setValue } = useFormContext<QuestFormValues>();
   const config = useWatch({ control, name: `questions.${index}.answerConfig` });
+  const answerType = (config?.type ?? "") as AnswerType | "";
 
   function changeType(next: AnswerType) {
     setValue(`questions.${index}.answerConfig`, defaultAnswerConfigFor(next), {
@@ -52,7 +53,7 @@ export function AnswerConfigFields({ lang, index }: { lang: Language; index: num
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>{t.questFieldAnswerType}</Label>
-        <Select value={config.type} onValueChange={(v) => changeType(v as AnswerType)}>
+        <Select value={answerType} onValueChange={(v) => changeType(v as AnswerType)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -66,10 +67,10 @@ export function AnswerConfigFields({ lang, index }: { lang: Language; index: num
 
       <div className="rounded-lg border bg-muted/30 p-4">
         {config.type === "MULTIPLE_CHOICE" && (
-          <MultipleChoiceFields t={t} index={index} config={config} />
+          <MultipleChoiceFields t={t} index={index} config={config as MultipleChoiceConfig} />
         )}
-        {config.type === "TEXT_INPUT" && <TextInputFields t={t} index={index} config={config} />}
-        {config.type === "FILE_UPLOAD" && <FileUploadFields t={t} index={index} config={config} />}
+        {config.type === "TEXT_INPUT" && <TextInputFields t={t} index={index} config={config as TextInputConfig} />}
+        {config.type === "FILE_UPLOAD" && <FileUploadFields t={t} index={index} config={config as FileUploadConfig} />}
       </div>
     </div>
   );
