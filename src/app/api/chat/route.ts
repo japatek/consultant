@@ -56,7 +56,8 @@ function extractText(message: UIMessage | any): string {
 
 export async function POST(req: Request) {
   try {
-    const { messages, id: sessionId, modelId } = await req.json();
+    const { messages, id: sessionId, modelId } = await req.json();;
+    console.log("RAW REQUEST BODY:", JSON.stringify({ messages, sessionId, modelId }));
 
     const session = await auth();
     if (!session?.user?.id) {
