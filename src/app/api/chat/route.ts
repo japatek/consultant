@@ -53,6 +53,7 @@ function extractText(message: UIMessage | any): string {
   }
   return typeof message?.content !== "undefined" ? JSON.stringify(message.content) : "";
 }
+console.log(MCP_SERVER_URL)
 
 export async function POST(req: Request) {
   try {
