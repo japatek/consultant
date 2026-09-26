@@ -17,14 +17,29 @@ const huggingface = createOpenAI({
   apiKey: process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN || "",
 });
 
+// Gemini 2.5 (and everything older) is scheduled for shutdown 2026-10-16.
+// Point bare/unversioned aliases at the Gemini 3 line so this doesn't need
+// revisiting again right after the 2.5 line goes away.
+const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite"; // stable, no shutdown date yet
+const GEMINI_ALIASES: Record<string, string> = {
+  gemini: DEFAULT_GEMINI_MODEL,
+  "gemini-pro": "gemini-3.1-pro-preview",
+  "gemini-flash": DEFAULT_GEMINI_MODEL,
+};
+
 function getSelectedModel(modelId?: string) {
-  if (!modelId) return google("gemini-1.5-pro");
+  if (!modelId) return google(DEFAULT_GEMINI_MODEL);
 
   const cleanId = modelId.toLowerCase();
 
   if (cleanId.includes("gemini") || cleanId.startsWith("google/")) {
-    const model = modelId.replace(/^google\//, "");
-    return google(model);
+    const stripped = modelId.replace(/^google\//, "");
+    // A real Gemini model id always has a version number in it
+    // (gemini-2.5-flash, gemini-3.1-flash-lite, ...). A bare "gemini"
+    // or unversioned alias isn't a real model id — map it instead of
+    // passing it straight through to the API.
+    const resolved = /\d/.test(stripped) ? stripped : GEMINI_ALIASES[cleanId] ?? DEFAULT_GEMINI_MODEL;
+    return google(resolved);
   }
 
   if (
@@ -37,12 +52,10 @@ function getSelectedModel(modelId?: string) {
     return huggingface(model);
   }
 
-  return google("gemini-1.5-pro");
+  return google(DEFAULT_GEMINI_MODEL);
 }
 
-// v5+: text lives in message.parts, not message.content. Without this,
-// content is `undefined` (not the string "undefined"), which is why
-// Prisma reports "Argument `content` is missing" instead of a bad value.
+// v6: text lives in message.parts, not message.content.
 function extractText(message: UIMessage | any): string {
   if (typeof message?.content === "string") return message.content;
   if (Array.isArray(message?.parts)) {
@@ -54,10 +67,23 @@ function extractText(message: UIMessage | any): string {
   return typeof message?.content !== "undefined" ? JSON.stringify(message.content) : "";
 }
 
+// Coerces any message into the { parts: [...] } shape convertToModelMessages
+// expects. Needed because sessions can contain a mix of rows saved before
+// the parts-based migration (old { role, content } shape) and rows saved
+// after (correct { role, parts } shape) — convertToModelMessages throws
+// ("reading 'map'") the moment it hits a content-only row with no `parts`.
+function toUIMessage(m: any): UIMessage {
+  if (Array.isArray(m?.parts)) return m as UIMessage;
+  return {
+    id: m.id,
+    role: m.role,
+    parts: [{ type: "text", text: typeof m.content === "string" ? m.content : "" }],
+  } as UIMessage;
+}
+
 export async function POST(req: Request) {
   try {
-    const { messages, id: sessionId, modelId } = await req.json();;
-    console.log("RAW REQUEST BODY:", JSON.stringify({ messages, sessionId, modelId }));
+    const { messages, id: sessionId, modelId } = await req.json();
 
     const session = await auth();
     if (!session?.user?.id) {
@@ -83,106 +109,71 @@ export async function POST(req: Request) {
       }
     }
 
+    // Persist the latest user message
     const lastMessage = messages[messages.length - 1];
-    const lastMessageText = extractText(lastMessage);
-    console.log("lastMessage shape:", JSON.stringify(lastMessage), "-> extracted:", lastMessageText);
-
     if (sessionId && lastMessage && lastMessage.role === "user") {
       await prisma.chatMessage.create({
         data: {
           sessionId,
           role: lastMessage.role,
-          content: lastMessageText, // was: lastMessage.content (always undefined on v5+)
+          content: extractText(lastMessage),
         },
       });
     }
 
-    // NOTE: if this still throws "Unsupported model version" once the line
-    // above stops crashing, `aiModel` itself is on a v4-spec provider that
-    // your installed `ai` package doesn't accept — `as any` below only hides
-    // the type error, it can't stop that runtime check. Align package
-    // versions (see earlier npm ls step) rather than relying on the cast.
-    // const aiModel = getSelectedModel(modelId);
-
-    // const result = streamText({
-    //   model: aiModel as any,
-    //   // v5+: convert UIMessage[] (parts-based) to ModelMessage[] for the model.
-    //   messages: await convertToModelMessages(messages as UIMessage[]),
-    //   system:
-    //     "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
-
-    //   // tools: {
-    //   //   calculate_area: {
-    //   //     description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
-    //   //     inputSchema: z.object({
-    //   //       shape: z.enum(["rectangle", "circle", "triangle"]),
-    //   //       length: z.number().optional(),
-    //   //       width: z.number().optional(),
-    //   //       radius: z.number().optional(),
-    //   //       base: z.number().optional(),
-    //   //       height: z.number().optional(),
-    //   //     }),
-    //   //     execute: async (args: any) => {
-    //   //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-    //   //       const res = await mcpClient.callTool({
-    //   //         name: "calculate_area",
-    //   //         arguments: args,
-    //   //       });
-    //   //       return { success: true, result: res.content };
-    //   //     },
-    //   //   },
-
-    //   //   calculate_beam_load: {
-    //   //     description: "Calculates structural beam load parameters.",
-    //   //     inputSchema: z.object({
-    //   //       length: z.number().describe("Length of the beam in meters"),
-    //   //       load: z.number().describe("Uniformly distributed load in kN/m"),
-    //   //     }),
-    //   //     execute: async (args: any) => {
-    //   //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-    //   //       const res = await mcpClient.callTool({
-    //   //         name: "calculate_beam_load",
-    //   //         arguments: args,
-    //   //       });
-    //   //       return { success: true, result: res.content };
-    //   //     },
-    //   //   },
-    //   // },
-
-    //   async onFinish({ text }) {
-    //     if (sessionId && text) {
-    //       try {
-    //         await prisma.chatMessage.create({
-    //           data: { sessionId, role: "assistant", content: text },
-    //         });
-    //       } catch (dbError) {
-    //         console.error("Gagal simpan balasan AI ke DB:", dbError);
-    //       }
-    //     }
-    //   },
-    // });
-
-     let modelMessages;
-    try {
-      modelMessages = await convertToModelMessages(messages as UIMessage[]);
-      console.log("convertToModelMessages OK, count:", modelMessages.length);
-    } catch (convErr) {
-      console.error("convertToModelMessages THREW:", convErr);
-      throw convErr;
-    }
-
     const aiModel = getSelectedModel(modelId);
-    console.log("aiModel resolved, modelId:", (aiModel as any).modelId, "spec:", (aiModel as any).specificationVersion);
+    const normalizedMessages = (messages as any[]).map(toUIMessage);
 
     const result = streamText({
       model: aiModel as any,
-      messages: modelMessages, // was: inline await convertToModelMessages(...)
+      messages: await convertToModelMessages(normalizedMessages),
       system:
         "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
+
+      tools: {
+        calculate_area: {
+          description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
+          inputSchema: z.object({
+            shape: z.enum(["rectangle", "circle", "triangle"]),
+            length: z.number().optional(),
+            width: z.number().optional(),
+            radius: z.number().optional(),
+            base: z.number().optional(),
+            height: z.number().optional(),
+          }),
+          execute: async (args: any) => {
+            if (!mcpClient) return { success: false, error: "MCP Server offline" };
+            const res = await mcpClient.callTool({
+              name: "calculate_area",
+              arguments: args,
+            });
+            return { success: true, result: res.content };
+          },
+        },
+
+        calculate_beam_load: {
+          description: "Calculates structural beam load parameters.",
+          inputSchema: z.object({
+            length: z.number().describe("Length of the beam in meters"),
+            load: z.number().describe("Uniformly distributed load in kN/m"),
+          }),
+          execute: async (args: any) => {
+            if (!mcpClient) return { success: false, error: "MCP Server offline" };
+            const res = await mcpClient.callTool({
+              name: "calculate_beam_load",
+              arguments: args,
+            });
+            return { success: true, result: res.content };
+          },
+        },
+      },
+
       async onFinish({ text }) {
         if (sessionId && text) {
           try {
-            await prisma.chatMessage.create({ data: { sessionId, role: "assistant", content: text } });
+            await prisma.chatMessage.create({
+              data: { sessionId, role: "assistant", content: text },
+            });
           } catch (dbError) {
             console.error("Gagal simpan balasan AI ke DB:", dbError);
           }
@@ -190,10 +181,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Must be toUIMessageStreamResponse() — NOT toTextStreamResponse().
-    // Your client (@ai-sdk/react useChat + DefaultChatTransport) parses the
-    // UI-message-parts stream protocol; a plain text stream won't match it,
-    // and assistant messages will fail to populate `.parts` correctly.
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("API Chat Processing Error:", error);

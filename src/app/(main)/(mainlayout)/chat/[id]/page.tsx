@@ -3,38 +3,38 @@ import { getSessions } from "../_lib/data"
 import { getChatPreferences } from "../_lib/cookies"
 import { ChatShell } from "../_components/chat-shell"
 import { translations, type Language } from "../../../../../translate/language-data"
-import { prisma } from "../../../../../lib/database/prisma" 
+import { prisma } from "../../../../../lib/database/prisma"
 
 export default async function ChatPage({ params }: { params: Promise<{ id?: string }> }) {
   const cookieStore = await cookies()
   const resolvedParams = await params;
-  
-  const sessionId = (resolvedParams?.id && resolvedParams.id !== "new") 
-    ? resolvedParams.id 
+
+  const sessionId = (resolvedParams?.id && resolvedParams.id !== "new")
+    ? resolvedParams.id
     : null;
 
   const [sessions, preferences] = await Promise.all([
-    getSessions(), 
+    getSessions(),
     getChatPreferences()
   ])
 
   let initialMessages: any[] = [];
-  
+
   if (sessionId) {
     try {
       const chatRecords = await prisma.chatMessage.findMany({
         where: { sessionId },
         orderBy: { createdAt: "asc" }
       });
-      
+
       // Pengaman agar tidak crash jika chatRecords undefined
       initialMessages = (chatRecords || []).map(msg => ({
         id: msg.id,
         role: msg.role,
-        content: msg.content
+        parts: [{ type: "text", text: msg.content }], // was: content: msg.content
       }));
     } catch (error) {
-      console.error("Gagal mengambil pesan:", error);
+      console.error("Failed to pull the messages:", error);
       initialMessages = []; // Fallback aman
     }
   }
@@ -45,7 +45,7 @@ export default async function ChatPage({ params }: { params: Promise<{ id?: stri
 
   return (
     <ChatShell
-      key={sessionId || "new-chat"} 
+      key={sessionId || "new-chat"}
       initialSessions={sessions || []}
       initialModel={preferences?.model || "gpt-4o"}
       initialActiveSessionId={sessionId}
