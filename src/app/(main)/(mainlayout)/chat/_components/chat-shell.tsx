@@ -51,34 +51,48 @@ function ChatShellInner({
   const router = useRouter()
   const { isArtifactOpen, isCodePanelOpen, setArtifactFiles, setCodePanelTab, openCodePanel } = usePanelContext()
 
-  const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
+  // FIX 1: Berikan fallback array kosong (|| []) agar sidebar tidak crash jika database kosong
+  const [sessions, setSessions] = useState<ChatSession[]>(initialSessions || [])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
   const [chatHookId, setChatHookId] = useState<string>(initialActiveSessionId || "new-chat")
-  
   const [model, setModel] = useState(initialModel)
+  
+  const activeSessionRef = useRef(activeSessionId)
+  activeSessionRef.current = activeSessionId
+  
+  const modelRef = useRef(model)
+  modelRef.current = model
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  const chat = useChat({
+  // FIX 2: Berikan fallback kosong di objek destructuring useChat
+  // @ts-ignore
+  const { messages: aiMessages = [], append, status, setMessages, stop } = (useChat({
     api: "/api/chat",
     id: chatHookId,
-    initialMessages,
+    initialMessages: initialMessages || [], // Pastikan initialMessages tidak undefined
+    experimental_prepareRequestBody: (options: any) => ({
+      ...(options.requestData || {}),
+      id: activeSessionRef.current, 
+      modelId: modelRef.current,    
+      messages: options.messages,
+    }),
     onError: (err: Error) => {
       toast.error(`Error: ${err.message}`)
     }
-  } as any) as any
-
-  const { messages: aiMessages, append, status, setMessages, stop } = chat
+  }as any) || {}) as any; // Memastikan objek tidak pernah undefined
 
   const isLoading = status === "streaming" || status === "submitted"
 
-  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
+  // FIX 3: Tambahkan (aiMessages || []) sebelum memanggil .map
+  const mappedMessages: MessageType[] = (aiMessages || []).map((m: any) => {
     const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
     
     return {
-      key: m.id,
+      key: m.id || Math.random().toString(), // Mencegah key undefined
       from: m.role === "user" ? "user" : "assistant",
-      versions: [{ id: m.id, content: textContent }],
+      versions: [{ id: m.id || Math.random().toString(), content: textContent }],
     }
   })
 
@@ -120,8 +134,9 @@ function ChatShellInner({
         
         currentSessionId = newSession.id
         setActiveSessionId(currentSessionId)
-        setSessions(prev => [newSession, ...prev])
+        activeSessionRef.current = currentSessionId 
         
+        setSessions(prev => [newSession, ...(prev || [])])
         window.history.replaceState(null, "", `/chat/${currentSessionId}`)
       } catch (error) {
         toast.error("Failed to create chat session")
@@ -130,37 +145,41 @@ function ChatShellInner({
     }
 
     try {
-      // 👈 FIX: Hilangkan bungkus options agar 'body' terbaca oleh backend
       await append({
         role: "user",
         content: content
-      }, {
-        data: { id: currentSessionId, modelId: model },
-        body: { id: currentSessionId, modelId: model }
-      } as any)
+      })
     } catch (err: any) {
       toast.error("Failed to send message: " + err.message)
     }
-  }, [activeSessionId, model, append])
+  }, [activeSessionId, append])
 
   const handleNewSession = useCallback((session: ChatSession) => {
-    setSessions((prev) => [session, ...prev])
+    setSessions((prev) => [session, ...(prev || [])])
+    setActiveSessionId(session.id)
+    setChatHookId(session.id)
+    setMessages([]) 
     router.push(`/chat/${session.id}`)
-  }, [router])
+  }, [router, setMessages])
 
   const handleSelectSession = useCallback((id: string) => {
+    setActiveSessionId(id)
+    setChatHookId(id) 
     router.push(`/chat/${id}`)
   }, [router])
 
   const handleDeleteSession = useCallback((id: string) => {
-    setSessions(prev => prev.filter(s => s.id !== id))
+    setSessions(prev => (prev || []).filter(s => s.id !== id))
     if (activeSessionId === id) {
+      setActiveSessionId(null)
+      setChatHookId("new-chat")
+      setMessages([])
       router.push('/chat/new')
     }
-  }, [activeSessionId, router])
+  }, [activeSessionId, router, setMessages])
 
   const handleUpdateSession = useCallback((updated: ChatSession) => {
-    setSessions(prev => prev.map(s => s.id === updated.id ? updated : s))
+    setSessions(prev => (prev || []).map(s => s.id === updated.id ? updated : s))
   }, [])
 
   const handleModelChange = useCallback((id: string) => setModel(id), [])
@@ -172,7 +191,7 @@ function ChatShellInner({
       <SidebarDrawer
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
-        sessions={sessions}
+        sessions={sessions || []}
         activeSessionId={activeSessionId || ""}
         onSessionCreated={handleNewSession}
         onSessionSelected={handleSelectSession}
@@ -205,7 +224,7 @@ function ChatShellInner({
             )}
 
             <PromptInputBar
-              models={models}
+              models={models || []}
               model={model}
               onModelChange={handleModelChange}
               status={chatStatus}
