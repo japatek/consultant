@@ -49,11 +49,17 @@ export const multipleChoiceConfigSchema = z
       .min(2, "Add at least 2 options")
       .max(8, "Keep it to 8 options or fewer"),
     correctIndex: z.number().int().min(0),
-  })
-  .refine((val) => val.correctIndex < val.options.length, {
-    message: "Correct answer must point at one of the options above",
-    path: ["correctIndex"],
   });
+
+const multipleChoiceConfigWithValidation = multipleChoiceConfigSchema.superRefine((val, ctx) => {
+  if (val.correctIndex >= val.options.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Correct answer must point at one of the options above",
+      path: ["correctIndex"],
+    });
+  }
+});
 
 export const textInputConfigSchema = z.object({
   type: z.literal("TEXT_INPUT"),
