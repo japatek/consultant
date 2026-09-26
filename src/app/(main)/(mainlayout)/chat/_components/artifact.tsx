@@ -10,12 +10,6 @@ import { usePanelContext } from "./chat-context"
 function ArtifactPanelImpl() {
   const { isArtifactOpen, closeArtifact, artifactFiles, isCodePanelOpen, selectedFile, openCodePanel } = usePanelContext()
 
-  // Force the panel to close on initial mount/page reload
-  useEffect(() => {
-    closeArtifact()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   return (
     <Artifact isOpen={isArtifactOpen} className="fixed right-0 top-0 h-screen z-50 shadow-2xl border-l border-border/50 bg-card">
       <ArtifactHeader className="bg-background">

@@ -23,14 +23,19 @@ const PanelContext = createContext<PanelContextValue | null>(null)
 
 export function PanelProvider({
   children,
-  initialArtifactOpen = false,
+  // Keep the prop to prevent TypeScript errors in ChatShell if it's still being passed,
+  // but we will ignore its value for initialization.
+  initialArtifactOpen = false, 
 }: {
   children: ReactNode
   initialArtifactOpen?: boolean
 }) {
   const [artifactFiles, setArtifactFiles] = useState<ArtifactFile[]>([])
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
-  const [isArtifactOpen, setIsArtifactOpen] = useState(initialArtifactOpen)
+  
+  // FIX: Force this to always initialize as `false` regardless of cookies/preferences
+  const [isArtifactOpen, setIsArtifactOpen] = useState(false) 
+  
   const [isCodePanelOpen, setIsCodePanelOpen] = useState(false)
   const [codePanelTab, setCodePanelTab] = useState<"code" | "flow">("code")
 
