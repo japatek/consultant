@@ -5,7 +5,8 @@ import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { Toaster, toast } from "sonner"
 import { Sparkles } from "lucide-react"
-import { useChat } from "@ai-sdk/react" 
+import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport } from "ai"
 
 import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
 import { filesFromMessage } from "../_lib/artifact"
@@ -17,16 +18,16 @@ import { ChatHeader } from "./chat-header"
 import { MessageList } from "./messages-list"
 import { PromptInputBar } from "./prompt-input"
 import { ArtifactPanel } from "./artifact"
-import { createChatSession } from "../_lib/actions" 
+import { createChatSession } from "../_lib/actions"
 
 const CodePanel = dynamic(() => import("./code-block").then((m) => m.CodePanel), { ssr: false })
 
 interface ChatShellProps {
   initialSessions: ChatSession[]
   initialModel: string
-  initialActiveSessionId: string | null 
+  initialActiveSessionId: string | null
   initialArtifactOpen: boolean
-  initialMessages?: any[] 
+  initialMessages?: any[]
   lang?: string
   welcomeTitle?: string
   welcomeDesc?: string
@@ -40,63 +41,66 @@ export function ChatShell(props: ChatShellProps) {
   )
 }
 
-function ChatShellInner({ 
-  initialSessions, 
-  initialModel, 
+function ChatShellInner({
+  initialSessions,
+  initialModel,
   initialActiveSessionId,
   initialMessages = [],
   welcomeTitle = "Welcome",
-  welcomeDesc = "Start a new conversation"
+  welcomeDesc = "Start a new conversation",
 }: ChatShellProps) {
   const router = useRouter()
   const { isArtifactOpen, isCodePanelOpen, setArtifactFiles, setCodePanelTab, openCodePanel } = usePanelContext()
 
-  // FIX 1: Berikan fallback array kosong (|| []) agar sidebar tidak crash jika database kosong
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions || [])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
-  const [chatHookId, setChatHookId] = useState<string>(initialActiveSessionId || "new-chat")
   const [model, setModel] = useState(initialModel)
-  
-  const activeSessionRef = useRef(activeSessionId)
-  activeSessionRef.current = activeSessionId
-  
-  const modelRef = useRef(model)
-  modelRef.current = model
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  // FIX 2: Berikan fallback kosong di objek destructuring useChat
-  // @ts-ignore
-  const { messages: aiMessages = [], append, status, setMessages, stop } = (useChat({
-    api: "/api/chat",
-    id: chatHookId,
-    initialMessages: initialMessages || [], // Pastikan initialMessages tidak undefined
-    experimental_prepareRequestBody: (options: any) => ({
-      ...(options.requestData || {}),
-      id: activeSessionRef.current, 
-      modelId: modelRef.current,    
-      messages: options.messages,
+  // REF UNTUK MENCEGAT DATA TERBARU (dibaca ulang di dalam prepareSendMessagesRequest
+  // setiap kali mengirim, jadi selalu memakai id/model paling baru meski hook di-recreate)
+  const activeSessionRef = useRef(activeSessionId)
+  activeSessionRef.current = activeSessionId
+
+  const modelRef = useRef(model)
+  modelRef.current = model
+
+  const chat = useChat({
+    id: activeSessionId || "new-chat",
+    messages: initialMessages || [],
+    // AI SDK v5/v6: 'api' dan custom 'fetch' di top-level sudah tidak ada.
+    // Konfigurasi endpoint + penyisipan body dinamis sekarang lewat transport.
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: {
+          messages,
+          id: activeSessionRef.current,
+          modelId: modelRef.current,
+        },
+      }),
     }),
     onError: (err: Error) => {
-      toast.error(`Error: ${err.message}`)
-    }
-  }as any) || {}) as any; // Memastikan objek tidak pernah undefined
+      toast.error(`Koneksi AI Gagal: ${err.message}`)
+    },
+  })
 
+  const aiMessages = chat.messages || []
+  const sendMessage = chat.sendMessage // was: chat.append (removed in v5/v6)
+  const status = chat.status
+  const stop = chat.stop
   const isLoading = status === "streaming" || status === "submitted"
+  const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
 
-  // FIX 3: Tambahkan (aiMessages || []) sebelum memanggil .map
-  const mappedMessages: MessageType[] = (aiMessages || []).map((m: any) => {
+  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
     const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
-    
     return {
-      key: m.id || Math.random().toString(), // Mencegah key undefined
+      key: m.id || Math.random().toString(),
       from: m.role === "user" ? "user" : "assistant",
       versions: [{ id: m.id || Math.random().toString(), content: textContent }],
     }
   })
-
-  const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
 
   useEffect(() => {
     if (mappedMessages.length === 0) return
@@ -124,63 +128,64 @@ function ChatShellInner({
     openCodePanel(newFiles[0].id)
   }, [mappedMessages, setArtifactFiles, setCodePanelTab, openCodePanel])
 
-  const addUserMessage = useCallback(async (content: string) => {
-    let currentSessionId = activeSessionId
+  const addUserMessage = useCallback(
+    async (content: string) => {
+      let currentSessionId = activeSessionId
 
-    if (!currentSessionId) {
-      try {
-        const title = content.length > 30 ? content.slice(0, 30) + "..." : content
-        const newSession = await createChatSession(title)
-        
-        currentSessionId = newSession.id
-        setActiveSessionId(currentSessionId)
-        activeSessionRef.current = currentSessionId 
-        
-        setSessions(prev => [newSession, ...(prev || [])])
-        window.history.replaceState(null, "", `/chat/${currentSessionId}`)
-      } catch (error) {
-        toast.error("Failed to create chat session")
-        return
+      if (!currentSessionId) {
+        try {
+          const title = content.length > 30 ? content.slice(0, 30) + "..." : content
+          const newSession = await createChatSession(title)
+
+          currentSessionId = newSession.id
+          setActiveSessionId(currentSessionId)
+          activeSessionRef.current = currentSessionId // Sinkronisasi manual segera agar terbaca oleh prepareSendMessagesRequest
+
+          setSessions((prev) => [newSession, ...(prev || [])])
+          window.history.replaceState(null, "", `/chat/${currentSessionId}`)
+        } catch (error) {
+          toast.error("Gagal membuat sesi chat di database")
+          return
+        }
       }
-    }
 
-    try {
-      await append({
-        role: "user",
-        content: content
-      })
-    } catch (err: any) {
-      toast.error("Failed to send message: " + err.message)
-    }
-  }, [activeSessionId, append])
+      try {
+        // v5/v6: append({ role, content }) -> sendMessage({ text })
+        sendMessage({ text: content })
+      } catch (err: any) {
+        toast.error("Gagal mengirim pesan: " + err.message)
+      }
+    },
+    [activeSessionId, sendMessage],
+  )
 
-  const handleNewSession = useCallback((session: ChatSession) => {
-    setSessions((prev) => [session, ...(prev || [])])
-    setActiveSessionId(session.id)
-    setChatHookId(session.id)
-    setMessages([]) 
-    router.push(`/chat/${session.id}`)
-  }, [router, setMessages])
+  const handleNewSession = useCallback(
+    (session: ChatSession) => {
+      setSessions((prev) => [session, ...(prev || [])])
+      setActiveSessionId(session.id)
+      router.push(`/chat/${session.id}`)
+    },
+    [router],
+  )
 
-  const handleSelectSession = useCallback((id: string) => {
-    setActiveSessionId(id)
-    setChatHookId(id) 
-    router.push(`/chat/${id}`)
-  }, [router])
+  const handleSelectSession = useCallback(
+    (id: string) => {
+      setActiveSessionId(id)
+      router.push(`/chat/${id}`)
+    },
+    [router],
+  )
 
-  const handleDeleteSession = useCallback((id: string) => {
-    setSessions(prev => (prev || []).filter(s => s.id !== id))
-    if (activeSessionId === id) {
-      setActiveSessionId(null)
-      setChatHookId("new-chat")
-      setMessages([])
-      router.push('/chat/new')
-    }
-  }, [activeSessionId, router, setMessages])
-
-  const handleUpdateSession = useCallback((updated: ChatSession) => {
-    setSessions(prev => (prev || []).map(s => s.id === updated.id ? updated : s))
-  }, [])
+  const handleDeleteSession = useCallback(
+    (id: string) => {
+      setSessions((prev) => (prev || []).filter((s) => s.id !== id))
+      if (activeSessionId === id) {
+        setActiveSessionId(null)
+        router.push("/chat/new")
+      }
+    },
+    [activeSessionId, router],
+  )
 
   const handleModelChange = useCallback((id: string) => setModel(id), [])
 
@@ -196,7 +201,6 @@ function ChatShellInner({
         onSessionCreated={handleNewSession}
         onSessionSelected={handleSelectSession}
         onSessionDeleted={handleDeleteSession}
-        onSessionUpdated={handleUpdateSession}
       />
 
       <div
@@ -206,7 +210,7 @@ function ChatShellInner({
         <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={isCodePanelOpen && !isArtifactOpen ? 52 : 100} minSize={30} className="relative h-full flex flex-col">
             <ChatHeader onMenuClick={() => setIsDrawerOpen(true)} />
-            
+
             {mappedMessages.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
                 <div className="bg-primary/10 p-4 rounded-full mb-6 border border-primary/20 shadow-sm shadow-primary/10">
