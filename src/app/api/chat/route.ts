@@ -110,43 +110,43 @@ export async function POST(req: Request) {
       system:
         "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
 
-      // tools: {
-      //   calculate_area: {
-      //     description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
-      //     inputSchema: z.object({
-      //       shape: z.enum(["rectangle", "circle", "triangle"]),
-      //       length: z.number().optional(),
-      //       width: z.number().optional(),
-      //       radius: z.number().optional(),
-      //       base: z.number().optional(),
-      //       height: z.number().optional(),
-      //     }),
-      //     execute: async (args: any) => {
-      //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-      //       const res = await mcpClient.callTool({
-      //         name: "calculate_area",
-      //         arguments: args,
-      //       });
-      //       return { success: true, result: res.content };
-      //     },
-      //   },
+      tools: {
+        calculate_area: {
+          description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
+          inputSchema: z.object({
+            shape: z.enum(["rectangle", "circle", "triangle"]),
+            length: z.number().optional(),
+            width: z.number().optional(),
+            radius: z.number().optional(),
+            base: z.number().optional(),
+            height: z.number().optional(),
+          }),
+          execute: async (args: any) => {
+            if (!mcpClient) return { success: false, error: "MCP Server offline" };
+            const res = await mcpClient.callTool({
+              name: "calculate_area",
+              arguments: args,
+            });
+            return { success: true, result: res.content };
+          },
+        },
 
-      //   calculate_beam_load: {
-      //     description: "Calculates structural beam load parameters.",
-      //     inputSchema: z.object({
-      //       length: z.number().describe("Length of the beam in meters"),
-      //       load: z.number().describe("Uniformly distributed load in kN/m"),
-      //     }),
-      //     execute: async (args: any) => {
-      //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-      //       const res = await mcpClient.callTool({
-      //         name: "calculate_beam_load",
-      //         arguments: args,
-      //       });
-      //       return { success: true, result: res.content };
-      //     },
-      //   },
-      // },
+        calculate_beam_load: {
+          description: "Calculates structural beam load parameters.",
+          inputSchema: z.object({
+            length: z.number().describe("Length of the beam in meters"),
+            load: z.number().describe("Uniformly distributed load in kN/m"),
+          }),
+          execute: async (args: any) => {
+            if (!mcpClient) return { success: false, error: "MCP Server offline" };
+            const res = await mcpClient.callTool({
+              name: "calculate_beam_load",
+              arguments: args,
+            });
+            return { success: true, result: res.content };
+          },
+        },
+      },
 
       async onFinish({ text }) {
         if (sessionId && text) {
