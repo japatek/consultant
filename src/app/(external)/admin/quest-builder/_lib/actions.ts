@@ -11,6 +11,7 @@ import {
   answerConfigSchema,
   type QuestFormValues,
   type AnswerConfig,
+  type AnswerType,
 } from "@/types/quest";
 import { gradeAnswer } from "./grade-answer";
 import { assertAllowedExtension } from "@/lib/storage";
@@ -51,13 +52,16 @@ export async function createQuest(values: QuestFormValues) {
       authorId: admin.id,
       media: { create: data.media },
       questions: {
-        create: data.questions.map((q, index) => ({
-          order: index,
-          prompt: q.prompt,
-          points: q.points,
-          answerType: q.answerConfig.type,
-          answerConfig: q.answerConfig,
-        })),
+        create: data.questions.map((q, index) => {
+          const answerConfig = q.answerConfig as AnswerConfig;
+          return {
+            order: index,
+            prompt: q.prompt,
+            points: q.points,
+            answerType: answerConfig.type as AnswerType,
+            answerConfig,
+          };
+        }),
       },
       certifications: {
         create: data.certificationIds.map((certificationId) => ({ certificationId })),
@@ -83,16 +87,18 @@ export async function updateQuest(questId: string, values: QuestFormValues) {
       description: data.description,
       instructions: data.instructions,
       isPublished: data.isPublished,
-      media: { deleteMany: {}, create: data.media },
+      media: { create: data.media },
       questions: {
-        deleteMany: {},
-        create: data.questions.map((q, index) => ({
-          order: index,
-          prompt: q.prompt,
-          points: q.points,
-          answerType: q.answerConfig.type,
-          answerConfig: q.answerConfig,
-        })),
+        create: data.questions.map((q, index) => {
+          const answerConfig = q.answerConfig as AnswerConfig;
+          return {
+            order: index,
+            prompt: q.prompt,
+            points: q.points,
+            answerType: answerConfig.type as AnswerType,
+            answerConfig,
+          };
+        }),
       },
       certifications: {
         deleteMany: {},

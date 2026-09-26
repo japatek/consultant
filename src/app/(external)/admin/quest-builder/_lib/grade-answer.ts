@@ -13,6 +13,18 @@ export type GradeResult = {
  * the submitQuestAnswers server action and, later, a queue worker if grading
  * ever needs to move off the request path (e.g. FILE_UPLOAD review).
  */
+type MultipleChoiceConfig = AnswerConfig & {
+  type: "MULTIPLE_CHOICE";
+  correctIndex: number;
+};
+
+type TextInputConfig = AnswerConfig & {
+  type: "TEXT_INPUT";
+  expectedValue: string;
+  tolerance?: number;
+  caseSensitive?: boolean;
+};
+
 export function gradeAnswer(
   config: AnswerConfig,
   submission: SubmittedAnswer,
@@ -28,8 +40,12 @@ export function gradeAnswer(
 
   switch (config.type) {
     case "MULTIPLE_CHOICE": {
-      const sub = submission as Extract<SubmittedAnswer, { type: "MULTIPLE_CHOICE" }>;
-      const isCorrect = sub.selectedIndex === config.correctIndex;
+      const cfg = config as MultipleChoiceConfig;
+      const sub = submission as SubmittedAnswer & {
+        type: "MULTIPLE_CHOICE";
+        selectedIndex: number;
+      };
+      const isCorrect = sub.selectedIndex === cfg.correctIndex;
       return {
         isCorrect,
         pointsEarned: isCorrect ? questPoints : 0,
@@ -38,8 +54,12 @@ export function gradeAnswer(
     }
 
     case "TEXT_INPUT": {
-      const sub = submission as Extract<SubmittedAnswer, { type: "TEXT_INPUT" }>;
-      const isCorrect = matchesTextAnswer(sub.value, config);
+      const cfg = config as TextInputConfig;
+      const sub = submission as SubmittedAnswer & {
+        type: "TEXT_INPUT";
+        value: string;
+      };
+      const isCorrect = matchesTextAnswer(sub.value, cfg);
       return {
         isCorrect,
         pointsEarned: isCorrect ? questPoints : 0,
@@ -57,13 +77,18 @@ export function gradeAnswer(
         feedback: "File received — an instructor will review your submission.",
       };
     }
+
+    default: {
+      return {
+        isCorrect: false,
+        pointsEarned: 0,
+        feedback: "This answer type is not supported for grading.",
+      };
+    }
   }
 }
 
-function matchesTextAnswer(
-  submittedValue: string,
-  config: Extract<AnswerConfig, { type: "TEXT_INPUT" }>
-): boolean {
+function matchesTextAnswer(submittedValue: string, config: TextInputConfig): boolean {
   const expectedNum = Number(config.expectedValue);
   const submittedNum = Number(submittedValue);
   const bothNumeric = !Number.isNaN(expectedNum) && !Number.isNaN(submittedNum);
