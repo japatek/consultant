@@ -101,59 +101,87 @@ export async function POST(req: Request) {
     // your installed `ai` package doesn't accept — `as any` below only hides
     // the type error, it can't stop that runtime check. Align package
     // versions (see earlier npm ls step) rather than relying on the cast.
+    // const aiModel = getSelectedModel(modelId);
+
+    // const result = streamText({
+    //   model: aiModel as any,
+    //   // v5+: convert UIMessage[] (parts-based) to ModelMessage[] for the model.
+    //   messages: await convertToModelMessages(messages as UIMessage[]),
+    //   system:
+    //     "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
+
+    //   // tools: {
+    //   //   calculate_area: {
+    //   //     description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
+    //   //     inputSchema: z.object({
+    //   //       shape: z.enum(["rectangle", "circle", "triangle"]),
+    //   //       length: z.number().optional(),
+    //   //       width: z.number().optional(),
+    //   //       radius: z.number().optional(),
+    //   //       base: z.number().optional(),
+    //   //       height: z.number().optional(),
+    //   //     }),
+    //   //     execute: async (args: any) => {
+    //   //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
+    //   //       const res = await mcpClient.callTool({
+    //   //         name: "calculate_area",
+    //   //         arguments: args,
+    //   //       });
+    //   //       return { success: true, result: res.content };
+    //   //     },
+    //   //   },
+
+    //   //   calculate_beam_load: {
+    //   //     description: "Calculates structural beam load parameters.",
+    //   //     inputSchema: z.object({
+    //   //       length: z.number().describe("Length of the beam in meters"),
+    //   //       load: z.number().describe("Uniformly distributed load in kN/m"),
+    //   //     }),
+    //   //     execute: async (args: any) => {
+    //   //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
+    //   //       const res = await mcpClient.callTool({
+    //   //         name: "calculate_beam_load",
+    //   //         arguments: args,
+    //   //       });
+    //   //       return { success: true, result: res.content };
+    //   //     },
+    //   //   },
+    //   // },
+
+    //   async onFinish({ text }) {
+    //     if (sessionId && text) {
+    //       try {
+    //         await prisma.chatMessage.create({
+    //           data: { sessionId, role: "assistant", content: text },
+    //         });
+    //       } catch (dbError) {
+    //         console.error("Gagal simpan balasan AI ke DB:", dbError);
+    //       }
+    //     }
+    //   },
+    // });
+
+     let modelMessages;
+    try {
+      modelMessages = await convertToModelMessages(messages as UIMessage[]);
+      console.log("convertToModelMessages OK, count:", modelMessages.length);
+    } catch (convErr) {
+      console.error("convertToModelMessages THREW:", convErr);
+      throw convErr;
+    }
+
     const aiModel = getSelectedModel(modelId);
+    console.log("aiModel resolved, modelId:", (aiModel as any).modelId, "spec:", (aiModel as any).specificationVersion);
 
     const result = streamText({
       model: aiModel as any,
-      // v5+: convert UIMessage[] (parts-based) to ModelMessage[] for the model.
-      messages: await convertToModelMessages(messages as UIMessage[]),
+      messages: modelMessages, // was: inline await convertToModelMessages(...)
       system:
         "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
-
-      // tools: {
-      //   calculate_area: {
-      //     description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
-      //     inputSchema: z.object({
-      //       shape: z.enum(["rectangle", "circle", "triangle"]),
-      //       length: z.number().optional(),
-      //       width: z.number().optional(),
-      //       radius: z.number().optional(),
-      //       base: z.number().optional(),
-      //       height: z.number().optional(),
-      //     }),
-      //     execute: async (args: any) => {
-      //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-      //       const res = await mcpClient.callTool({
-      //         name: "calculate_area",
-      //         arguments: args,
-      //       });
-      //       return { success: true, result: res.content };
-      //     },
-      //   },
-
-      //   calculate_beam_load: {
-      //     description: "Calculates structural beam load parameters.",
-      //     inputSchema: z.object({
-      //       length: z.number().describe("Length of the beam in meters"),
-      //       load: z.number().describe("Uniformly distributed load in kN/m"),
-      //     }),
-      //     execute: async (args: any) => {
-      //       if (!mcpClient) return { success: false, error: "MCP Server offline" };
-      //       const res = await mcpClient.callTool({
-      //         name: "calculate_beam_load",
-      //         arguments: args,
-      //       });
-      //       return { success: true, result: res.content };
-      //     },
-      //   },
-      // },
-
       async onFinish({ text }) {
         if (sessionId && text) {
           try {
-            await prisma.chatMessage.create({
-              data: { sessionId, role: "assistant", content: text },
-            });
+            await prisma.chatMessage.create({ data: { sessionId, role: "assistant", content: text } });
           } catch (dbError) {
             console.error("Gagal simpan balasan AI ke DB:", dbError);
           }
