@@ -17,7 +17,6 @@ const SERVICES_SURFACES = [
 
 const RESOURCES = [
   { href: "/course", id: "course", label: "Course", id_label: "Kursus" },
-  // { href: "/marketplace", id: "tool", label: "Tools", id_label: "Alat" },
   { href: "/terms", id: "terms", label: "Terms of Service", id_label: "Ketentuan Layanan" },
   { href: "/privacy", id: "privacy", label: "Privacy Policy", id_label: "Kebijakan Privasi" },
 ] as const;

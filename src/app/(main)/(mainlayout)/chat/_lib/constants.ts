@@ -1,6 +1,25 @@
 import { nanoid } from "nanoid"
 import type { MessageType, ModelOption } from "./types"
 
+
+export class Name AVAILABLE_MODELS: ModelOption[] = [
+  // OpenAI Models
+  { id: "gpt-4o", name: "GPT-4o (OpenAI)", chefSlug: "openai" },
+  { id: "gpt-4o-mini", name: "GPT-4o Mini (OpenAI)", chefSlug: "openai" },
+
+  // Anthropic Models
+  { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet (Anthropic)", chefSlug: "anthropic" },
+  { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku (Anthropic)", chefSlug: "anthropic" },
+
+  // Google Gemini Models
+  { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro (Google)", chefSlug: "google" },
+  { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash (Google)", chefSlug: "google" },
+
+  // Hugging Face Open Source Models
+  { id: "hf/meta-llama/Meta-Llama-3-8B-Instruct", name: "Llama 3 8B (Hugging Face)", chefSlug: "huggingface" },
+  { id: "hf/mistralai/Mistral-7B-Instruct-v0.3", name: "Mistral 7B (Hugging Face)", chefSlug: "huggingface" },
+];
+
 export const suggestions = [
   "Explain Dijkstra's algorithm",
   "Show me how React hooks work",
