@@ -2,9 +2,9 @@
 
 import { memo, useState } from "react"
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { MessageContent, MessageResponse } from "@/components/ai/message"
+import { cn } from "../../../../../lib/utils"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../../../../components/ui/collapsible"
+import { MessageContent, MessageResponse } from "../../../../../components/ai/message"
 
 function UserMessageBubble({ content }: { content: string }) {
   const [open, setOpen] = useState(false)

@@ -3,47 +3,47 @@
 import { memo } from "react"
 import dynamic from "next/dynamic"
 import { RefreshCwIcon, FileCodeIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Message, MessageContent, MessageResponse } from "@/components/ai/message"
-import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "@/components/ai/chain-of-thought"
-import { Reasoning, ReasoningTrigger, ReasoningContent } from "@/components/ai/reasoning"
-import { Plan, PlanHeader, PlanContent, PlanAction } from "@/components/ai/plan"
-import { Tool, ToolCall, ToolResult } from "@/components/ai/tool"
-import { Task, TaskContent, TaskTrigger, TaskItem } from "@/components/ai/task"
-import { Sources, SourcesTrigger, SourcesContent, Source } from "@/components/ai/sources"
-import { InlineCitation, InlineCitationCard, InlineCitationCardBody, InlineCitationCardTrigger, InlineCitationSource } from "@/components/ai/inline-citation"
-import { CopyButton } from "@/components/ai/copy-button"
-import { FilePreview } from "@/components/ai/file-preview"
+import { cn } from "../../../../../lib/utils"
+import { Button } from "../../../../../components/ui/button"
+import { Message, MessageContent, MessageResponse } from "../../../../../components/ai/message"
+import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "../../../../../components/ai/chain-of-thought"
+import { Reasoning, ReasoningTrigger, ReasoningContent } from "../../../../../components/ai/reasoning"
+import { Plan, PlanHeader, PlanContent, PlanAction } from "../../../../../components/ai/plan"
+import { Tool, ToolCall, ToolResult } from "../../../../../components/ai/tool"
+import { Task, TaskContent, TaskTrigger, TaskItem } from "../../../../../components/ai/task"
+import { Sources, SourcesTrigger, SourcesContent, Source } from "../../../../../components/ai/sources"
+import { InlineCitation, InlineCitationCard, InlineCitationCardBody, InlineCitationCardTrigger, InlineCitationSource } from "../../../../../components/ai/inline-citation"
+import { CopyButton } from "../../../../../components/ai/copy-button"
+import { FilePreview } from "../../../../../components/ai/file-preview"
 import { CollapsibleUserMessage } from "./user-bubble"
 import { usePanelContext } from "./chat-context"
 import type { ArtifactFile, MessageType } from "../_lib/types"
 
 // Rarely-used / heavy blocks are split out of the main bundle and only fetched
 // when a message actually contains that kind of content.
-const Terminal = dynamic(() => import("@/components/ai/terminal").then((m) => m.Terminal), { ssr: false })
-const Sandbox = dynamic(() => import("@/components/ai/sandbox").then((m) => m.Sandbox), { ssr: false })
-const SandboxHeader = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxHeader), { ssr: false })
-const SandboxContent = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxContent), { ssr: false })
-const SandboxTabs = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxTabs), { ssr: false })
-const SandboxTabsBar = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxTabsBar), { ssr: false })
-const SandboxTabsList = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxTabsList), { ssr: false })
-const SandboxTabsTrigger = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxTabsTrigger), { ssr: false })
-const SandboxTabContent = dynamic(() => import("@/components/ai/sandbox").then((m) => m.SandboxTabContent), { ssr: false })
-const TestResults = dynamic(() => import("@/components/ai/test-results").then((m) => m.TestResults), { ssr: false })
-const StackTrace = dynamic(() => import("@/components/ai/stack-trace").then((m) => m.StackTrace), { ssr: false })
-const SchemaDisplay = dynamic(() => import("@/components/ai/schema-display").then((m) => m.SchemaDisplay), { ssr: false })
-const Queue = dynamic(() => import("@/components/ai/queue").then((m) => m.Queue), { ssr: false })
-const EnvironmentVariables = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariables), { ssr: false })
-const EnvironmentVariablesHeader = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariablesHeader), { ssr: false })
-const EnvironmentVariablesTitle = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariablesTitle), { ssr: false })
-const EnvironmentVariablesToggle = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariablesToggle), { ssr: false })
-const EnvironmentVariablesContent = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariablesContent), { ssr: false })
-const EnvironmentVariable = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariable), { ssr: false })
-const EnvironmentVariableGroup = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariableGroup), { ssr: false })
-const EnvironmentVariableName = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariableName), { ssr: false })
-const EnvironmentVariableValue = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariableValue), { ssr: false })
-const EnvironmentVariableCopyButton = dynamic(() => import("@/components/ai/environment-variables").then((m) => m.EnvironmentVariableCopyButton), { ssr: false })
+const Terminal = dynamic(() => import("../../../../..//components/ai/terminal").then((m) => m.Terminal), { ssr: false })
+const Sandbox = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.Sandbox), { ssr: false })
+const SandboxHeader = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxHeader), { ssr: false })
+const SandboxContent = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxContent), { ssr: false })
+const SandboxTabs = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxTabs), { ssr: false })
+const SandboxTabsBar = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxTabsBar), { ssr: false })
+const SandboxTabsList = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxTabsList), { ssr: false })
+const SandboxTabsTrigger = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxTabsTrigger), { ssr: false })
+const SandboxTabContent = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxTabContent), { ssr: false })
+const TestResults = dynamic(() => import("../../../../..//components/ai/test-results").then((m) => m.TestResults), { ssr: false })
+const StackTrace = dynamic(() => import("../../../../..//components/ai/stack-trace").then((m) => m.StackTrace), { ssr: false })
+const SchemaDisplay = dynamic(() => import("../../../../..//components/ai/schema-display").then((m) => m.SchemaDisplay), { ssr: false })
+const Queue = dynamic(() => import("../../../../..//components/ai/queue").then((m) => m.Queue), { ssr: false })
+const EnvironmentVariables = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariables), { ssr: false })
+const EnvironmentVariablesHeader = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariablesHeader), { ssr: false })
+const EnvironmentVariablesTitle = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariablesTitle), { ssr: false })
+const EnvironmentVariablesToggle = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariablesToggle), { ssr: false })
+const EnvironmentVariablesContent = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariablesContent), { ssr: false })
+const EnvironmentVariable = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariable), { ssr: false })
+const EnvironmentVariableGroup = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariableGroup), { ssr: false })
+const EnvironmentVariableName = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariableName), { ssr: false })
+const EnvironmentVariableValue = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariableValue), { ssr: false })
+const EnvironmentVariableCopyButton = dynamic(() => import("../../../../..//components/ai/environment-variables").then((m) => m.EnvironmentVariableCopyButton), { ssr: false })
 
 interface MessageItemProps {
   message: MessageType

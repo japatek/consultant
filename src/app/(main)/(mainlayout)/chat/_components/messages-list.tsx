@@ -1,8 +1,8 @@
 "use client"
 
 import { memo, useMemo } from "react"
-import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai/conversation"
-import { MessageBranch, MessageBranchContent } from "@/components/ai/message"
+import { Conversation, ConversationContent, ConversationScrollButton } from "../../../../../components/ai/conversation"
+import { MessageBranch, MessageBranchContent } from "../../../../../components/ai/message"
 import { MessageItem } from "./messages-item"
 import { usePanelContext } from "./chat-context"
 import type { MessageType } from "../_lib/types"
