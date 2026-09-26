@@ -95,7 +95,7 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
       {
         title : t.navChat,
         // Jika parameter id tersedia, arahkan ke /chat/[id]. Jika kosong, arahkan ke /chat
-        url: id ? `/chat/${id}` : "/chat",
+        url: id ? `/chat/${id}` : "/chat/new",
         icon: MessageSquare, // Diubah dari Banknote agar lebih sesuai dengan konteks Chat
       }
       // {
