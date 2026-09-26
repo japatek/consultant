@@ -52,7 +52,7 @@ function ChatShellInner({
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
   const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
   const [model, setModel] = useState(initialModel)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(true)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
   const chat = useChat({
