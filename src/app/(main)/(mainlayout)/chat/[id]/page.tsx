@@ -1,53 +1,245 @@
-import { cookies } from "next/headers"
-import { getSessions } from "../_lib/data"
-import { getChatPreferences } from "../_lib/cookies"
-import { ChatShell } from "../_components/chat-shell"
-import { translations, type Language } from "../../../../../translate/language-data"
-import { prisma } from "../../../../../lib/database/prisma" 
+"use client"
 
-export default async function ChatPage({ params }: { params: Promise<{ id?: string }> }) {
-  const cookieStore = await cookies()
-  const resolvedParams = await params;
+import { useCallback, useEffect, useRef, useState } from "react"
+import dynamic from "next/dynamic"
+import { useRouter } from "next/navigation"
+import { Toaster, toast } from "sonner"
+import { Sparkles } from "lucide-react"
+import { useChat } from "@ai-sdk/react" 
+
+import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
+import { filesFromMessage } from "../_lib/artifact"
+import { models } from "../_lib/constants"
+import type { ChatSession, ChatStatus, MessageType } from "../_lib/types"
+import { PanelProvider, usePanelContext } from "../_components/chat-context"
+import { SidebarDrawer } from "../_components/sidebar-chatlist"
+import { ChatHeader } from "../_components/chat-header"
+import { MessageList } from "../_components/messages-list"
+import { PromptInputBar } from "../_components/prompt-input"
+import { ArtifactPanel } from "../_components/artifact"
+import { createChatSession } from "../_lib/actions" 
+
+const CodePanel = dynamic(() => import("../_components/code-block").then((m) => m.CodePanel), { ssr: false })
+
+interface ChatShellProps {
+  initialSessions: ChatSession[]
+  initialModel: string
+  initialActiveSessionId: string | null 
+  initialArtifactOpen: boolean
+  initialMessages?: any[] 
+  lang?: string
+  welcomeTitle?: string
+  welcomeDesc?: string
+}
+
+export function ChatShell(props: ChatShellProps) {
+  return (
+    <PanelProvider initialArtifactOpen={props.initialArtifactOpen}>
+      <ChatShellInner {...props} />
+    </PanelProvider>
+  )
+}
+
+function ChatShellInner({ 
+  initialSessions, 
+  initialModel, 
+  initialActiveSessionId,
+  initialMessages = [],
+  welcomeTitle = "Welcome",
+  welcomeDesc = "Start a new conversation"
+}: ChatShellProps) {
+  const router = useRouter()
+  const { isArtifactOpen, isCodePanelOpen, setArtifactFiles, setCodePanelTab, openCodePanel } = usePanelContext()
+
+  const [sessions, setSessions] = useState<ChatSession[]>(initialSessions)
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(initialActiveSessionId)
+  const [chatHookId, setChatHookId] = useState<string>(initialActiveSessionId || "new-chat")
+  const [model, setModel] = useState(initialModel)
   
-  // 👈 FIX: Memastikan tipe data selalu string | null (bukan undefined)
-  const sessionId = (resolvedParams?.id && resolvedParams.id !== "new") 
-    ? resolvedParams.id 
-    : null;
+  // 1. FIX KRUSIAL: Gunakan useRef agar AI SDK selalu bisa membaca ID dan Model terbaru secara instan
+  const activeSessionRef = useRef(activeSessionId)
+  activeSessionRef.current = activeSessionId
+  
+  const modelRef = useRef(model)
+  modelRef.current = model
 
-  const [sessions, preferences] = await Promise.all([
-    getSessions(), 
-    getChatPreferences()
-  ])
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  let initialMessages: any[] = [];
-  if (sessionId) {
-    const chatRecords = await prisma.chatMessage.findMany({
-      where: { sessionId },
-      orderBy: { createdAt: "asc" }
-    });
+  // 2. Gunakan TS-Ignore agar tidak ada konflik versi dan kembalikan metode experimental
+  // @ts-ignore
+  const { messages: aiMessages, append, status, setMessages, stop } = useChat({
+    api: "/api/chat",
+    id: chatHookId,
+    initialMessages,
+    experimental_prepareRequestBody: (options: any) => ({
+      ...(options.requestData || {}),
+      id: activeSessionRef.current, // Membaca langsung dari Ref
+      modelId: modelRef.current,    // Membaca langsung dari Ref
+      messages: options.messages,
+    }),
+    onError: (err: Error) => {
+      toast.error(`Error: ${err.message}`)
+    }
+  }as any)
+
+  const isLoading = status === "streaming" || status === "submitted"
+
+  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
+    const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
     
-    initialMessages = chatRecords.map(msg => ({
-      id: msg.id,
-      role: msg.role,
-      content: msg.content
-    }));
-  }
+    return {
+      key: m.id,
+      from: m.role === "user" ? "user" : "assistant",
+      versions: [{ id: m.id, content: textContent }],
+    }
+  })
 
-  const lang = (cookieStore.get("language")?.value as Language) || "en"
-  const welcomeTitle = lang === "id" ? "Selamat datang di Chat JaPaTek" : "Welcome to the JaPaTek chat"
-  const welcomeDesc = lang === "id" ? "Mulai percakapan baru atau pilih riwayat chat Anda di sidebar." : "Start a new conversation or select your chat history in the sidebar."
+  const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
+
+  useEffect(() => {
+    if (mappedMessages.length === 0) return
+
+    const last = mappedMessages[mappedMessages.length - 1]
+    if (!last || last.from !== "assistant") return
+
+    if (lastCodeMessageKeyRef.current === null) {
+      const allFiles = mappedMessages
+        .filter((m) => m.from === "assistant")
+        .flatMap((m) => filesFromMessage(m.key, m.versions[0]?.content ?? ""))
+      if (allFiles.length > 0) setArtifactFiles(allFiles)
+      lastCodeMessageKeyRef.current = last.key
+      return
+    }
+
+    if (lastCodeMessageKeyRef.current === last.key) return
+
+    const newFiles = filesFromMessage(last.key, last.versions[0]?.content ?? "")
+    lastCodeMessageKeyRef.current = last.key
+    if (newFiles.length === 0) return
+
+    setArtifactFiles((prev) => [...prev, ...newFiles])
+    setCodePanelTab("code")
+    openCodePanel(newFiles[0].id)
+  }, [mappedMessages, setArtifactFiles, setCodePanelTab, openCodePanel])
+
+  const addUserMessage = useCallback(async (content: string) => {
+    let currentSessionId = activeSessionId
+
+    if (!currentSessionId) {
+      try {
+        const title = content.length > 30 ? content.slice(0, 30) + "..." : content
+        const newSession = await createChatSession(title)
+        
+        currentSessionId = newSession.id
+        setActiveSessionId(currentSessionId)
+        activeSessionRef.current = currentSessionId // Sinkronisasi Ref secara instan
+        
+        setSessions(prev => [newSession, ...prev])
+        window.history.replaceState(null, "", `/chat/${currentSessionId}`)
+      } catch (error) {
+        toast.error("Failed to create chat session")
+        return
+      }
+    }
+
+    try {
+      // 3. FIX TUNTAS: Cukup panggil append TANPA parameter kedua.
+      // Ini akan mencegah error "j is not a function" karena SDK tidak lagi dibingungkan oleh argumen tambahan.
+      await append({
+        role: "user",
+        content: content
+      })
+    } catch (err: any) {
+      toast.error("Failed to send message: " + err.message)
+    }
+  }, [activeSessionId, append])
+
+  const handleNewSession = useCallback((session: ChatSession) => {
+    setSessions((prev) => [session, ...prev])
+    setActiveSessionId(session.id)
+    setChatHookId(session.id)
+    setMessages([]) 
+    router.push(`/chat/${session.id}`)
+  }, [router, setMessages])
+
+  const handleSelectSession = useCallback((id: string) => {
+    setActiveSessionId(id)
+    setChatHookId(id) 
+    router.push(`/chat/${id}`)
+  }, [router])
+
+  const handleDeleteSession = useCallback((id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id))
+    if (activeSessionId === id) {
+      setActiveSessionId(null)
+      setChatHookId("new-chat")
+      setMessages([])
+      router.push('/chat/new')
+    }
+  }, [activeSessionId, router, setMessages])
+
+  const handleUpdateSession = useCallback((updated: ChatSession) => {
+    setSessions(prev => prev.map(s => s.id === updated.id ? updated : s))
+  }, [])
+
+  const handleModelChange = useCallback((id: string) => setModel(id), [])
 
   return (
-    <ChatShell
-      key={sessionId || "new-chat"} 
-      initialSessions={sessions}
-      initialModel={preferences.model}
-      initialActiveSessionId={sessionId}
-      initialMessages={initialMessages}
-      initialArtifactOpen={preferences.isArtifactOpen}
-      lang={lang}
-      welcomeTitle={welcomeTitle}
-      welcomeDesc={welcomeDesc}
-    />
+    <div className="flex h-[calc(100vh-3.5rem)] w-full select-none relative overflow-hidden bg-background">
+      <Toaster />
+
+      <SidebarDrawer
+        open={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        sessions={sessions}
+        activeSessionId={activeSessionId || ""}
+        onSessionCreated={handleNewSession}
+        onSessionSelected={handleSelectSession}
+        onSessionDeleted={handleDeleteSession}
+        onSessionUpdated={handleUpdateSession}
+      />
+
+      <div
+        className="flex flex-1 flex-col bg-background min-w-0 h-[calc(100vh-3.5rem)] relative overflow-hidden transition-all duration-500"
+        style={{ marginRight: isArtifactOpen ? "600px" : "0px" }}
+      >
+        <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
+          <ResizablePanel defaultSize={isCodePanelOpen && !isArtifactOpen ? 52 : 100} minSize={30} className="relative h-full flex flex-col">
+            <ChatHeader onMenuClick={() => setIsDrawerOpen(true)} />
+            
+            {mappedMessages.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
+                <div className="bg-primary/10 p-4 rounded-full mb-6 border border-primary/20 shadow-sm shadow-primary/10">
+                  <Sparkles className="w-8 h-8 text-primary" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-serif font-medium text-foreground tracking-tight mb-3">
+                  {welcomeTitle}
+                </h2>
+                <p className="text-muted-foreground text-sm md:text-base max-w-md leading-relaxed">
+                  {welcomeDesc}
+                </p>
+              </div>
+            ) : (
+              <MessageList messages={mappedMessages} />
+            )}
+
+            <PromptInputBar
+              models={models}
+              model={model}
+              onModelChange={handleModelChange}
+              status={chatStatus}
+              showSuggestions={mappedMessages.length === 0}
+              onSubmit={addUserMessage}
+              onStop={stop}
+            />
+          </ResizablePanel>
+
+          {isCodePanelOpen && !isArtifactOpen && <CodePanel />}
+        </ResizablePanelGroup>
+      </div>
+
+      <ArtifactPanel />
+    </div>
   )
 }
