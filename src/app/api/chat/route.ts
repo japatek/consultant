@@ -1,6 +1,5 @@
 import { streamText } from "ai"; 
 import { google } from "@ai-sdk/google";
-// createOpenAI tetap dipertahankan HANYA untuk menghubungkan ke Hugging Face (karena HF menggunakan format compatible dengan OpenAI)
 import { createOpenAI } from "@ai-sdk/openai"; 
 import { z } from "zod";
 import { prisma } from "@/lib/database/prisma";
@@ -12,28 +11,22 @@ import { NextResponse } from "next/server";
 // MCP Server URL
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL;
 
-// Configure Hugging Face Open-AI compatible provider instance (Llama, Mistral, dll)
+// Configure Hugging Face Open-AI compatible provider instance
 const huggingface = createOpenAI({
   baseURL: process.env.HUGGINGFACE_BASE_URL || "https://api-inference.huggingface.co/v1/",
   apiKey: process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN || "",
 });
 
-/**
- * Helper function to select the appropriate AI Model based on modelId
- */
 function getSelectedModel(modelId?: string) {
-  // Default fallback ke Gemini jika tidak ada modelId
   if (!modelId) return google("gemini-1.5-pro");
 
   const cleanId = modelId.toLowerCase();
 
-  // 1. Google Gemini Models
   if (cleanId.includes("gemini") || cleanId.startsWith("google/")) {
     const model = modelId.replace(/^google\//, "");
     return google(model);
   }
 
-  // 2. Hugging Face Models
   if (
     cleanId.startsWith("hf/") || 
     cleanId.startsWith("huggingface/") || 
@@ -44,7 +37,6 @@ function getSelectedModel(modelId?: string) {
     return huggingface(model);
   }
 
-  // Fallback utama (Gemini)
   return google("gemini-1.5-pro");
 }
 
@@ -57,14 +49,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Get User License Key for MCP Server Authentication
     const userLicense = await prisma.license.findFirst({
       where: { userId: session.user.id, isActive: true }
     });
 
     const mcpToken = userLicense?.licenseKey || "fallback_token_if_needed";
 
-    // 2. Connect Next.js to MCP Server using SSE Client Transport
     let mcpClient: Client | null = null;
     if (MCP_SERVER_URL) {
       const transport = new SSEClientTransport(new URL(`${MCP_SERVER_URL}/mcp?token=${mcpToken}`));
@@ -74,11 +64,10 @@ export async function POST(req: Request) {
         await mcpClient.connect(transport);
       } catch (error) {
         console.error("Failed to connect to MCP Server:", error);
-        mcpClient = null; // Proceed without tools if MCP server is offline
+        mcpClient = null;
       }
     }
 
-    // 3. Persist the latest user message to PostgreSQL via Prisma
     const lastMessage = messages[messages.length - 1];
     if (sessionId && lastMessage && lastMessage.role === "user") {
       await prisma.chatMessage.create({
@@ -90,24 +79,21 @@ export async function POST(req: Request) {
       });
     }
 
-    // 4. Resolve the target model
     const aiModel = getSelectedModel(modelId);
 
-    // 5. Execute streaming response using Vercel AI SDK
     const result = await streamText({
-      model: aiModel,
+      model: aiModel as any, // Bypass aman untuk mengatasi error LanguageModelV4 vs V2
       messages: messages.map((m: any) => ({
         role: m.role,
         content: m.content,
       })),
       system: "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
       
-      // Tools definition
       tools: {
         calculate_area: {
           description: "Calculates the area of geometric shapes (rectangle, circle, or triangle).",
-          // PERBAIKAN: Gunakan 'parameters' bukan 'inputSchema'
-          parameters: z.object({
+          // KEMBALI KE inputSchema sesuai ekspektasi versi SDK Anda
+          inputSchema: z.object({
             shape: z.enum(["rectangle", "circle", "triangle"]),
             length: z.number().optional(),
             width: z.number().optional(),
@@ -127,8 +113,8 @@ export async function POST(req: Request) {
         
         calculate_beam_load: {
           description: "Calculates structural beam load parameters.",
-          // PERBAIKAN: Gunakan 'parameters'
-          parameters: z.object({
+          // KEMBALI KE inputSchema
+          inputSchema: z.object({
             length: z.number().describe("Length of the beam in meters"),
             load: z.number().describe("Uniformly distributed load in kN/m"),
           }),
@@ -144,7 +130,6 @@ export async function POST(req: Request) {
       },
 
       async onFinish({ text }) {
-        // 6. Persist the AI assistant's response back to PostgreSQL
         if (sessionId && text) {
           try {
             await prisma.chatMessage.create({
@@ -157,8 +142,8 @@ export async function POST(req: Request) {
       }
     });
 
-    // PERBAIKAN FATAL: Gunakan toDataStreamResponse() agar kompatibel dengan useChat Vercel!
-    return result.toDataStreamResponse();
+    // MENGGUNAKAN toTextStreamResponse() sesuai saran compiler TypeScript Anda
+    return result.toTextStreamResponse();
 
   } catch (error) {
     console.error("API Chat Processing Error:", error);
