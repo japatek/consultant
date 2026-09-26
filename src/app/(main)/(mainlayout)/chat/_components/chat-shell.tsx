@@ -82,7 +82,7 @@ function ChatShellInner({
       }),
     }),
     onError: (err: Error) => {
-      toast.error(`Koneksi AI Gagal: ${err.message}`)
+      toast.error(`AI Connection Failed: ${err.message}`)
     },
   })
 
@@ -144,7 +144,7 @@ function ChatShellInner({
           setSessions((prev) => [newSession, ...(prev || [])])
           window.history.replaceState(null, "", `/chat/${currentSessionId}`)
         } catch (error) {
-          toast.error("Gagal membuat sesi chat di database")
+          toast.error("Failed Create Session in Database")
           return
         }
       }
@@ -153,7 +153,7 @@ function ChatShellInner({
         // v5/v6: append({ role, content }) -> sendMessage({ text })
         sendMessage({ text: content })
       } catch (err: any) {
-        toast.error("Gagal mengirim pesan: " + err.message)
+        toast.error("Failed Send Messages: " + err.message)
       }
     },
     [activeSessionId, sendMessage],
