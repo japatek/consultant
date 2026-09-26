@@ -208,7 +208,7 @@ function ChatShellInner({
         style={{ marginRight: isArtifactOpen ? "600px" : "0px" }}
       >
         <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
-          <ResizablePanel defaultSize={isCodePanelOpen && !isArtifactOpen ? 52 : 100} minSize={30} className="relative h-full flex flex-col">
+          <ResizablePanel defaultSize={isCodePanelOpen && !isArtifactOpen ? 52 : 100} minSize={30} className="relative h-full flex flex-col overflow-hidden">
             <ChatHeader onMenuClick={() => setIsDrawerOpen(true)} />
 
             {mappedMessages.length === 0 ? (
