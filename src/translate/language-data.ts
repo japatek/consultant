@@ -14,11 +14,11 @@ export const translations = {
         engineering: 'Engineering Consulting',
         
         tagline: 'Design & Engineering Specialists',
-        title: 'AI-Driven Engineering.',
-        subtitle: 'Instant Solutions.',
-        desc: 'Unlock next-generation capabilities through our interactive web app. Experience JaPaTek’s advanced knowledge to analyze, simulate, and optimize complex industrial challenges in seconds, access expert consulting, or enroll in our dedicated course to master standard and complex 2D drawings.',
-        explore: 'Explore Course',
-        core: 'View Our Design',
+        title: 'AI-Driven Design & Engineering.',
+        subtitle: 'Instant, Precision-Engineered Solutions.',
+        desc: 'Elevate your project and skill with our engineering design, drawing assesment skill and our AI-Chatbot learning facilitator.',
+        explore: 'Explore Services',
+        core: 'View Our Design & Services',
         ourProjects: 'Our Projects',
         ourServices: 'Our Services',
         ourSectors: 'Our Sectors',
@@ -172,6 +172,13 @@ export const translations = {
         certAdminLinkedQuests: 'Linked Quests',
         certAdminEarnedBy: 'Earned By',
         certAdminBadge: 'Badge Image',
+
+        chatSuggestions: [
+            "What are the standard line weights for ISO technical drawings?",
+            "Explain the differences between PFD and P&ID.",
+            "What are the best practices for creating MEP coordination drawings?",
+            "How do I correctly apply GD&T symbols in my CAD model?"
+        ],
     },
     id: {
         // Welcome
@@ -187,9 +194,9 @@ export const translations = {
 
         // Hero
         tagline: 'Spesialis Desain & Konsultan Teknik',
-        title: 'Rekayasa Berbasis AI.',
-        subtitle: 'Solusi Instan.',
-        desc: 'Buka kapabilitas generasi masa depan melalui aplikasi web interaktif kami. Rasakan keandalan kami untuk menganalisis, mensimulasikan, dan mengoptimalkan tantangan industri yang kompleks dalam hitungan detik, akses layanan konsultasi ahli, atau ikuti kursus khusus kami untuk menguasai gambar teknik 2D standar maupun kompleks.',
+        title: 'Desain & Rekayasa Berbasis AI.',
+        subtitle: 'Solusi Cepat dengan Presisi Tinggi.',
+        desc: 'Tingkatkan kualitas proyek dan kemampuan Anda dengan layanan konsultasi desain kami, analisis gambar teknik yang komprehensif serta dapatkan pembelajaran yang interaktif bersama AI chatbot kami.',
         explore: 'Jelajahi Kursus Singkat',
         core: 'Lihat Hasil Desain Kami',
         ourProjects: 'Proyek Kami',
@@ -349,6 +356,13 @@ export const translations = {
         certAdminLinkedQuests: 'Quest Terkait',
         certAdminEarnedBy: 'Diperoleh Oleh',
         certAdminBadge: 'Gambar Lencana',
+
+        chatSuggestions: [
+            "Apa standar ketebalan garis untuk gambar teknik ISO?",
+            "Jelaskan perbedaan mendasar antara PFD dan P&ID.",
+            "Apa praktik terbaik untuk menyusun gambar koordinasi MEP?",
+            "Bagaimana cara menerapkan simbol GD&T dengan benar di model CAD?"
+        ],
     }
 };
 

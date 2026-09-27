@@ -20,8 +20,10 @@ import {
   ModelSelectorName, ModelSelectorEmpty,
 } from "../../../../../components/ai/model-selector"
 import { saveChatPreferences } from "../_lib/actions"
-import { suggestions } from "../_lib/constants"
 import type { ChatStatus, ModelOption } from "../_lib/types"
+
+// 1. IMPORT TRANSLATIONS
+import { translations, type Language } from "../../../../../translate/language-data"
 
 // Daftar Tool MCP Anda (Sesuaikan dengan yang ada di backend)
 const MCP_TOOLS = [
@@ -52,9 +54,12 @@ interface PromptInputBarProps {
   showSuggestions: boolean
   onSubmit: (content: string) => void
   onStop?: () => void
+  lang?: string // 👈 Tambahkan prop lang
 }
 
-function PromptInputBarImpl({ models, model, onModelChange, status, showSuggestions, onSubmit, onStop }: PromptInputBarProps) {
+function PromptInputBarImpl({ 
+  models, model, onModelChange, status, showSuggestions, onSubmit, onStop, lang = "en" 
+}: PromptInputBarProps) {
   const [text, setText] = useState("")
   const [useWebSearch, setUseWebSearch] = useState(false)
   const [useMicrophone, setUseMicrophone] = useState(false)
@@ -67,6 +72,11 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const selectedModelData = models.find((m) => m.id === model)
+
+  // 2. TENTUKAN BAHASA AKTIF & AMBIL SUGGESTIONS DARI LANGUAGE DATA
+  const t = translations[lang as Language] || translations.en;
+  // Fallback ke array kosong jika chatSuggestions tidak ditemukan di language-data.ts
+  const activeSuggestions = t.chatSuggestions || [];
 
   useEffect(() => {
     if (useMicrophone) {
@@ -135,9 +145,12 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
     <div className="absolute bottom-0 w-full bg-gradient-to-t from-background via-background to-transparent pt-4 pb-8 px-4 z-20">
       <div className="mx-auto w-full max-w-3xl relative">
 
-        {showSuggestions && (
+        {/* 3. RENDER SUGGESTIONS BERDASARKAN BAHASA */}
+        {showSuggestions && activeSuggestions.length > 0 && (
           <Suggestions className="mb-4">
-            {suggestions.map((s) => <Suggestion key={s} suggestion={s} onClick={() => handleSuggestion(s)} />)}
+            {activeSuggestions.map((s) => (
+              <Suggestion key={s} suggestion={s} onClick={() => handleSuggestion(s)} />
+            ))}
           </Suggestions>
         )}
 

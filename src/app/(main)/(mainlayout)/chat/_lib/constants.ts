@@ -19,9 +19,17 @@ export const models: ModelOption[] = [
   // { id: "hf/mistralai/Mistral-7B-Instruct-v0.3", name: "Mistral 7B", chef: "Hugging Face", chefSlug: "huggingface" },
 ];
 
-export const suggestions = [
-  "Explain Dijkstra's algorithm",
-  "Show me how React hooks work",
-  "Write a Python sorting algorithm",
-  "What is TypeScript generics?",
-]
+export const suggestions = {
+  en: [
+    "What are the standard line weights for ISO 128 technical drawings?",
+    "Explain the differences between PFD and P&ID.",
+    "Best practices for creating MEP coordination drawings.",
+    "How to correctly apply GD&T symbols?",
+  ],
+  id: [
+    "Apa standar ketebalan garis untuk gambar teknik ISO 128?",
+    "Jelaskan perbedaan antara PFD dan P&ID.",
+    "Praktik terbaik untuk menyusun gambar koordinasi MEP.",
+    "Bagaimana cara menerapkan simbol GD&T dengan benar?",
+  ]
+};
