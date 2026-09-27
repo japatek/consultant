@@ -93,12 +93,30 @@ function ChatShellInner({
   const isLoading = status === "streaming" || status === "submitted"
   const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
 
-  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
+const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
+    // 1. Ekstrak teks biasa
     const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
+    
+    // 2. Ekstrak Reasoning (bisa dari m.reasoning langsung atau dari array parts)
+    const reasoningText = m.reasoning || 
+      (m.parts?.find((p: any) => p.type === "reasoning")?.reasoning) || 
+      undefined;
+
+    // 3. Ekstrak Tool Invocations (Data MCP Server)
+    const toolCalls = m.toolInvocations?.map((t: any) => ({
+      id: t.toolCallId,
+      name: t.toolName,
+      input: t.args,
+      result: t.result,
+    })) || [];
+
     return {
       key: m.id || Math.random().toString(),
       from: m.role === "user" ? "user" : "assistant",
       versions: [{ id: m.id || Math.random().toString(), content: textContent }],
+      // Masukkan ke dalam object agar bisa dibaca oleh messages-item.tsx
+      reasoning: reasoningText,
+      toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
     }
   })
 

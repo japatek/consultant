@@ -1,8 +1,8 @@
 "use client"
 
-import { memo, useEffect, useState } from "react"
+import { memo, useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
-import { GlobeIcon, MicIcon, SquareIcon } from "lucide-react"
+import { GlobeIcon, MicIcon, SquareIcon, WrenchIcon } from "lucide-react"
 import {
   PromptInput, PromptInputHeader, PromptInputBody, PromptInputFooter,
   PromptInputTools, PromptInputButton, PromptInputTextarea,
@@ -22,6 +22,12 @@ import {
 import { saveChatPreferences } from "../_lib/actions"
 import { suggestions } from "../_lib/constants"
 import type { ChatStatus, ModelOption } from "../_lib/types"
+
+// Daftar Tool MCP Anda (Sesuaikan dengan yang ada di backend)
+const MCP_TOOLS = [
+  { command: "calculate_area", desc: "Hitung luas bangun datar (Persegi, Lingkaran, Segitiga)" },
+  { command: "calculate_beam_load", desc: "Hitung beban balok struktural" }
+]
 
 const AttachmentsDisplay = () => {
   const attachments = usePromptInputAttachments()
@@ -55,6 +61,11 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
 
+  // ── STATE UNTUK SLASH COMMAND ('/') ──
+  const [showSlashMenu, setShowSlashMenu] = useState(false)
+  const [slashQuery, setSlashQuery] = useState("")
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
   const selectedModelData = models.find((m) => m.id === model)
 
   useEffect(() => {
@@ -71,10 +82,45 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
     }
   }, [useMicrophone, audioStream])
 
+  // ── LOGIKA MENDETEKSI KETIKAN '/' ──
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value
+    setText(val)
+
+    // Cek kata terakhir yang sedang diketik
+    const words = val.split(" ")
+    const lastWord = words[words.length - 1]
+
+    if (lastWord.startsWith("/")) {
+      setShowSlashMenu(true)
+      setSlashQuery(lastWord.slice(1).toLowerCase())
+    } else {
+      setShowSlashMenu(false)
+    }
+  }
+
+  // ── LOGIKA SAAT TOOL DIPILIH ──
+  const insertToolCommand = (toolName: string) => {
+    const words = text.split(" ")
+    words.pop() // Hapus sisa ketikan '/...' terakhir
+    
+    // Rangkai prompt instruksi tool
+    const newText = [...words, `Tolong gunakan tool /${toolName} untuk `].join(" ").trim() + " "
+    setText(newText)
+    setShowSlashMenu(false)
+    
+    // Kembalikan fokus kursor ke textarea
+    setTimeout(() => inputRef.current?.focus(), 10)
+  }
+
+  // Filter daftar tool secara realtime berdasarkan ketikan setelah '/'
+  const filteredTools = MCP_TOOLS.filter(t => t.command.toLowerCase().includes(slashQuery))
+
   const handleSubmit = (msg: PromptInputMessage) => {
     if (!msg.text?.trim() && !msg.files?.length) return
     onSubmit(msg.text ?? "Sent with attachments")
     setText("") // Reset input setelah dikirim
+    setShowSlashMenu(false) // Pastikan menu tool tertutup
   }
 
   const handleSuggestion = (s: string) => onSubmit(s)
@@ -107,6 +153,31 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
           </div>
         )}
 
+        {/* ── MENU SLASH COMMAND (FLOATING POPUP) ── */}
+        {showSlashMenu && filteredTools.length > 0 && (
+          <div className="absolute bottom-full mb-2 left-0 w-full max-w-sm bg-popover border border-border rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2">
+            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground bg-muted/50 border-b border-border/50">
+              Available MCP Tools
+            </div>
+            <ul className="max-h-48 overflow-y-auto p-1">
+              {filteredTools.map((tool) => (
+                <li key={tool.command}>
+                  <button
+                    onClick={() => insertToolCommand(tool.command)}
+                    className="w-full flex flex-col text-left px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors cursor-pointer"
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <WrenchIcon className="size-3.5 text-primary" />
+                      /{tool.command}
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-0.5">{tool.desc}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <PromptInput
           globalDrop multiple onSubmit={handleSubmit}
           className="border-border/60 shadow-sm focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all bg-card"
@@ -117,7 +188,8 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
 
           <PromptInputBody>
             <PromptInputTextarea
-              onChange={(e) => setText(e.target.value)}
+              ref={inputRef as any} // Menyambungkan ref agar fokus bisa dikembalikan
+              onChange={handleTextChange} // Menggunakan handler kustom kita
               value={text}
               placeholder="Ask anything, type '/' for commands..."
               className="min-h-[40px]"
@@ -147,7 +219,7 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
 
               <ModelSelector onOpenChange={setModelSelectorOpen} open={modelSelectorOpen}>
                 <ModelSelectorTrigger asChild>
-                  <PromptInputButton className="bg-muted/50">
+                  <PromptInputButton className="bg-muted/50 cursor-pointer">
                     {selectedModelData?.chefSlug && <ModelSelectorLogo provider={selectedModelData.chefSlug} />}
                     {selectedModelData?.name && <ModelSelectorName>{selectedModelData.name}</ModelSelectorName>}
                   </PromptInputButton>
@@ -157,7 +229,7 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
                   <ModelSelectorList>
                     <ModelSelectorGroup heading="Models">
                       {models.map((m) => (
-                        <ModelSelectorItem key={m.id} onSelect={() => handleModelSelect(m.id)} value={m.id}>
+                        <ModelSelectorItem key={m.id} onSelect={() => handleModelSelect(m.id)} value={m.id} className="cursor-pointer">
                           <ModelSelectorLogoGroup>
                             <ModelSelectorLogo provider={m.chefSlug} />
                           </ModelSelectorLogoGroup>
@@ -172,7 +244,7 @@ function PromptInputBarImpl({ models, model, onModelChange, status, showSuggesti
             </PromptInputTools>
 
             {status === "streaming" && onStop ? (
-              <PromptInputButton onClick={onStop} className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <PromptInputButton onClick={onStop} className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer">
                 <SquareIcon size={14} className="fill-current" />
               </PromptInputButton>
             ) : (
