@@ -83,21 +83,21 @@ export const sidebarItems = (id: string, t: TranslationType): NavGroup[] => [
         icon: Book,
       },
       {
-        title: t.navCertificate,
-        url: `/interface`, 
-        icon: Trophy,
+        title : t.navChat,
+        url: id ? `/chat/new` : "/chat/",
+        icon: MessageSquare,
+        isActive:true,
       },
+      // {
+      //   title: t.navCertificate,
+      //   url: `/interface`, 
+      //   icon: Trophy,
+      // },
       {
         title: t.navTraining,
         url: "/training",
         icon: Pencil,
       },
-      {
-        title : t.navChat,
-        // Jika parameter id tersedia, arahkan ke /chat/[id]. Jika kosong, arahkan ke /chat
-        url: id ? `/chat/new` : "/chat/",
-        icon: MessageSquare, // Diubah dari Banknote agar lebih sesuai dengan konteks Chat
-      }
       // {
       //   title: "Research",
       //   url: "/dashboard/platresearch",
