@@ -15,7 +15,7 @@ export const translations = {
         
         tagline: 'Design & Engineering Specialists',
         title: 'AI-Driven Design & Engineering.',
-        subtitle: 'Instant, Precision-Engineered Solutions.',
+        subtitle: 'Instant Solutions.',
         desc: 'Elevate your project and skill with our engineering design, drawing assesment skill and our AI-Chatbot learning facilitator.',
         explore: 'Explore Services',
         core: 'View Our Design & Services',
@@ -195,7 +195,7 @@ export const translations = {
         // Hero
         tagline: 'Spesialis Desain & Konsultan Teknik',
         title: 'Desain & Rekayasa Berbasis AI.',
-        subtitle: 'Solusi Cepat dengan Presisi Tinggi.',
+        subtitle: 'Solusi Instan.',
         desc: 'Tingkatkan kualitas proyek dan kemampuan Anda dengan layanan konsultasi desain kami, analisis gambar teknik yang komprehensif serta dapatkan pembelajaran yang interaktif bersama AI chatbot kami.',
         explore: 'Jelajahi Kursus Singkat',
         core: 'Lihat Hasil Desain Kami',
