@@ -208,7 +208,7 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
   const handleModelChange = useCallback((id: string) => setModel(id), [])
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full select-none relative overflow-hidden bg-background">
+    <div className="flex h-full flex-1 w-full select-none relative overflow-hidden bg-background">
       <Toaster />
 
       <SidebarDrawer
@@ -222,7 +222,7 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
       />
 
       <div
-        className="flex flex-1 flex-col bg-background min-w-0 h-[calc(100vh-3.5rem)] relative overflow-hidden transition-all duration-500"
+        className="flex flex-1 flex-col bg-background min-w-0 h-full relative overflow-hidden transition-all duration-500"
         style={{ marginRight: isArtifactOpen ? "600px" : "0px" }}
       >
         <ResizablePanelGroup orientation="horizontal" className="h-full w-full">

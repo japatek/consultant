@@ -6,8 +6,8 @@ import type { ChatPreferences } from "./types"
 export const PREFS_COOKIE = "japatek-chat-prefs"
 
 const defaults: ChatPreferences = {
-  model: "gpt-4o",
-  activeSessionId: "1",
+  model: "gemini", // Diperbarui sesuai konstanta model baru Anda
+  activeSessionId: null as any, // Ubah ke null agar bisa mengambil data terbaru dari database
   isArtifactOpen: false,
 }
 
