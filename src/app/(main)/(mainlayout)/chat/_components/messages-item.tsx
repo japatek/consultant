@@ -182,7 +182,7 @@ function MessageItemImpl({ message, version, files, onReload, onEdit }: MessageI
               <textarea
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
-                className="w-full min-h-[80px] p-3 rounded-xl bg-background border border-primary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none"
+                className="w-full min-h-[160px] p-3 rounded-xl bg-background border border-primary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-y"
               />
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
