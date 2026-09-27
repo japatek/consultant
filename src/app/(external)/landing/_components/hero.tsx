@@ -149,11 +149,11 @@ export const Hero: React.FC = () => {
 
           {/* ========================================================================= */}
           {/* OPTION B: FEATURE IS READY (REDIRECT) */}
-          {/* Uncomment this block when the feature is ready to redirect to /interface */}
+          {/* Uncomment this block when the feature is ready to redirect to /chat */}
           {/* ========================================================================= */}
           
           <a 
-            href="/interface" 
+            href="/chat" 
             className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-lg px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 w-full sm:w-auto shadow-lg shadow-primary/20 cursor-pointer"
           >
             {t.explore}
@@ -189,7 +189,7 @@ export const Hero: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-8 overflow-hidden rounded-xl shadow-lg border border-white/10">
           {[
             { title: t.ourProjects, desc: '', bgColor: 'bg-[#6F59A8]/30', link: '/landing/project' },
-            { title: t.ourMaterial, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/interface' },
+            { title: t.ourMaterial, desc: '', bgColor: 'bg-[#8F445B]/30', link: '/chat' },
             { title: t.ourServices, desc: '', bgColor: 'bg-[#804A16]/30', link: '/landing/services' },
             {
               title: t.aboutUs,

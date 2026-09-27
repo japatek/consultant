@@ -45,7 +45,7 @@ export default async function LoginPage({
   const callbackUrl =
     rawCallback.startsWith("/") && !rawCallback.startsWith("//")
       ? rawCallback
-      : '/interface';
+      : '/chat';
 
   return (
     <>

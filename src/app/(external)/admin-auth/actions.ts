@@ -29,7 +29,7 @@ export async function loginAction(
   const password = ((formData.get("password") as string | null) ?? "");
   const turnstileToken = formData.get("turnstile-token") as string | null; 
   const rawCallback = ((formData.get("callbackUrl") as string | null) ?? "");
-  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/interface";
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/chat";
 
   if (!username || !password) {
     return { error: "Please enter both username and password." };

@@ -24,7 +24,7 @@ export async function loginAction(
   const email = ((formData.get("email") as string | null) ?? "").trim().toLowerCase();
   const turnstileToken = formData.get("turnstile-token") as string | null; 
   const rawCallback = ((formData.get("callbackUrl") as string | null) ?? "");
-  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/interface";
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/chat";
 
   const isBypass = email === "bypass@japatek.space";
 
@@ -102,6 +102,6 @@ export async function loginAction(
 
 export async function googleAction(formData: FormData): Promise<void> {
   const rawCallback = (formData.get("callbackUrl") as string | null) ?? "";
-  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/interface";
+  const callbackUrl = rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/chat";
   await signIn("google", { redirectTo: callbackUrl });
 }

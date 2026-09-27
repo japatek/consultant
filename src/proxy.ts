@@ -8,13 +8,12 @@ import { decode } from "next-auth/jwt";
 
 const SIGN_IN_PATH   = "/auth/v4/login" as const; 
 const LANDING_PATH   = "/landing" as const;
-const INTERFACE_PATH = "/interface" as const;     
+const CHAT_PATH      = "/chat" as const;          
 const ADMIN_AUTH     = "/admin-auth" as const;    
 
 const ADMIN_PREFIXES = ["/admin", "/article"] as const;
 const PUBLIC_PREFIXES = ["/auth", "/docs", "/about", "/landing", "/test", "/admin-auth"] as const;
 
-// Menambahkan "/unavailable" agar rute ini terbuka dan tidak menyebabkan loop
 const OPEN_PREFIXES = ["/api", "/_next", "/unauthorized", "/unavailable"] as const;
 
 function startsWithAny(pathname: string, prefixes: readonly string[]): boolean {
@@ -92,9 +91,16 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   // =====================================================================
-  // 4. PROTECTED USER PATHS
+  // 4. PROTECTED USER PATHS (CHAT & REDIRECT INTERFACE)
   // =====================================================================
+  
+  // Jika masih ada yang mencoba mengakses /interface lama, alihkan ke /chat
   if (pathname === "/interface" || pathname.startsWith("/interface/")) {
+    return NextResponse.redirect(new URL(CHAT_PATH, request.url));
+  }
+
+  // Proteksi rute utama /chat yang baru
+  if (pathname === "/chat" || pathname.startsWith("/chat/")) {
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname + request.nextUrl.search);
       return NextResponse.redirect(
@@ -102,7 +108,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       );
     }
     
-    // UBAH DI SINI: Jika ADMIN mencoba masuk user interface, lempar ke /unavailable
+    // Cegah ADMIN masuk ke area chat user biasa
     if (isAdmin) {
       return NextResponse.redirect(new URL("/unavailable", request.url));
     }
@@ -119,7 +125,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         return NextResponse.redirect(new URL("/article", request.url)); 
       } 
       else if (pathname.startsWith("/auth")) {
-        return NextResponse.redirect(new URL(isAdmin ? "/article" : INTERFACE_PATH, request.url));
+        // 👈 Jika user biasa login, langsung lempar ke /chat
+        return NextResponse.redirect(new URL(isAdmin ? "/article" : CHAT_PATH, request.url));
       }
     }
     return NextResponse.next();
