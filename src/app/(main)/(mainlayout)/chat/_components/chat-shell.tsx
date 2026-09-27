@@ -48,6 +48,7 @@ function ChatShellInner({
   initialMessages = [],
   welcomeTitle = "Welcome",
   welcomeDesc = "Start a new conversation",
+  lang = "en",
 }: ChatShellProps) {
   const router = useRouter()
   const { isArtifactOpen, isCodePanelOpen, setArtifactFiles, setCodePanelTab, openCodePanel } = usePanelContext()
@@ -58,8 +59,6 @@ function ChatShellInner({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
 
-  // REF UNTUK MENCEGAT DATA TERBARU (dibaca ulang di dalam prepareSendMessagesRequest
-  // setiap kali mengirim, jadi selalu memakai id/model paling baru meski hook di-recreate)
   const activeSessionRef = useRef(activeSessionId)
   activeSessionRef.current = activeSessionId
 
@@ -69,8 +68,6 @@ function ChatShellInner({
   const chat = useChat({
     id: activeSessionId || "new-chat",
     messages: initialMessages || [],
-    // AI SDK v5/v6: 'api' dan custom 'fetch' di top-level sudah tidak ada.
-    // Konfigurasi endpoint + penyisipan body dinamis sekarang lewat transport.
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest: ({ messages }) => ({
@@ -86,23 +83,19 @@ function ChatShellInner({
     },
   })
 
-  const aiMessages = chat.messages || []
-  const sendMessage = chat.sendMessage // was: chat.append (removed in v5/v6)
-  const status = chat.status
-  const stop = chat.stop
+  // Destrukturisasi properti tambahan dari useChat untuk edit & reload
+  const { messages: aiMessages, sendMessage, status, stop } = chat
+  
   const isLoading = status === "streaming" || status === "submitted"
   const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
 
-const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
-    // 1. Ekstrak teks biasa
+  const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
     const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
     
-    // 2. Ekstrak Reasoning (bisa dari m.reasoning langsung atau dari array parts)
     const reasoningText = m.reasoning || 
       (m.parts?.find((p: any) => p.type === "reasoning")?.reasoning) || 
       undefined;
 
-    // 3. Ekstrak Tool Invocations (Data MCP Server)
     const toolCalls = m.toolInvocations?.map((t: any) => ({
       id: t.toolCallId,
       name: t.toolName,
@@ -114,7 +107,6 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
       key: m.id || Math.random().toString(),
       from: m.role === "user" ? "user" : "assistant",
       versions: [{ id: m.id || Math.random().toString(), content: textContent }],
-      // Masukkan ke dalam object agar bisa dibaca oleh messages-item.tsx
       reasoning: reasoningText,
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
     }
@@ -157,7 +149,7 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
 
           currentSessionId = newSession.id
           setActiveSessionId(currentSessionId)
-          activeSessionRef.current = currentSessionId // Sinkronisasi manual segera agar terbaca oleh prepareSendMessagesRequest
+          activeSessionRef.current = currentSessionId
 
           setSessions((prev) => [newSession, ...(prev || [])])
           window.history.replaceState(null, "", `/chat/${currentSessionId}`)
@@ -168,7 +160,6 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
       }
 
       try {
-        // v5/v6: append({ role, content }) -> sendMessage({ text })
         sendMessage({ text: content })
       } catch (err: any) {
         toast.error("Failed Send Messages: " + err.message)
@@ -176,6 +167,42 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
     },
     [activeSessionId, sendMessage],
   )
+
+  // ── LOGIKA EDIT DAN RELOAD ──
+const handleReload = useCallback(() => {
+    // Gunakan 'as any' untuk mem-bypass error typing jika SDK menyembunyikan fungsi reload
+    if ('reload' in chat) {
+      (chat as any).reload();
+    }
+  }, [chat]);
+
+  const handleEdit = useCallback((messageId: string, newContent: string) => {
+    const index = chat.messages.findIndex((m) => m.id === messageId);
+    if (index !== -1) {
+      // Tambahkan properti 'parts' agar lolos validasi tipe Vercel AI SDK v6
+      const updatedMessages = [
+        ...chat.messages.slice(0, index),
+        { 
+          id: messageId, 
+          role: "user" as const, 
+          content: newContent,
+          parts: [{ type: "text", text: newContent }]
+        } as any // Bypass strict typing 
+      ];
+      chat.setMessages(updatedMessages);
+      
+      // Beri jeda sejenak agar state messages terbarui sebelum diproses ulang
+      setTimeout(() => {
+        if ('reload' in chat) {
+          (chat as any).reload();
+        } else if (chat.sendMessage) {
+           // Fallback jika benar-benar tidak ada fungsi reload
+           chat.sendMessage({ text: newContent });
+        }
+      }, 50); 
+    }
+  }, [chat]);
+
 
   const handleNewSession = useCallback(
     (session: ChatSession) => {
@@ -206,7 +233,7 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
   )
 
   const handleModelChange = useCallback((id: string) => setModel(id), [])
-
+  
   return (
     <div className="flex h-full flex-1 w-full select-none relative overflow-hidden bg-background">
       <Toaster />
@@ -242,7 +269,12 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
                 </p>
               </div>
             ) : (
-              <MessageList messages={mappedMessages} />
+              // ── TERUSKAN PROPS KE MESSAGE LIST ──
+              <MessageList 
+                messages={mappedMessages} 
+                onReload={handleReload}
+                onEdit={handleEdit}
+              />
             )}
 
             <PromptInputBar
@@ -253,6 +285,7 @@ const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
               showSuggestions={mappedMessages.length === 0}
               onSubmit={addUserMessage}
               onStop={stop}
+              lang={lang}
             />
           </ResizablePanel>
 

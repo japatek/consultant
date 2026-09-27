@@ -1,8 +1,8 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useState } from "react"
 import dynamic from "next/dynamic"
-import { RefreshCwIcon, FileCodeIcon } from "lucide-react"
+import { RefreshCwIcon, FileCodeIcon, PencilIcon } from "lucide-react"
 import { cn } from "../../../../../lib/utils"
 import { Button } from "../../../../../components/ui/button"
 import { Message, MessageContent, MessageResponse } from "../../../../../components/ai/message"
@@ -19,8 +19,7 @@ import { CollapsibleUserMessage } from "./user-bubble"
 import { usePanelContext } from "./chat-context"
 import type { ArtifactFile, MessageType } from "../_lib/types"
 
-// Rarely-used / heavy blocks are split out of the main bundle and only fetched
-// when a message actually contains that kind of content.
+// Rarely-used / heavy blocks are split out of the main bundle
 const Terminal = dynamic(() => import("../../../../..//components/ai/terminal").then((m) => m.Terminal), { ssr: false })
 const Sandbox = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.Sandbox), { ssr: false })
 const SandboxHeader = dynamic(() => import("../../../../..//components/ai/sandbox").then((m) => m.SandboxHeader), { ssr: false })
@@ -49,10 +48,28 @@ interface MessageItemProps {
   message: MessageType
   version: { id: string; content: string }
   files: ArtifactFile[]
+  onReload?: (messageId: string) => void
+  onEdit?: (messageId: string, newContent: string) => void
 }
 
-function MessageItemImpl({ message, version, files }: MessageItemProps) {
+function MessageItemImpl({ message, version, files, onReload, onEdit }: MessageItemProps) {
   const { isCodePanelOpen, selectedFile, openCodePanel } = usePanelContext()
+  
+  // State untuk mode edit prompt
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState("")
+
+  const handleStartEdit = () => {
+    setEditValue(version.content)
+    setIsEditing(true)
+  }
+
+  const handleSaveEdit = () => {
+    setIsEditing(false)
+    if (editValue.trim() !== "" && editValue !== version.content) {
+      onEdit?.(message.key, editValue)
+    }
+  }
 
   return (
     <Message from={message.from} className="group">
@@ -105,6 +122,7 @@ function MessageItemImpl({ message, version, files }: MessageItemProps) {
 
         {message.terminalOutput ? <Terminal output={message.terminalOutput} /> : null}
 
+        {/* Sandbox, TestResults, StackTrace, Schema, Queue, EnvVars... */}
         {message.sandbox && (
           <Sandbox>
             <SandboxHeader
@@ -133,34 +151,7 @@ function MessageItemImpl({ message, version, files }: MessageItemProps) {
         )}
 
         {message.testResults !== undefined && <TestResults results={message.testResults} />}
-
         {message.stackTrace && <StackTrace trace={message.stackTrace} />}
-
-        {message.envVars && message.envVars.length > 0 && (
-          <EnvironmentVariables>
-            <EnvironmentVariablesHeader>
-              <EnvironmentVariablesTitle />
-              <EnvironmentVariablesToggle />
-            </EnvironmentVariablesHeader>
-            <EnvironmentVariablesContent>
-              {message.envVars.map((v) => (
-                <EnvironmentVariable key={v.name} name={v.name} value={v.value}>
-                  <EnvironmentVariableGroup className="shrink-0">
-                    <EnvironmentVariableName />
-                  </EnvironmentVariableGroup>
-                  <EnvironmentVariableGroup>
-                    <EnvironmentVariableValue />
-                    <EnvironmentVariableCopyButton />
-                  </EnvironmentVariableGroup>
-                </EnvironmentVariable>
-              ))}
-            </EnvironmentVariablesContent>
-          </EnvironmentVariables>
-        )}
-
-        {message.schema ? <SchemaDisplay {...(message.schema as React.ComponentProps<typeof SchemaDisplay>)} /> : null}
-
-        {message.queue ? <Queue {...message.queue} /> : null}
 
         {message.sources && message.sources.length > 0 && (
           <Sources>
@@ -184,8 +175,27 @@ function MessageItemImpl({ message, version, files }: MessageItemProps) {
 
         {message.filePreview ? <FilePreview file={message.filePreview} /> : null}
 
-        {message.from === "user" && version.content.length > 300 ? (
-          <CollapsibleUserMessage content={version.content} />
+        {/* ── LOGIKA RENDER PESAN PENGGUNA (EDIT MODE) VS ASSISTANT ── */}
+        {message.from === "user" ? (
+          isEditing ? (
+            <div className="flex flex-col gap-2 w-full mt-1">
+              <textarea
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="w-full min-h-[80px] p-3 rounded-xl bg-background border border-primary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none"
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
+                <Button size="sm" onClick={handleSaveEdit}>Save & Reprocess</Button>
+              </div>
+            </div>
+          ) : version.content.length > 300 ? (
+            <CollapsibleUserMessage content={version.content} />
+          ) : (
+            <MessageContent>
+              <MessageResponse>{version.content}</MessageResponse>
+            </MessageContent>
+          )
         ) : (
           <MessageContent>
             <MessageResponse>{version.content}</MessageResponse>
@@ -225,17 +235,33 @@ function MessageItemImpl({ message, version, files }: MessageItemProps) {
           </div>
         )}
 
+        {/* ── FOOTER ACTIONS (COPY, EDIT, REFRESH) ── */}
         {message.from === "assistant" ? (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
             <CopyButton content={version.content} />
-            <Button variant="ghost" size="icon-sm" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-              <RefreshCwIcon className="h-3.5 w-3.5" />
-            </Button>
           </div>
         ) : (
-          <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity mt-1">
-            <CopyButton content={version.content} />
-          </div>
+          !isEditing && (
+            <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity mt-1 items-center gap-1">
+              <Button 
+                variant="ghost" 
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground cursor-pointer"
+                onClick={handleStartEdit}
+                title="Edit Prompt"
+              >
+                <PencilIcon className="h-3.5 w-3.5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground cursor-pointer"
+                onClick={() => onReload?.(message.key)}
+                title="Reprocess Prompt"
+              >
+                <RefreshCwIcon className="h-3.5 w-3.5" />
+              </Button>
+              <CopyButton content={version.content} />
+            </div>
+          )
         )}
 
       </div>

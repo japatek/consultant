@@ -7,11 +7,15 @@ import { MessageItem } from "./messages-item"
 import { usePanelContext } from "./chat-context"
 import type { MessageType } from "../_lib/types"
 
+// 1. Tambahkan onReload dan onEdit di Interface
 interface MessageListProps {
   messages: MessageType[]
+  onReload?: (id: string) => void
+  onEdit?: (id: string, content: string) => void
 }
 
-function MessageListImpl({ messages }: MessageListProps) {
+// 2. Destructure onReload dan onEdit di parameter fungsi
+function MessageListImpl({ messages, onReload, onEdit }: MessageListProps) {
   const { artifactFiles } = usePanelContext()
 
   const filesByMessage = useMemo(() => {
@@ -25,16 +29,9 @@ function MessageListImpl({ messages }: MessageListProps) {
   }, [artifactFiles])
 
   return (
-    // FIX 1: Hapus pt-14 dan pb-[140px] agar tinggi tidak melebihi panel (mengatasi double scroll)
-    // Pastikan menggunakan overflow-hidden agar scrollbar hanya muncul dari komponen Conversation
     <div className="flex-1 relative w-full h-full overflow-hidden">
-      
       <Conversation className="absolute inset-0 size-full overflow-y-auto overflow-x-hidden">
-        
-        {/* FIX 2: Pindahkan padding ke dalam container isi pesan */}
-        {/* pt-20 menghindari tertimpa Header, pb-48 menghindari tertimpa PromptInputBar */}
         <ConversationContent className="max-w-3xl mx-auto w-full px-4 pt-20 pb-48">
-          
           {messages.map((message) => (
             <MessageBranch defaultBranch={0} key={message.key}>
               <MessageBranchContent>
@@ -44,18 +41,17 @@ function MessageListImpl({ messages }: MessageListProps) {
                     message={message}
                     version={version}
                     files={filesByMessage.get(message.key) ?? []}
+                    // 3. Teruskan fungsi tersebut ke dalam MessageItem
+                    onReload={onReload} 
+                    onEdit={onEdit}
                   />
                 ))}
               </MessageBranchContent>
             </MessageBranch>
           ))}
-
         </ConversationContent>
-
-        {/* FIX 3: Naikkan posisi tombol Scroll To Bottom agar tidak tertutup input bar */}
         <ConversationScrollButton className="bottom-44" />
       </Conversation>
-      
     </div>
   )
 }
