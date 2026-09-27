@@ -1,6 +1,6 @@
 import { PanelLeftIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Shimmer } from "@/components/ai/shimmer"
+import { cn } from "../../../../../lib/utils"
+import { Shimmer } from "../../../../../components/ai/shimmer"
 
 function MessageRowSkeleton({ from, lines }: { from: "user" | "assistant"; lines: number }) {
   return (
