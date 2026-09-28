@@ -5,8 +5,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { IconBrandGithub, IconBrandInstagram, IconBrandWhatsapp } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandGithubCopilot, IconBrandGithubFilled, IconBrandInstagram, IconBrandWhatsapp } from "@tabler/icons-react";
 import XTwitterLogoIcon from "./ui/twitter";
+import { GitBranchIcon } from "lucide-react";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 
 // 1. Added id_label for Indonesian translations
 const SERVICES_SURFACES = [
@@ -71,7 +73,7 @@ export default function Footer() {
               <XTwitterLogoIcon className="cursor-pointer pt-1" size={20} />
             </a>
             <a href="https://github.com/japatek" className="hover:text-primary transition-colors">
-              <IconBrandGithub className="cursor-pointer pt-1" size={20} />
+              <SiGithub className="cursor-pointer pt-1" size={20}/>
             </a>
           </div>
 
