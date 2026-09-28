@@ -73,7 +73,7 @@ export default function Footer() {
               <XTwitterLogoIcon className="cursor-pointer pt-1" size={20} />
             </a>
             <a href="https://github.com/japatek" className="hover:text-primary transition-colors">
-              <SiGithub className="cursor-pointer pt-1" size={20}/>
+              <SiGithub className="cursor-pointer" size={22}/>
             </a>
           </div>
 
