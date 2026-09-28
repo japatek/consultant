@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { IconBrandInstagram, IconBrandWhatsapp } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandInstagram, IconBrandWhatsapp } from "@tabler/icons-react";
 import XTwitterLogoIcon from "./ui/twitter";
 
 // 1. Added id_label for Indonesian translations
@@ -24,7 +24,7 @@ const RESOURCES = [
 const COMPANY = [
   { href: "mailto:info@japatek.com", id: "contact", label: "Contact", id_label: "Kontak" },
   { href: "https://japatek.space/landing/about", id: "japatek", label: "PT. Japa Teknika Solusi", id_label: "PT. Japa Teknika Solusi" },
-  { href: "https://japatek.space/landing/team", id: "team", label: "Teams", id_label: "Team Kami"}
+  { href: "https://japatek.space/landing/team", id: "team", label: "Teams", id_label: "Team Kami" }
 ] as const;
 
 export default function Footer() {
@@ -34,7 +34,7 @@ export default function Footer() {
   useEffect(() => {
     const currentLang = Cookies.get("language") || "en";
     setLang(currentLang);
-    
+
     const handleLangChange = (e: any) => {
       if (e.detail) setLang(e.detail);
     };
@@ -55,8 +55,8 @@ export default function Footer() {
             </span>
           </Link>
           <p className="m-0 text-[13px] text-muted-foreground flex flex-wrap items-baseline gap-2">
-            {lang === "id" 
-              ? "Konsultan teknik dan penyedia alat/agen AI." 
+            {lang === "id"
+              ? "Konsultan teknik dan penyedia alat/agen AI."
               : "Engineering consultant and ai tool/agent provider."}
           </p>
           <div className="flex flex-col-4 gap-4 mt-2">
@@ -68,7 +68,10 @@ export default function Footer() {
               <IconBrandInstagram className="cursor-pointer" />
             </a>
             <a href="https://x.com/Japateksolusi" className="hover:text-primary transition-colors">
-              <XTwitterLogoIcon className="cursor-pointer pt-1" size={20}/>
+              <XTwitterLogoIcon className="cursor-pointer pt-1" size={20} />
+            </a>
+            <a href="https://github.com/japatek" className="hover:text-primary transition-colors">
+              <IconBrandGithub className="cursor-pointer pt-1" size={20} />
             </a>
           </div>
 
@@ -76,20 +79,20 @@ export default function Footer() {
 
         {/* Middle: nav columns */}
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 pb-4 border-b border-dashed border-border/20">
-          <FooterCol 
-            heading={lang === "id" ? "Produk" : "Products"} 
-            items={[...SERVICES_SURFACES]} 
-            lang={lang} 
+          <FooterCol
+            heading={lang === "id" ? "Produk" : "Products"}
+            items={[...SERVICES_SURFACES]}
+            lang={lang}
           />
-          <FooterCol 
-            heading={lang === "id" ? "Sumber Daya" : "Resources"} 
-            items={[...RESOURCES]} 
-            lang={lang} 
+          <FooterCol
+            heading={lang === "id" ? "Sumber Daya" : "Resources"}
+            items={[...RESOURCES]}
+            lang={lang}
           />
-          <FooterCol 
-            heading={lang === "id" ? "Perusahaan" : "Company"} 
-            items={[...COMPANY]} 
-            lang={lang} 
+          <FooterCol
+            heading={lang === "id" ? "Perusahaan" : "Company"}
+            items={[...COMPANY]}
+            lang={lang}
           />
         </div>
 
@@ -100,13 +103,19 @@ export default function Footer() {
           </p>
           <p className="m-0 inline-flex flex-wrap gap-1.5 items-baseline">
             <Link
-              href="mailto:info@japatek.com"
+              href="mailto:dev@japatek.space"
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
-              info@japatek.com
+              dev@japatek.space
             </Link>
             <span className="opacity-40">·</span>
             <Link
+              href="mailto:japatek@protonmail.com"
+              className="text-inherit no-underline hover:text-foreground transition-colors"
+            >
+              japatek@protonmail.com
+            </Link>
+            {/* <Link
               href="/terms"
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
@@ -118,7 +127,7 @@ export default function Footer() {
               className="text-inherit no-underline hover:text-foreground transition-colors"
             >
               {lang === "id" ? "Privasi" : "Privacy"}
-            </Link>
+            </Link> */}
           </p>
         </div>
 
