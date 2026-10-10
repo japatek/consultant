@@ -31,7 +31,7 @@ const serviceMenuMedia: Record<string, { leftImg: string; rightImg: string }> = 
     'heavy-machinery': { leftImg: `${BLOB_BASE}/pln-ip/pln-ip-2.jpg`, rightImg: `${BLOB_BASE}/single/root-blower.jpg` },
     'robotics': { leftImg: `${BLOB_BASE}/robotics/robotics-2.jpg`, rightImg: `${BLOB_BASE}/robotics/robotics-1.jpg` },
     'structural': { leftImg: `${BLOB_BASE}/edu-bot/edu-bot-2.jpg`, rightImg: `${BLOB_BASE}/single/pipe-drawing.jpg` },
-    'others': { leftImg: `${BLOB_BASE}/pc/pc-1.jpg`, rightImg: `${BLOB_BASE}/3dp/3dp.jpg` }
+    'others': { leftImg: `${BLOB_BASE}/others/others-1.jpg`, rightImg: `${BLOB_BASE}/others/others-2.jpg` }
 };
 
 const projectMenuMedia: Record<string, { leftImg: string; rightImg: string }> = {
