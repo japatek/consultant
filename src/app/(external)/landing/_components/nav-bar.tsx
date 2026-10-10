@@ -22,7 +22,7 @@ const defaultMedia = {
 const BLOB_BASE = "https://zrag0isxqbcebeen.public.blob.vercel-storage.com";
 
 const aboutData = {
-    'Our Company': { leftImg: `${BLOB_BASE}/about-us/logo.png`, rightImg: `${BLOB_BASE}/about-us/002.jpg` },
+    'Our Company': { leftImg: `${BLOB_BASE}/about-us/001.jpg`, rightImg: `${BLOB_BASE}/about-us/002.jpg` },
     'Our Team': { leftImg: `${BLOB_BASE}/about-us/003.jpg`, rightImg: `${BLOB_BASE}/about-us/001.jpg` },
 };
 
@@ -127,7 +127,7 @@ export const Navbar: React.FC = () => {
     const getMenuItems = (menu: MenuCategory) => {
         if (menu === 'services') return servicesData;
         if (menu === 'project') return featuredProjects;
-        if (menu === 'article') return dbArticles; // Kembalikan state dari database
+        if (menu === 'article') return dbArticles; 
         return Object.keys(aboutData).map((name) => ({ slug: name, title: name, desc: '' }));
     };
 

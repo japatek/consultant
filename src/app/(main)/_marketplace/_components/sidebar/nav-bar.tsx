@@ -11,7 +11,7 @@ import { UserMenu } from "./user-menu";
 import { ThemeSwitcher } from "./theme-switcher";
 
 import { users } from "../../../../../data/users";
-import { LanguageSelector } from '@/components/ui/language-selector';
+import { LanguageSelector } from '../../../../../components/ui/language-selector';
 
 
 const aboutData = {
@@ -140,7 +140,7 @@ export const Navbar: React.FC = () => {
                             </Link>
                         );
                     })}
-                </div>
+                </div>Engineering Consulting
 
                 <div className="h-[400px] overflow-hidden bg-muted rounded-[32px]">
                     <img
@@ -170,7 +170,7 @@ export const Navbar: React.FC = () => {
                         JaPaTek
                     </span>
                     <span className="text-[8px] sm:text-[9px] font-semibold tracking-[0.2em] uppercase leading-none mt-1 bg-gradient-to-r from-primary to-chart-3 bg-clip-text text-transparent drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">
-                        Engineering Consulting
+                        Engineering Training & Consulting
                     </span>
                 </a>
 
