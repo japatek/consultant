@@ -65,8 +65,16 @@ function ChatShellInner({
   const modelRef = useRef(model)
   modelRef.current = model
 
+  // The Chat instance id must stay fixed for the lifetime of this component.
+  // If it follows activeSessionId, creating a session on the first prompt swaps
+  // "new-chat" -> real id, useChat throws away the Chat instance and builds an
+  // empty one, while sendMessage (captured before the swap) still writes into
+  // the discarded instance -> the welcome banner never goes away.
+  // ChatShell is already remounted per session via `key` in [id]/page.tsx.
+  const [chatId] = useState(() => initialActiveSessionId ?? "new-chat")
+
   const chat = useChat({
-    id: activeSessionId || "new-chat",
+    id: chatId,
     messages: initialMessages || [],
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -111,6 +119,13 @@ function ChatShellInner({
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
     }
   })
+
+  // Shimmer shows from the moment the request is sent until the first visible
+  // assistant text arrives (also covers tool calls that run before any text).
+  const lastMapped = mappedMessages[mappedMessages.length - 1]
+  const isThinking =
+    isLoading &&
+    (!lastMapped || lastMapped.from === "user" || !lastMapped.versions[0]?.content)
 
   useEffect(() => {
     if (mappedMessages.length === 0) return
@@ -232,6 +247,10 @@ const handleReload = useCallback(() => {
     [activeSessionId, router],
   )
 
+  const handleSessionUpdated = useCallback((updated: ChatSession) => {
+    setSessions((prev) => (prev || []).map((s) => (s.id === updated.id ? updated : s)))
+  }, [])
+
   const handleModelChange = useCallback((id: string) => setModel(id), [])
   
   return (
@@ -246,6 +265,7 @@ const handleReload = useCallback(() => {
         onSessionCreated={handleNewSession}
         onSessionSelected={handleSelectSession}
         onSessionDeleted={handleDeleteSession}
+        onSessionUpdated={handleSessionUpdated}
       />
 
       <div
@@ -272,6 +292,7 @@ const handleReload = useCallback(() => {
               // ── TERUSKAN PROPS KE MESSAGE LIST ──
               <MessageList 
                 messages={mappedMessages} 
+                isThinking={isThinking}
                 onReload={handleReload}
                 onEdit={handleEdit}
               />

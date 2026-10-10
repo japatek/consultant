@@ -2,7 +2,8 @@
 
 import { memo, useMemo } from "react"
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai/conversation"
-import { MessageBranch, MessageBranchContent } from "@/components/ai/message"
+import { Message, MessageBranch, MessageBranchContent, MessageContent } from "@/components/ai/message"
+import { Shimmer } from "@/components/ai/shimmer"
 import { MessageItem } from "./messages-item"
 import { usePanelContext } from "./chat-context"
 import type { MessageType } from "../_lib/types"
@@ -12,10 +13,11 @@ interface MessageListProps {
   messages: MessageType[]
   onReload?: (id: string) => void
   onEdit?: (id: string, content: string) => void
+  isThinking?: boolean
 }
 
 // 2. Destructure onReload dan onEdit di parameter fungsi
-function MessageListImpl({ messages, onReload, onEdit }: MessageListProps) {
+function MessageListImpl({ messages, onReload, onEdit, isThinking = false }: MessageListProps) {
   const { artifactFiles } = usePanelContext()
 
   const filesByMessage = useMemo(() => {
@@ -28,11 +30,19 @@ function MessageListImpl({ messages, onReload, onEdit }: MessageListProps) {
     return map
   }, [artifactFiles])
 
+  // While waiting for the first token, drop the empty assistant placeholder
+  // (if the SDK already created one) so only the shimmer is shown.
+  const visibleMessages = useMemo(() => {
+    if (!isThinking) return messages
+    const last = messages[messages.length - 1]
+    return last?.from === "assistant" && !last.versions[0]?.content ? messages.slice(0, -1) : messages
+  }, [messages, isThinking])
+
   return (
     <div className="flex-1 relative w-full h-full overflow-hidden">
       <Conversation className="absolute inset-0 size-full overflow-y-auto overflow-x-hidden">
         <ConversationContent className="max-w-3xl mx-auto w-full px-4 pt-20 pb-48">
-          {messages.map((message) => (
+          {visibleMessages.map((message) => (
             <MessageBranch defaultBranch={0} key={message.key}>
               <MessageBranchContent>
                 {message.versions.map((version) => (
@@ -49,6 +59,14 @@ function MessageListImpl({ messages, onReload, onEdit }: MessageListProps) {
               </MessageBranchContent>
             </MessageBranch>
           ))}
+
+          {isThinking && (
+            <Message from="assistant">
+              <MessageContent>
+                <Shimmer className="text-sm">Thinking...</Shimmer>
+              </MessageContent>
+            </Message>
+          )}
         </ConversationContent>
         <ConversationScrollButton className="bottom-44" />
       </Conversation>
