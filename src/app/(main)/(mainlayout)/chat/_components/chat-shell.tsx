@@ -58,6 +58,7 @@ function ChatShellInner({
   const [model, setModel] = useState(initialModel)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const lastCodeMessageKeyRef = useRef<string | null>(null)
+  const pendingUrlRef = useRef<string | null>(null)
 
   const activeSessionRef = useRef(activeSessionId)
   activeSessionRef.current = activeSessionId
@@ -127,6 +128,18 @@ function ChatShellInner({
     isLoading &&
     (!lastMapped || lastMapped.from === "user" || !lastMapped.versions[0]?.content)
 
+  // Apply the deferred /chat/<id> URL only after the first exchange is finished
+  // (and therefore saved in the DB). Skip it if the user already navigated away.
+  useEffect(() => {
+    if (status !== "ready" && status !== "error") return
+    const url = pendingUrlRef.current
+    if (!url) return
+    pendingUrlRef.current = null
+    if (window.location.pathname === "/chat/new") {
+      window.history.replaceState(null, "", url)
+    }
+  }, [status])
+
   useEffect(() => {
     if (mappedMessages.length === 0) return
 
@@ -167,7 +180,14 @@ function ChatShellInner({
           activeSessionRef.current = currentSessionId
 
           setSessions((prev) => [newSession, ...(prev || [])])
-          window.history.replaceState(null, "", `/chat/${currentSessionId}`)
+          // Do NOT change the URL here. createChatSession is a server action that
+          // calls revalidatePath. A history.replaceState fired while that action is
+          // still settling makes Next discard the action and queue a router refresh
+          // of /chat/<id>. That re-renders [id]/page.tsx with a new `key`, which
+          // remounts ChatShell with whatever is in the DB at that instant (still
+          // empty) -> the welcome banner comes back and the live stream is lost.
+          // The URL is updated by the effect above once the reply has finished.
+          pendingUrlRef.current = `/chat/${currentSessionId}`
         } catch (error) {
           toast.error("Failed Create Session in Database")
           return
