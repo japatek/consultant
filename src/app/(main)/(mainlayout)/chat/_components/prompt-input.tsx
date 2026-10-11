@@ -78,19 +78,32 @@ function PromptInputBarImpl({
   // Fallback ke array kosong jika chatSuggestions tidak ditemukan di language-data.ts
   const activeSuggestions = t.chatSuggestions || [];
 
+  // Depend on `useMicrophone` only. Re-running on `audioStream` (as before) called
+  // getUserMedia again every time a stream was stored: an endless loop that also
+  // leaked streams which were never stopped. The cleanup now stops the tracks.
   useEffect(() => {
-    if (useMicrophone) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(setAudioStream)
-        .catch(() => {
-          setUseMicrophone(false)
-          toast.error("Microphone access denied")
-        })
-    } else if (audioStream) {
-      audioStream.getTracks().forEach((t) => t.stop())
+    if (!useMicrophone) return
+    let cancelled = false
+    let stream: MediaStream | null = null
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((s) => {
+        if (cancelled) {
+          s.getTracks().forEach((t) => t.stop())
+          return
+        }
+        stream = s
+        setAudioStream(s)
+      })
+      .catch(() => {
+        setUseMicrophone(false)
+        toast.error("Microphone access denied")
+      })
+    return () => {
+      cancelled = true
+      stream?.getTracks().forEach((t) => t.stop())
       setAudioStream(null)
     }
-  }, [useMicrophone, audioStream])
+  }, [useMicrophone])
 
   // ── LOGIKA MENDETEKSI KETIKAN '/' ──
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

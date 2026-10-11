@@ -20,6 +20,7 @@ import {
 } from "../../../../../components/ui/dialog"
 import { Button } from "../../../../../components/ui/button"
 import { Input } from "../../../../../components/ui/input"
+import { toast } from "sonner"
 import { createChatSession, saveChatPreferences, deleteChatSession, updateChatSession } from "../_lib/actions"
 import type { ChatSession } from "../_lib/types"
 
@@ -37,7 +38,7 @@ interface SidebarChatList {
 function SidebarChatListImpl({
   open, onOpenChange, sessions, activeSessionId, onSessionCreated, onSessionSelected, onSessionDeleted, onSessionUpdated
 }: SidebarChatList) {
-  const [, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
 
   // State untuk Modal Shadcn
   const [deleteSessionId, setDeleteSessionId] = useState<string | null>(null)
@@ -46,9 +47,14 @@ function SidebarChatListImpl({
 
   const handleNewChat = () => {
     startTransition(async () => {
-      const session = await createChatSession("New Chat")
-      onSessionCreated(session)
-      void saveChatPreferences({ activeSessionId: session.id })
+      try {
+        const session = await createChatSession("New Chat")
+        onSessionCreated(session)
+        void saveChatPreferences({ activeSessionId: session.id })
+      } catch (error) {
+        console.error("createChatSession failed:", error)
+        toast.error("Failed to create chat", { description: "Please try again." })
+      }
     })
   }
 
@@ -61,8 +67,13 @@ function SidebarChatListImpl({
   const handleTogglePin = (e: React.MouseEvent, session: ChatSession) => {
     e.stopPropagation()
     startTransition(async () => {
-      const updated = await updateChatSession(session.id, { pinned: !session.pinned })
-      if (onSessionUpdated) onSessionUpdated(updated)
+      try {
+        const updated = await updateChatSession(session.id, { pinned: !session.pinned })
+        onSessionUpdated?.(updated)
+      } catch (error) {
+        console.error("updateChatSession (pin) failed:", error)
+        toast.error("Failed to update chat", { description: "Please try again." })
+      }
     })
   }
 
@@ -70,9 +81,20 @@ function SidebarChatListImpl({
   const confirmDelete = () => {
     if (!deleteSessionId) return
     startTransition(async () => {
-      await deleteChatSession(deleteSessionId)
-      if (onSessionDeleted) onSessionDeleted(deleteSessionId)
-      setDeleteSessionId(null)
+      const id = deleteSessionId
+      const title = sessions.find((s) => s.id === id)?.title
+      try {
+        await deleteChatSession(id)
+        onSessionDeleted?.(id)
+        toast.success("Chat deleted", {
+          description: title ? `"${title}" has been removed.` : undefined,
+        })
+      } catch (error) {
+        console.error("deleteChatSession failed:", error)
+        toast.error("Failed to delete chat", { description: "Please try again." })
+      } finally {
+        setDeleteSessionId(null)
+      }
     })
   }
 
@@ -82,9 +104,14 @@ function SidebarChatListImpl({
       return
     }
     startTransition(async () => {
-      const updated = await updateChatSession(renameSession.id, { title: newTitle })
-      if (onSessionUpdated) onSessionUpdated(updated)
-      setRenameSession(null)
+      try {
+        const updated = await updateChatSession(renameSession.id, { title: newTitle })
+        onSessionUpdated?.(updated)
+        setRenameSession(null)
+      } catch (error) {
+        console.error("updateChatSession (rename) failed:", error)
+        toast.error("Failed to rename chat", { description: "Please try again." })
+      }
     })
   }
 
@@ -182,8 +209,8 @@ function SidebarChatListImpl({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteSessionId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+            <Button variant="outline" disabled={isPending} onClick={() => setDeleteSessionId(null)}>Cancel</Button>
+            <Button variant="destructive" disabled={isPending} onClick={confirmDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

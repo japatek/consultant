@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import { Toaster, toast } from "sonner"
+import { toast } from "sonner"
 import { Sparkles } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
@@ -99,18 +99,31 @@ function ChatShellInner({
   const chatStatus: ChatStatus = isLoading ? "streaming" : "ready"
 
   const mappedMessages: MessageType[] = aiMessages.map((m: any) => {
-    const textContent = m.content || (m.parts ? m.parts.map((p: any) => p.text).join("") : "")
-    
-    const reasoningText = m.reasoning || 
-      (m.parts?.find((p: any) => p.type === "reasoning")?.reasoning) || 
-      undefined;
+    // AI SDK v5/v6: a message is a list of typed `parts`. `content`, `reasoning`
+    // and `toolInvocations` no longer exist on it, so read everything from parts.
+    const parts: any[] = Array.isArray(m.parts) ? m.parts : []
 
-    const toolCalls = m.toolInvocations?.map((t: any) => ({
-      id: t.toolCallId,
-      name: t.toolName,
-      input: t.args,
-      result: t.result,
-    })) || [];
+    const textContent =
+      typeof m.content === "string" && m.content
+        ? m.content
+        : parts.filter((p) => p.type === "text").map((p) => p.text ?? "").join("")
+
+    const reasoningText =
+      parts.filter((p) => p.type === "reasoning").map((p) => p.text ?? "").join("") || undefined
+
+    // Tool parts are `tool-<name>` (static tools) or `dynamic-tool`.
+    const toolCalls = parts
+      .filter((p) => typeof p.type === "string" && (p.type.startsWith("tool-") || p.type === "dynamic-tool"))
+      .map((p) => ({
+        id: p.toolCallId,
+        name: p.type === "dynamic-tool" ? p.toolName : p.type.slice("tool-".length),
+        input: p.input,
+        result: p.state === "output-error" ? { error: p.errorText } : p.output,
+      }))
+
+    const sources = parts
+      .filter((p) => p.type === "source-url")
+      .map((p) => ({ href: p.url, title: p.title || p.url }))
 
     return {
       key: m.id || Math.random().toString(),
@@ -118,15 +131,18 @@ function ChatShellInner({
       versions: [{ id: m.id || Math.random().toString(), content: textContent }],
       reasoning: reasoningText,
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
+      sources: sources.length > 0 ? sources : undefined,
     }
   })
 
-  // Shimmer shows from the moment the request is sent until the first visible
-  // assistant text arrives (also covers tool calls that run before any text).
+  // Shimmer shows from the moment the request is sent until the assistant has
+  // produced anything visible (text, reasoning or a tool call).
   const lastMapped = mappedMessages[mappedMessages.length - 1]
   const isThinking =
     isLoading &&
-    (!lastMapped || lastMapped.from === "user" || !lastMapped.versions[0]?.content)
+    (!lastMapped ||
+      lastMapped.from === "user" ||
+      !(lastMapped.versions[0]?.content || lastMapped.reasoning || lastMapped.toolCalls?.length))
 
   // Apply the deferred /chat/<id> URL only after the first exchange is finished
   // (and therefore saved in the DB). Skip it if the user already navigated away.
@@ -275,8 +291,6 @@ const handleReload = useCallback(() => {
   
   return (
     <div className="flex h-full flex-1 w-full select-none relative overflow-hidden bg-background">
-      <Toaster />
-
       <SidebarDrawer
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
