@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Sparkles } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
+import { DefaultChatTransport, type FileUIPart, type UIMessage } from "ai"
 
 import { ResizablePanel, ResizablePanelGroup } from "../../../../../components/ui/resizable"
 import { filesFromMessage } from "../_lib/artifact"
 import { models } from "../_lib/constants"
-import type { ChatSession, ChatStatus, MessageType } from "../_lib/types"
+import type { ChatSession, ChatStatus, MessageType, UserSubmission } from "../_lib/types"
+import { trimOldAttachments } from "../_lib/attachments"
 import { PanelProvider, usePanelContext } from "./chat-context"
 import { SidebarDrawer } from "./sidebar-chatlist"
 import { ChatHeader } from "./chat-header"
@@ -21,6 +22,16 @@ import { ArtifactPanel } from "./artifact"
 import { createChatSession } from "../_lib/actions"
 
 const CodePanel = dynamic(() => import("./code-block").then((m) => m.CodePanel), { ssr: false })
+
+// First meaningful line of the prompt (markdown/fence characters stripped), else the first file name.
+function makeSessionTitle(text: string, files: FileUIPart[]): string {
+  const firstLine = text
+    .split("\n")
+    .map((line) => line.replace(/[`*#>]/g, "").trim())
+    .find(Boolean)
+  const base = firstLine || files[0]?.filename || "New chat"
+  return base.length > 30 ? base.slice(0, 30) + "..." : base
+}
 
 interface ChatShellProps {
   initialSessions: ChatSession[]
@@ -81,7 +92,8 @@ function ChatShellInner({
       api: "/api/chat",
       prepareSendMessagesRequest: ({ messages }) => ({
         body: {
-          messages,
+          // only the newest message that carries files keeps them (request size limit)
+          messages: trimOldAttachments(messages),
           id: activeSessionRef.current,
           modelId: modelRef.current,
         },
@@ -125,6 +137,16 @@ function ChatShellInner({
       .filter((p) => p.type === "source-url")
       .map((p) => ({ href: p.url, title: p.title || p.url }))
 
+    // Images, PDFs and voice clips the user sent (rendered inside the bubble).
+    const attachments = parts
+      .filter((p) => p.type === "file")
+      .map((p, i) => ({
+        id: `${m.id}-file-${i}`,
+        name: p.filename || `file-${i + 1}`,
+        mediaType: p.mediaType || "application/octet-stream",
+        url: p.url,
+      }))
+
     return {
       key: m.id || Math.random().toString(),
       from: m.role === "user" ? "user" : "assistant",
@@ -132,6 +154,7 @@ function ChatShellInner({
       reasoning: reasoningText,
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       sources: sources.length > 0 ? sources : undefined,
+      attachments: attachments.length > 0 ? attachments : undefined,
     }
   })
 
@@ -183,12 +206,12 @@ function ChatShellInner({
   }, [mappedMessages, setArtifactFiles, setCodePanelTab, openCodePanel])
 
   const addUserMessage = useCallback(
-    async (content: string) => {
+    async ({ text, files }: UserSubmission) => {
       let currentSessionId = activeSessionId
 
       if (!currentSessionId) {
         try {
-          const title = content.length > 30 ? content.slice(0, 30) + "..." : content
+          const title = makeSessionTitle(text, files)
           const newSession = await createChatSession(title)
 
           currentSessionId = newSession.id
@@ -211,7 +234,13 @@ function ChatShellInner({
       }
 
       try {
-        sendMessage({ text: content })
+        // File parts first, then the text (omitted when the user only sent a file/voice clip,
+        // because an empty text part is rejected by the model API).
+        const parts: UIMessage["parts"] = [
+          ...files,
+          ...(text.trim() ? [{ type: "text" as const, text }] : []),
+        ]
+        sendMessage({ parts })
       } catch (err: any) {
         toast.error("Failed Send Messages: " + err.message)
       }

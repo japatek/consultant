@@ -16,6 +16,7 @@ import { InlineCitation, InlineCitationCard, InlineCitationCardBody, InlineCitat
 import { CopyButton } from "../../../../../components/ai/copy-button"
 import { FilePreview } from "../../../../../components/ai/file-preview"
 import { CollapsibleUserMessage } from "./user-bubble"
+import { MessageAttachments } from "./message-attachments"
 import { usePanelContext } from "./chat-context"
 import type { ArtifactFile, MessageType } from "../_lib/types"
 
@@ -175,9 +176,15 @@ function MessageItemImpl({ message, version, files, onReload, onEdit }: MessageI
 
         {message.filePreview ? <FilePreview file={message.filePreview} /> : null}
 
+        {/* ── ATTACHMENTS (images, voice clips, files) ── */}
+        {message.attachments && message.attachments.length > 0 && (
+          <MessageAttachments attachments={message.attachments} />
+        )}
+
         {/* ── LOGIKA RENDER PESAN PENGGUNA (EDIT MODE) VS ASSISTANT ── */}
         {message.from === "user" ? (
-          isEditing ? (
+          // attachment-only message (e.g. a voice clip): no empty text bubble
+          !version.content && message.attachments?.length ? null : isEditing ? (
             <div className="flex flex-col gap-2 w-full mt-1">
               <textarea
                 value={editValue}
@@ -193,7 +200,7 @@ function MessageItemImpl({ message, version, files, onReload, onEdit }: MessageI
             <CollapsibleUserMessage content={version.content} />
           ) : (
             <MessageContent>
-              <MessageResponse>{version.content}</MessageResponse>
+              <MessageResponse className="[&_p]:whitespace-pre-wrap">{version.content}</MessageResponse>
             </MessageContent>
           )
         ) : (

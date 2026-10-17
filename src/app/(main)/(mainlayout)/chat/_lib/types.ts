@@ -1,3 +1,5 @@
+import type { FileUIPart } from "ai"
+
 export interface ReasoningStep {
   label: string
   status: "complete" | "active" | "pending"
@@ -59,7 +61,22 @@ export interface MessageType {
   filePreview?: File
   sources?: { href: string; title: string }[]
   citations?: Citation[]
+  attachments?: MessageAttachment[]
   pinned?: boolean
+}
+
+/** A file/image/voice clip attached to a chat message. */
+export interface MessageAttachment {
+  id: string
+  name: string
+  mediaType: string
+  url: string
+}
+
+/** What the prompt bar hands to the chat shell on submit. */
+export interface UserSubmission {
+  text: string
+  files: FileUIPart[]
 }
 
 export type ChatStatus = "ready" | "submitted" | "streaming" | "error"

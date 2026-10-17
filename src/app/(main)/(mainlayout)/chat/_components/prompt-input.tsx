@@ -1,8 +1,8 @@
 "use client"
 
-import { memo, useEffect, useState, useRef } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { GlobeIcon, MicIcon, SquareIcon, WrenchIcon } from "lucide-react"
+import { CheckIcon, GlobeIcon, MicIcon, SquareIcon, WrenchIcon, XIcon } from "lucide-react"
 import {
   PromptInput, PromptInputHeader, PromptInputBody, PromptInputFooter,
   PromptInputTools, PromptInputButton, PromptInputTextarea,
@@ -10,7 +10,6 @@ import {
   PromptInputActionMenuContent, PromptInputActionAddAttachments,
   usePromptInputAttachments, type PromptInputMessage, PromptInputSubmit,
 } from "../../../../../components/ai/prompt-input"
-import { Attachments, Attachment, AttachmentPreview, AttachmentRemove } from "../../../../../components/ai/attachments"
 import { AudioVisualizer } from "../../../../../components/ai/audio-visualizer"
 import { Suggestion, Suggestions } from "../../../../../components/ai/suggestion"
 import {
@@ -20,7 +19,11 @@ import {
   ModelSelectorName, ModelSelectorEmpty,
 } from "../../../../../components/ai/model-selector"
 import { saveChatPreferences } from "../_lib/actions"
-import type { ChatStatus, ModelOption } from "../_lib/types"
+import { classifyAttachment, MAX_VOICE_SECONDS, prepareAttachments } from "../_lib/attachments"
+import { autoFenceCode } from "../_lib/paste-format"
+import { useVoiceRecorder } from "../_lib/use-voice-recorder"
+import type { ChatStatus, ModelOption, UserSubmission } from "../_lib/types"
+import { AttachmentTray } from "./attachment-tray"
 
 // 1. IMPORT TRANSLATIONS
 import { translations, type Language } from "../../../../../translate/language-data"
@@ -31,19 +34,29 @@ const MCP_TOOLS = [
   { command: "calculate_beam_load", desc: "Hitung beban balok struktural" }
 ]
 
-const AttachmentsDisplay = () => {
-  const attachments = usePromptInputAttachments()
-  if (attachments.files.length === 0) return null
-  return (
-    <Attachments variant="inline">
-      {attachments.files.map((a) => (
-        <Attachment data={a} key={a.id} onRemove={() => attachments.remove(a.id)}>
-          <AttachmentPreview />
-          <AttachmentRemove />
-        </Attachment>
-      ))}
-    </Attachments>
-  )
+type AttachmentsApi = ReturnType<typeof usePromptInputAttachments>
+
+// Render-less child that lives inside <PromptInput> so the parent (recorder, paste
+// handler) can reach the attachments API that is only available through context.
+function AttachmentsBridge({ apiRef }: { apiRef: { current: AttachmentsApi | null } }) {
+  const api = usePromptInputAttachments()
+  useEffect(() => {
+    apiRef.current = api
+  })
+  return null
+}
+
+// Send is allowed with text, with attachments only (e.g. a voice message), or both,
+// but not while an unsupported file is still in the tray.
+function SubmitButton({ hasText, status }: { hasText: boolean; status: ChatStatus }) {
+  const { files } = usePromptInputAttachments()
+  const hasUnsupported = files.some((file) => classifyAttachment(file) === "unsupported")
+  const isEmpty = !hasText && files.length === 0
+  return <PromptInputSubmit disabled={isEmpty || hasUnsupported} status={status} />
+}
+
+function formatClock(totalSeconds: number): string {
+  return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`
 }
 
 interface PromptInputBarProps {
@@ -52,65 +65,42 @@ interface PromptInputBarProps {
   onModelChange: (id: string) => void
   status: ChatStatus
   showSuggestions: boolean
-  onSubmit: (content: string) => void
+  onSubmit: (submission: UserSubmission) => void
   onStop?: () => void
-  lang?: string // 👈 Tambahkan prop lang
+  lang?: string
 }
 
-function PromptInputBarImpl({ 
-  models, model, onModelChange, status, showSuggestions, onSubmit, onStop, lang = "en" 
+function PromptInputBarImpl({
+  models, model, onModelChange, status, showSuggestions, onSubmit, onStop, lang = "en"
 }: PromptInputBarProps) {
   const [text, setText] = useState("")
   const [useWebSearch, setUseWebSearch] = useState(false)
-  const [useMicrophone, setUseMicrophone] = useState(false)
-  const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
 
   // ── STATE UNTUK SLASH COMMAND ('/') ──
   const [showSlashMenu, setShowSlashMenu] = useState(false)
   const [slashQuery, setSlashQuery] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const attachmentsRef = useRef<AttachmentsApi | null>(null)
 
   const selectedModelData = models.find((m) => m.id === model)
 
   // 2. TENTUKAN BAHASA AKTIF & AMBIL SUGGESTIONS DARI LANGUAGE DATA
-  const t = translations[lang as Language] || translations.en;
-  // Fallback ke array kosong jika chatSuggestions tidak ditemukan di language-data.ts
-  const activeSuggestions = t.chatSuggestions || [];
+  const t = translations[lang as Language] || translations.en
+  const activeSuggestions = t.chatSuggestions || []
 
-  // Depend on `useMicrophone` only. Re-running on `audioStream` (as before) called
-  // getUserMedia again every time a stream was stored: an endless loop that also
-  // leaked streams which were never stopped. The cleanup now stops the tracks.
-  useEffect(() => {
-    if (!useMicrophone) return
-    let cancelled = false
-    let stream: MediaStream | null = null
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then((s) => {
-        if (cancelled) {
-          s.getTracks().forEach((t) => t.stop())
-          return
-        }
-        stream = s
-        setAudioStream(s)
-      })
-      .catch(() => {
-        setUseMicrophone(false)
-        toast.error("Microphone access denied")
-      })
-    return () => {
-      cancelled = true
-      stream?.getTracks().forEach((t) => t.stop())
-      setAudioStream(null)
-    }
-  }, [useMicrophone])
+  // ── VOICE: records the microphone and attaches the clip like any other file ──
+  const recorder = useVoiceRecorder({
+    maxSeconds: MAX_VOICE_SECONDS,
+    onRecorded: (file) => attachmentsRef.current?.add([file]),
+    onError: (message) => toast.error(message),
+  })
 
   // ── LOGIKA MENDETEKSI KETIKAN '/' ──
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value
     setText(val)
 
-    // Cek kata terakhir yang sedang diketik
     const words = val.split(" ")
     const lastWord = words[words.length - 1]
 
@@ -122,31 +112,79 @@ function PromptInputBarImpl({
     }
   }
 
+  // ── PASTE: screenshots become attachments, code gets fenced away from the prose ──
+  // (Overrides the component's built-in paste handler, so files are handled here too.)
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pasted = e.clipboardData.getData("text/plain")
+
+    // Copying from a spreadsheet/webpage also puts an image on the clipboard; prefer the text.
+    if (!pasted) {
+      const files = Array.from(e.clipboardData.files)
+      if (files.length > 0) {
+        e.preventDefault()
+        attachmentsRef.current?.add(files)
+      }
+      return
+    }
+
+    const formatted = autoFenceCode(pasted)
+    if (formatted === pasted) return // plain text: let the browser paste it normally
+
+    e.preventDefault()
+    const el = e.currentTarget
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    const before = text.slice(0, start)
+    const after = text.slice(end)
+    // keep a fenced block on its own lines even when pasted mid-sentence
+    const lead = formatted.startsWith("```") && before && !before.endsWith("\n") ? "\n\n" : ""
+    const trail = formatted.endsWith("```") && after && !after.startsWith("\n") ? "\n\n" : ""
+    const insert = lead + formatted + trail
+
+    setText(before + insert + after)
+    const caret = start + insert.length
+    requestAnimationFrame(() => inputRef.current?.setSelectionRange(caret, caret))
+  }
+
   // ── LOGIKA SAAT TOOL DIPILIH ──
   const insertToolCommand = (toolName: string) => {
     const words = text.split(" ")
     words.pop() // Hapus sisa ketikan '/...' terakhir
-    
-    // Rangkai prompt instruksi tool
+
     const newText = [...words, `Tolong gunakan tool /${toolName} untuk `].join(" ").trim() + " "
     setText(newText)
     setShowSlashMenu(false)
-    
-    // Kembalikan fokus kursor ke textarea
+
     setTimeout(() => inputRef.current?.focus(), 10)
   }
 
-  // Filter daftar tool secara realtime berdasarkan ketikan setelah '/'
-  const filteredTools = MCP_TOOLS.filter(t => t.command.toLowerCase().includes(slashQuery))
+  const filteredTools = MCP_TOOLS.filter((tool) => tool.command.toLowerCase().includes(slashQuery))
 
-  const handleSubmit = (msg: PromptInputMessage) => {
-    if (!msg.text?.trim() && !msg.files?.length) return
-    onSubmit(msg.text ?? "Sent with attachments")
+  const handleSubmit = async (msg: PromptInputMessage) => {
+    const typed = (msg.text ?? "").trim()
+    const files = msg.files ?? []
+    if (!typed && files.length === 0) return
+
+    let prepared: Awaited<ReturnType<typeof prepareAttachments>>
+    try {
+      prepared = await prepareAttachments(files)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not read the attached files.")
+      // The form resets the textarea before this runs; put the text back.
+      if (inputRef.current) inputRef.current.value = msg.text ?? ""
+      // Rethrowing makes the prompt bar keep the attachments so the user can fix and resend.
+      throw error
+    }
+
+    onSubmit({
+      text: [typed, prepared.inlineText].filter(Boolean).join("\n\n"),
+      files: prepared.fileParts,
+    })
     setText("") // Reset input setelah dikirim
     setShowSlashMenu(false) // Pastikan menu tool tertutup
   }
 
-  const handleSuggestion = (s: string) => onSubmit(s)
+  const handleSuggestion = (s: string) => onSubmit({ text: s, files: [] })
 
   const handleModelSelect = (id: string) => {
     onModelChange(id)
@@ -167,14 +205,33 @@ function PromptInputBarImpl({
           </Suggestions>
         )}
 
-        {useMicrophone && (
-          <div className="absolute inset-0 z-50 rounded-xl overflow-hidden shadow-lg border border-border">
-            <AudioVisualizer stream={audioStream} isRecording={useMicrophone} onClick={() => setUseMicrophone(false)} />
-            <div className="absolute bottom-3 left-0 right-0 flex justify-center pointer-events-none">
-              <span className="bg-destructive text-destructive-foreground text-xs px-3 py-1 rounded-full animate-pulse flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-white block" />
-                Recording... Click to stop
+        {/* ── RECORDING OVERLAY ── */}
+        {recorder.isRecording && (
+          <div className="absolute inset-0 z-50 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+            <AudioVisualizer stream={recorder.stream} isRecording onClick={() => recorder.stop(true)} />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-card via-card/80 to-transparent px-4 pb-3 pt-8">
+              <span className="pointer-events-auto flex items-center gap-2 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
+                <span className="size-2 animate-pulse rounded-full bg-destructive" />
+                Recording {formatClock(recorder.seconds)} / {formatClock(MAX_VOICE_SECONDS)}
               </span>
+              <div className="pointer-events-auto flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => recorder.stop(false)}
+                  aria-label="Cancel recording"
+                  className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <XIcon className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => recorder.stop(true)}
+                  aria-label="Attach recording"
+                  className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+                >
+                  <CheckIcon className="size-4" /> Done
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -209,13 +266,15 @@ function PromptInputBarImpl({
           className="border-border/60 shadow-sm focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all bg-card"
         >
           <PromptInputHeader>
-            <AttachmentsDisplay />
+            <AttachmentsBridge apiRef={attachmentsRef} />
+            <AttachmentTray />
           </PromptInputHeader>
 
           <PromptInputBody>
             <PromptInputTextarea
               ref={inputRef as any} // Menyambungkan ref agar fokus bisa dikembalikan
-              onChange={handleTextChange} // Menggunakan handler kustom kita
+              onChange={handleTextChange}
+              onPaste={handlePaste}
               value={text}
               placeholder="Ask anything, type '/' for commands..."
               className="min-h-[40px]"
@@ -234,7 +293,13 @@ function PromptInputBarImpl({
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
 
-              <PromptInputButton onClick={() => setUseMicrophone(true)} variant="ghost" className="hover:bg-primary/10 hover:text-primary cursor-pointer">
+              <PromptInputButton
+                onClick={() => void recorder.start()}
+                disabled={recorder.isRecording}
+                variant="ghost"
+                aria-label="Record a voice message"
+                className="hover:bg-primary/10 hover:text-primary cursor-pointer"
+              >
                 <MicIcon size={16} />
               </PromptInputButton>
 
@@ -274,7 +339,7 @@ function PromptInputBarImpl({
                 <SquareIcon size={14} className="fill-current" />
               </PromptInputButton>
             ) : (
-              <PromptInputSubmit disabled={!text.trim()} status={status} />
+              <SubmitButton hasText={!!text.trim()} status={status} />
             )}
           </PromptInputFooter>
         </PromptInput>

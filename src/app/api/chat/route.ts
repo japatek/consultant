@@ -59,10 +59,15 @@ function getSelectedModel(modelId?: string) {
 function extractText(message: UIMessage | any): string {
   if (typeof message?.content === "string") return message.content;
   if (Array.isArray(message?.parts)) {
-    return message.parts
+    const text = message.parts
       .filter((p: any) => p.type === "text")
       .map((p: any) => p.text)
       .join("");
+    // Files/voice clips aren't stored in the DB (text column), keep a readable marker instead.
+    const files = message.parts
+      .filter((p: any) => p.type === "file")
+      .map((p: any) => `[Attached: ${p.filename || p.mediaType}]`);
+    return [text, ...files].filter(Boolean).join("\n");
   }
   return typeof message?.content !== "undefined" ? JSON.stringify(message.content) : "";
 }
@@ -80,6 +85,9 @@ function toUIMessage(m: any): UIMessage {
     parts: [{ type: "text", text: typeof m.content === "string" ? m.content : "" }],
   } as UIMessage;
 }
+
+// Image/PDF/audio analysis is slower than plain text.
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
@@ -128,7 +136,7 @@ export async function POST(req: Request) {
       model: aiModel as any,
       messages: await convertToModelMessages(normalizedMessages),
       system:
-        "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation.",
+        "You are a helpful engineering AI assistant from JaPaTek. Use the provided tools to teach users how to create and review engineering 2D Drawings, 3D CAD, CAM, CAE, CFD, Shop Drawings, P&ID, MEP Drawings, BIM, and other Engineering Documentation. The user may attach images, PDFs, text files or voice recordings: analyze attachments directly, and when the user sends only a voice recording, treat what they say in it as their message and answer it.",
 
       tools: {
         calculate_area: {

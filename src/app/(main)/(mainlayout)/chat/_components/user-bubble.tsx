@@ -17,7 +17,7 @@ function UserMessageBubble({ content }: { content: string }) {
             forceMount
             className={cn("transition-all duration-300 ease-in-out", !open && "max-h-[6rem] overflow-hidden")}
           >
-            <MessageResponse>{content}</MessageResponse>
+            <MessageResponse className="[&_p]:whitespace-pre-wrap">{content}</MessageResponse>
           </CollapsibleContent>
           {!open && (
             <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent" />
